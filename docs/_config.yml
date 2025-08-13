@@ -4,16 +4,18 @@ author: "itdojp"
 version: "1.0.0"
 lang: "ja"
 
+# GitHub Pages設定
+baseurl: "/wsl2-linux-essentials-book"
+url: "https://itdojp.github.io"
+
 # Jekyll設定
 markdown: kramdown
 highlighter: rouge
-theme: minima
 
-# プラグイン
-plugins:
-  - jekyll-feed
-  - jekyll-sitemap
-  - jekyll-seo-tag
+# Kramdown設定
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
 
 # 除外ファイル
 exclude:
@@ -22,15 +24,16 @@ exclude:
   - package-lock.json
   - scripts/
   - tests/
-  - "*.md"
-  - "README.md"
+  - README.md
+  - Gemfile
+  - Gemfile.lock
 
-# 日本語対応
-kramdown:
-  input: GFM
-  syntax_highlighter: rouge
-  
-# GitHub Pages設定
+# デフォルトレイアウト
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"
 
+# リポジトリ設定
 repository: "itdojp/wsl2-linux-essentials-book"
-
