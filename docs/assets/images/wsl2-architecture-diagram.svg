@@ -63,7 +63,7 @@
   <line x1="665" y1="150" x2="525" y2="230" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
   
   <!-- 説明テキスト -->
-  <text x="50" y="40" font-family="Arial, sans-serif" font-size="14" fill="#666">Windowsアプリケーションから直接アクセス可能</text>
+  <text x="400" y="55" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#666">Windowsアプリケーションから直接アクセス可能</text>
   
   <!-- メモリ動的割り当て説明 -->
   <g transform="translate(680, 250)">

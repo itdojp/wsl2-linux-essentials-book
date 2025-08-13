@@ -25,7 +25,7 @@
   <!-- ルートノード -->
   <circle cx="450" cy="220" r="25" fill="#ff6b6b" stroke="#333" stroke-width="2"/>
   <text x="450" y="227" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="white">/</text>
-  <text x="450" y="200" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#666">ルート（根っこ）</text>
+  <text x="450" y="190" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#666">ルート（根っこ）</text>
   
   <!-- 第1階層のディレクトリ -->
   <g id="level1">
@@ -115,20 +115,21 @@
   <text x="450" y="575" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">パス（住所）の読み方</text>
   
   <text x="70" y="605" font-family="monospace" font-size="16" fill="#e74c3c">/home/user1/文書/report.txt</text>
-  <text x="70" y="630" font-family="Arial, sans-serif" font-size="14" fill="#666">↑</text>
+  <text x="75" y="630" font-family="Arial, sans-serif" font-size="14" fill="#666">↑</text>
   <text x="70" y="650" font-family="Arial, sans-serif" font-size="12" fill="#666">ルート</text>
   
-  <text x="140" y="630" font-family="Arial, sans-serif" font-size="14" fill="#666">↑</text>
-  <text x="140" y="650" font-family="Arial, sans-serif" font-size="12" fill="#666">homeフォルダ</text>
+  <text x="125" y="630" font-family="Arial, sans-serif" font-size="14" fill="#666">↑</text>
+  <text x="120" y="650" font-family="Arial, sans-serif" font-size="12" fill="#666">home</text>
   
-  <text x="220" y="630" font-family="Arial, sans-serif" font-size="14" fill="#666">↑</text>
-  <text x="220" y="650" font-family="Arial, sans-serif" font-size="12" fill="#666">ユーザー名</text>
+  <text x="185" y="630" font-family="Arial, sans-serif" font-size="14" fill="#666">↑</text>
+  <text x="180" y="650" font-family="Arial, sans-serif" font-size="12" fill="#666">ユーザー</text>
   
-  <text x="290" y="630" font-family="Arial, sans-serif" font-size="14" fill="#666">↑</text>
-  <text x="290" y="650" font-family="Arial, sans-serif" font-size="12" fill="#666">文書フォルダ</text>
+  <text x="235" y="630" font-family="Arial, sans-serif" font-size="14" fill="#666">↑</text>
+  <text x="235" y="650" font-family="Arial, sans-serif" font-size="12" fill="#666">文書</text>
   
-  <text x="380" y="630" font-family="Arial, sans-serif" font-size="14" fill="#666">↑</text>
-  <text x="380" y="650" font-family="Arial, sans-serif" font-size="12" fill="#666">ファイル名</text>
+  <text x="315" y="630" font-family="Arial, sans-serif" font-size="14" fill="#666">↑</text>
+  <text x="315" y="650" font-family="Arial, sans-serif" font-size="12" fill="#666">ファイル名</text>
   
-  <text x="500" y="605" font-family="Arial, sans-serif" font-size="14" fill="#333">→ 「ルートから、homeの中のuser1の中の文書の中のreport.txt」</text>
+  <text x="450" y="605" font-family="Arial, sans-serif" font-size="14" fill="#333">→ 「ルートから、homeの中のuser1の中の</text>
+  <text x="470" y="625" font-family="Arial, sans-serif" font-size="14" fill="#333">文書の中のreport.txt」</text>
 </svg>

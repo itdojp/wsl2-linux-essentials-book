@@ -1,6 +1,6 @@
-<svg viewBox="0 0 900 800" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 900 900" xmlns="http://www.w3.org/2000/svg">
   <!-- 背景 -->
-  <rect width="900" height="800" fill="#f8f9fa"/>
+  <rect width="900" height="900" fill="#f8f9fa"/>
   
   <!-- タイトル -->
   <text x="450" y="30" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#333">ファイルの権限（パーミッション）の仕組み</text>
@@ -77,11 +77,11 @@
   </g>
   
   <!-- 数値表現 -->
-  <rect x="50" y="380" width="800" height="200" fill="#fff" stroke="#333" stroke-width="2" rx="5"/>
-  <text x="450" y="410" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#333">権限の数値表現（よく使う）</text>
+  <rect x="50" y="470" width="800" height="200" fill="#fff" stroke="#333" stroke-width="2" rx="5"/>
+  <text x="450" y="500" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#333">権限の数値表現（よく使う）</text>
   
   <!-- 計算方法 -->
-  <g transform="translate(100, 430)">
+  <g transform="translate(100, 520)">
     <text x="0" y="0" font-family="Arial, sans-serif" font-size="16" fill="#333">各権限の値：</text>
     <rect x="0" y="10" width="40" height="30" fill="#e74c3c" rx="3"/>
     <text x="20" y="30" font-family="monospace" font-size="14" text-anchor="middle" fill="white">r=4</text>
@@ -96,7 +96,7 @@
   </g>
   
   <!-- 例 -->
-  <g transform="translate(100, 490)">
+  <g transform="translate(100, 580)">
     <text x="0" y="0" font-family="Arial, sans-serif" font-size="16" fill="#333">例：rwxr-xr-- の場合</text>
     
     <text x="0" y="30" font-family="monospace" font-size="14" fill="#e74c3c">rwx = 4+2+1 = 7</text>
@@ -114,10 +114,10 @@
   </g>
   
   <!-- よく使う権限 -->
-  <rect x="50" y="600" width="800" height="180" fill="#ecf0f1" rx="5"/>
-  <text x="450" y="630" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#333">よく使う権限パターン</text>
+  <rect x="50" y="690" width="800" height="180" fill="#ecf0f1" rx="5"/>
+  <text x="450" y="720" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#333">よく使う権限パターン</text>
   
-  <g transform="translate(100, 650)">
+  <g transform="translate(100, 740)">
     <rect x="0" y="0" width="150" height="40" fill="#fff" stroke="#333" rx="3"/>
     <text x="10" y="25" font-family="monospace" font-size="14" fill="#333">chmod 755</text>
     <text x="160" y="25" font-family="Arial, sans-serif" font-size="13" fill="#666">プログラム用（誰でも実行可、変更は自分だけ）</text>
