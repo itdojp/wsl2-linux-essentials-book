@@ -123,25 +123,34 @@
     </marker>
   </defs>
   
-  <!-- ルート -->
-  <line x1="75" y1="625" x2="75" y2="610" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
-  <text x="75" y="650" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">ルート</text>
+  <!-- ルート (/) -->
+  <line x1="74" y1="608" x2="74" y2="635" stroke="#666" stroke-width="1"/>
+  <line x1="74" y1="635" x2="74" y2="645" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+  <text x="74" y="660" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">ルート</text>
   
   <!-- home -->
-  <line x1="125" y1="625" x2="125" y2="610" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
-  <text x="125" y="650" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">home</text>
+  <line x1="108" y1="608" x2="108" y2="620" stroke="#666" stroke-width="1"/>
+  <line x1="108" y1="620" x2="130" y2="620" stroke="#666" stroke-width="1"/>
+  <line x1="130" y1="620" x2="130" y2="645" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+  <text x="130" y="660" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">home</text>
   
   <!-- user1 -->
-  <line x1="185" y1="625" x2="185" y2="610" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
-  <text x="185" y="650" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">ユーザー</text>
+  <line x1="165" y1="608" x2="165" y2="625" stroke="#666" stroke-width="1"/>
+  <line x1="165" y1="625" x2="190" y2="625" stroke="#666" stroke-width="1"/>
+  <line x1="190" y1="625" x2="190" y2="645" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+  <text x="190" y="660" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">ユーザー</text>
   
   <!-- 文書 -->
-  <line x1="240" y1="625" x2="240" y2="610" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
-  <text x="240" y="650" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">文書</text>
+  <line x1="210" y1="608" x2="210" y2="630" stroke="#666" stroke-width="1"/>
+  <line x1="210" y1="630" x2="250" y2="630" stroke="#666" stroke-width="1"/>
+  <line x1="250" y1="630" x2="250" y2="645" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+  <text x="250" y="660" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">文書</text>
   
   <!-- report.txt -->
-  <line x1="330" y1="625" x2="330" y2="610" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
-  <text x="330" y="650" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">ファイル名</text>
+  <line x1="275" y1="608" x2="275" y2="635" stroke="#666" stroke-width="1"/>
+  <line x1="275" y1="635" x2="340" y2="635" stroke="#666" stroke-width="1"/>
+  <line x1="340" y1="635" x2="340" y2="645" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+  <text x="340" y="660" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">ファイル名</text>
   
   <text x="450" y="605" font-family="Arial, sans-serif" font-size="14" fill="#333">→ 「ルートから、homeの中のuser1の中の</text>
   <text x="470" y="625" font-family="Arial, sans-serif" font-size="14" fill="#333">文書の中のreport.txt」</text>
