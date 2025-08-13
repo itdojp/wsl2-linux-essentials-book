@@ -4,7 +4,17 @@ chapter: chapter6
 layout: book
 ---
 
-# 第6章: 実践プロジェクト - WordPressサイトを作ろう
+# 第6章: WordPress構築
+
+## 🎯 この章の目標
+- LAMP環境を構築できる
+- WordPressをインストールできる
+- Webサーバーの基本を理解する
+
+## 🚀 できるようになること
+- 自分のブログサイトを立ち上げられる
+- データベースを操作できる
+- Webサーバーを管理できる
 
 ## はじめに：実際に動くWebサイトを作ろう！
 
@@ -108,7 +118,7 @@ sudo chmod -R 755 /var/www/html/wordpress
 # 設定ファイル作成
 cd /var/www/html/wordpress
 sudo cp wp-config-sample.php wp-config.php
-sudo nano wp-config.php
+sudo vi wp-config.php
 ```
 
 wp-config.php の編集箇所（データベース設定部分のみ変更）：
