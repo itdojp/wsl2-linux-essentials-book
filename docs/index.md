@@ -1,16 +1,22 @@
 ---
 layout: book
-title: "やさしく学ぶLinux WSL2ではじめる基礎"
+title: "WSL2 Linux実践ガイド"
 ---
 
-# やさしく学ぶLinux WSL2ではじめる基礎
+# WSL2 Linux実践ガイド
 
-WSL2を使ってLinuxを基礎からやさしく学ぶ技術書
+illustrated-linux-basics-bookの次のステップとして、より実践的なLinuxスキルを身につける技術書
 
-## 目次
+## 🎯 本書の位置づけ
 
-- [第0章 WSL2環境構築と基礎]({{ site.baseurl }}/chapter0/)
-- [第1章 ファイル操作の基本]({{ site.baseurl }}/chapter1/)
+- **前提書籍**: [illustrated-linux-basics-book](https://github.com/itdojp/illustrated-linux-basics-book)（初級）
+- **本書**: 実践的なLinuxスキルの習得（中級）  
+- **次の書籍**: [linux-infra-textbook](https://github.com/itdojp/linux-infra-textbook)（上級）
+
+## 📚 目次
+
+- [第0章 WSL2セットアップ]({{ site.baseurl }}/chapter0/)
+- [第1章 Linuxの世界への第一歩]({{ site.baseurl }}/chapter1/)
 - [第2章 テキスト処理の基本]({{ site.baseurl }}/chapter2/)
 - [第3章 プロセスとサービス管理]({{ site.baseurl }}/chapter3/)
 - [第4章 ネットワークの基礎]({{ site.baseurl }}/chapter4/)
@@ -19,23 +25,30 @@ WSL2を使ってLinuxを基礎からやさしく学ぶ技術書
 
 ## 本書について
 
-本書は、Windows環境でLinuxを学びたい方、開発環境としてLinuxを使いたい方を対象に、WSL2の基本から実践的な活用方法まで体系的に解説しています。
+本書は、基礎を学んだ方が実践的なスキルを身につけるための架け橋となる教材です。WSL2環境を活用し、実際に手を動かしながら学習を進めます。
 
 ### 対象読者
 
-- WindowsユーザーでLinuxを学びたい方
-- 開発環境としてLinuxを使いたいが、Windowsから離れたくない方
-- WSL2の基本から応用まで体系的に学びたい方
-- Linux初心者から中級者
+- illustrated-linux-basics-bookを終えた方
+- Linuxの基本コマンドは知っているが、実践経験が少ない方
+- WindowsでLinux開発環境を構築したい方
+- Webサーバー構築に興味がある方
 
 ### 前提知識
 
-- Windowsの基本操作
-- コマンドライン操作の基礎知識（必須ではありません）
-- プログラミングの基礎知識（開発環境構築の章で役立ちます）
+- 基本的なLinuxコマンド（ls, cd, cp, mv等）
+- ファイルとディレクトリの概念
+- テキストエディタの基本操作
+
+### 本書の特徴
+
+- **段階的学習**: 各章に学習目標と到達点を明記
+- **実践重視**: すべてのコマンドが実行可能
+- **エラー対処**: よくあるトラブルと解決法を記載
+- **プロジェクト型**: 最終章でWordPressサイトを構築
 
 ---
 
 **著者:** 株式会社アイティードゥ  
-**バージョン:** 1.0.0  
+**バージョン:** 2.0.0  
 **最終更新:** 2025-08-13
