@@ -1,7 +1,7 @@
 ---
 title: "第3章 Linuxディストリビューションの選択"
 chapter: chapter03
-layout: default
+layout: book
 ---
 
 # 第3章 Linuxディストリビューションの選択

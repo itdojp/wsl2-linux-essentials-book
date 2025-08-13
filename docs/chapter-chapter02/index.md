@@ -1,7 +1,7 @@
 ---
 title: "第2章 WSL2のインストール"
 chapter: chapter02
-layout: default
+layout: book
 ---
 
 # 第2章 WSL2のインストール

@@ -1,7 +1,7 @@
 ---
 title: "第4章 Linux基本コマンド"
 chapter: chapter04
-layout: default
+layout: book
 ---
 
 # 第4章 Linux基本コマンド

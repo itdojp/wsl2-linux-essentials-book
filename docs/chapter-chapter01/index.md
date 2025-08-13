@@ -1,7 +1,7 @@
 ---
 title: "第1章 WSL2とは"
 chapter: chapter01
-layout: default
+layout: book
 ---
 
 # 第1章 WSL2とは
