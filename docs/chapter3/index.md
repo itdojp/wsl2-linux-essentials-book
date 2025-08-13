@@ -77,6 +77,8 @@ echo 'sudo service ssh start 2>/dev/null' >> ~/.bashrc
 
 プロセスは実行中のプログラムのインスタンスです。各プロセスは固有のPID（Process ID）を持ちます。
 
+![プロセス・サービス関係図]({{ site.baseurl }}/assets/images/process-service-diagram.svg)
+
 ```bash
 # 現在のシェルのPID確認
 echo $$
@@ -86,6 +88,8 @@ echo $$
 echo $PPID
 # 出力例: 1000
 ```
+
+上の図は、プロセスとサービスの関係性、そして親子プロセスの階層構造を示しています。systemdがすべてのプロセスの最上位に位置し、その下に様々なサービスやユーザープロセスが配置される構造が理解できます。
 
 ### ps - プロセス表示
 

@@ -220,6 +220,10 @@ df -h | awk 'NR==2 {print $5}'
 
 ### パイプライン - コマンド連結
 
+パイプライン（|）は、複数のコマンドを連鎖させて強力なデータ処理を可能にします。
+
+![パイプライン概念図]({{ site.baseurl }}/assets/images/pipeline-concept.svg)
+
 ```bash
 # 基本形
 command1 | command2 | command3
@@ -237,6 +241,8 @@ find /var -type f -size +100M 2>/dev/null | xargs ls -lh
 # 4. 設定ファイルの有効行のみ表示
 grep -v "^#" /etc/ssh/sshd_config | grep -v "^$"
 ```
+
+上の図は、パイプライン処理がどのように動作するかを示しています。各コマンドの出力が次のコマンドの入力として渡され、データが段階的に処理されていく様子が理解できます。
 
 ## 2.3 実践演習: ログファイル解析
 

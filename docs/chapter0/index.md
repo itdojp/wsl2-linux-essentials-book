@@ -21,6 +21,8 @@ layout: book
 
 WSL2（Windows Subsystem for Linux 2）は、Windows上で本格的なLinux環境を実行する仕組みです。簡単に言えば、**WindowsとLinuxを同時に使える**技術です。
 
+![WSL2アーキテクチャ図]({{ site.baseurl }}/assets/images/wsl2-architecture-diagram.svg)
+
 ### WSL2のメリット（従来の方法との比較）
 
 #### 💡 分かりやすい例え話

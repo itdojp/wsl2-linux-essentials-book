@@ -32,6 +32,10 @@ WSL2は「Windows の中の Linux」なので、ネットワークも特殊な�
 
 WSL2は仮想マシンとして動作し、独自の仮想ネットワークアダプタを持ちます。WindowsホストとはNAT経由で通信します。
 
+![WSL2ネットワーク構造図]({{ site.baseurl }}/assets/images/wsl2-network-structure.svg)
+
+この図は、WSL2がどのようにWindowsホストと連携してネットワーク通信を行うかを示しています。WSL2は専用の仮想ネットワークアダプタを通じて、NATによる変換を経てWindowsホストのネットワークにアクセスします。
+
 ```bash
 # WSL2のIPアドレス確認（内部IP）
 ip addr show eth0
