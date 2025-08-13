@@ -1,11 +1,11 @@
 ---
 layout: book
-title: "WSL2とLinuxの基礎"
+title: "やさしく学ぶLinux WSL2ではじめる基礎"
 ---
 
-# WSL2とLinuxの基礎
+# やさしく学ぶLinux WSL2ではじめる基礎
 
-Windows Subsystem for Linux 2 (WSL2)を使ったLinux環境の構築と基本操作を学ぶ技術書
+WSL2を使ってLinuxを基礎からやさしく学ぶ技術書
 
 ## 目次
 
