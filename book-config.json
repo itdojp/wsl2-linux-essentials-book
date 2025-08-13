@@ -1,0 +1,67 @@
+{
+  "title": "WSL2とLinuxの基礎",
+  "description": "Windows Subsystem for Linux 2 (WSL2)を使ったLinux環境の構築と基本操作を学ぶ技術書",
+  "author": "itdojp",
+  "version": "1.0.0",
+  "structure": {
+    "chapters": [
+      {
+        "id": "introduction",
+        "title": "はじめに",
+        "description": "本書の目的と対象読者について"
+      },
+      {
+        "id": "chapter01",
+        "title": "第1章 WSL2とは",
+        "description": "WSL2の概要と特徴、従来のWSL1との違い"
+      },
+      {
+        "id": "chapter02",
+        "title": "第2章 WSL2のインストール",
+        "description": "Windows 10/11でのWSL2のセットアップ手順"
+      },
+      {
+        "id": "chapter03",
+        "title": "第3章 Linuxディストリビューションの選択",
+        "description": "Ubuntu、Debian、openSUSEなどの選び方と特徴"
+      },
+      {
+        "id": "chapter04",
+        "title": "第4章 Linux基本コマンド",
+        "description": "ファイル操作、プロセス管理、パッケージ管理の基礎"
+      },
+      {
+        "id": "chapter05",
+        "title": "第5章 開発環境の構築",
+        "description": "VSCode、Git、Docker Desktop for WSL2の設定"
+      },
+      {
+        "id": "chapter06",
+        "title": "第6章 ネットワークとファイル共有",
+        "description": "WSL2とWindowsのネットワーク連携、ファイルシステムの相互アクセス"
+      },
+      {
+        "id": "chapter07",
+        "title": "第7章 トラブルシューティング",
+        "description": "よくある問題と解決方法、パフォーマンス最適化"
+      },
+      {
+        "id": "chapter08",
+        "title": "第8章 実践プロジェクト",
+        "description": "WSL2を使った開発プロジェクトの実例"
+      }
+    ],
+    "appendices": [
+      {
+        "id": "commands",
+        "title": "コマンドリファレンス",
+        "description": "本書で使用したコマンドの一覧"
+      },
+      {
+        "id": "resources",
+        "title": "参考資料",
+        "description": "さらなる学習のためのリソース"
+      }
+    ]
+  }
+}
