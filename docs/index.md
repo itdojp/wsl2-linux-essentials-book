@@ -9,15 +9,13 @@ Windows Subsystem for Linux 2 (WSL2)を使ったLinux環境の構築と基本操
 
 ## 目次
 
-- [はじめに]({{ site.baseurl }}/chapter-introduction/)
-- [第1章 WSL2とは]({{ site.baseurl }}/chapter-chapter01/)
-- [第2章 WSL2のインストール]({{ site.baseurl }}/chapter-chapter02/)
-- [第3章 Linuxディストリビューションの選択]({{ site.baseurl }}/chapter-chapter03/)
-- [第4章 Linux基本コマンド]({{ site.baseurl }}/chapter-chapter04/)
-- [第5章 開発環境の構築]({{ site.baseurl }}/chapter-chapter05/)
-- [第6章 ネットワークとファイル共有]({{ site.baseurl }}/chapter-chapter06/)
-- [第7章 トラブルシューティング]({{ site.baseurl }}/chapter-chapter07/)
-- [第8章 実践プロジェクト]({{ site.baseurl }}/chapter-chapter08/)
+- [第0章 WSL2環境構築と基礎]({{ site.baseurl }}/chapter0/)
+- [第1章 ファイル操作の基本]({{ site.baseurl }}/chapter1/)
+- [第2章 テキスト処理の基本]({{ site.baseurl }}/chapter2/)
+- [第3章 プロセスとサービス管理]({{ site.baseurl }}/chapter3/)
+- [第4章 ネットワークの基礎]({{ site.baseurl }}/chapter4/)
+- [第5章 シェルスクリプト入門]({{ site.baseurl }}/chapter5/)
+- [第6章 実践プロジェクト]({{ site.baseurl }}/chapter6/)
 
 ## 本書について
 
