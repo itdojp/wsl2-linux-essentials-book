@@ -15,7 +15,7 @@ WSL2を使ってLinuxを基礎からやさしく学ぶ技術書
 - [第3章 プロセスとサービス管理]({{ site.baseurl }}/chapter3/)
 - [第4章 ネットワークの基礎]({{ site.baseurl }}/chapter4/)
 - [第5章 シェルスクリプト入門]({{ site.baseurl }}/chapter5/)
-- [第6章 実践プロジェクト]({{ site.baseurl }}/chapter6/)
+- [第6章 WordPress構築]({{ site.baseurl }}/chapter6/)
 
 ## 本書について
 
