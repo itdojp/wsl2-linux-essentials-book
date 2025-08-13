@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: book
 title: "WSL2とLinuxの基礎"
 ---
 
@@ -36,6 +36,6 @@ Windows Subsystem for Linux 2 (WSL2)を使ったLinux環境の構築と基本操
 
 ---
 
-**著者:** itdojp  
+**著者:** 株式会社アイティードゥ  
 **バージョン:** 1.0.0  
 **最終更新:** 2025-08-13
