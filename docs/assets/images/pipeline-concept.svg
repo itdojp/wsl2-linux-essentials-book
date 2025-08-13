@@ -42,7 +42,7 @@
   </g>
   
   <!-- パイプ1 -->
-  <g transform="translate(350, 380)">
+  <g transform="translate(350, 440)">
     <rect x="0" y="0" width="50" height="20" fill="#95a5a6"/>
     <polygon points="50,0 60,10 50,20" fill="#95a5a6"/>
     <text x="25" y="14" font-family="monospace" font-size="16" text-anchor="middle" fill="white">|</text>
@@ -64,7 +64,7 @@
   </g>
   
   <!-- パイプ2 -->
-  <g transform="translate(660, 380)">
+  <g transform="translate(660, 440)">
     <rect x="0" y="0" width="50" height="20" fill="#95a5a6"/>
     <polygon points="50,0 60,10 50,20" fill="#95a5a6"/>
     <text x="25" y="14" font-family="monospace" font-size="16" text-anchor="middle" fill="white">|</text>
