@@ -5,7 +5,7 @@ title: "WSL2 Linux実践ガイド"
 
 # WSL2 Linux実践ガイド
 
-illustrated-linux-basics-bookの次のステップとして、より実践的なLinuxスキルを身につける技術書
+**概要**: illustrated-linux-basics-bookの次のステップとして、より実践的なLinuxスキルを身につける技術書
 
 ## 🎯 本書の位置づけ
 
