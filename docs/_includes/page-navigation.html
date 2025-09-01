@@ -1,181 +1,185 @@
 <!-- Page Navigation (Previous/Next) -->
-<div class="page-navigation">
-    <div class="nav-wrapper">
-        {% assign chapters = "home,chapter0,chapter1,chapter2,chapter3,chapter4,chapter5,chapter6" | split: "," %}
-        {% assign current_index = -1 %}
-        
-        {% if page.url == "/" %}
-            {% assign current_index = 0 %}
-        {% else %}
-            {% for chapter in chapters %}
-                {% if chapter != "home" and page.url contains chapter %}
-                    {% assign current_index = forloop.index0 %}
-                    {% break %}
-                {% endif %}
-            {% endfor %}
+<!-- Fallbacks to list-based navigation if per-page nav_data is unavailable -->
+{% assign current_path = page.url | remove: '.html' | remove_first: '/' %}
+{% assign previous_page = nil %}
+{% assign next_page = nil %}
+
+{%- comment -%}
+Try BookGenerator-style per-page navigation first: site.data.navigation[<path>]
+{%- endcomment -%}
+{% assign nav_data = site.data.navigation[current_path] %}
+{% if nav_data %}
+  {% if nav_data.previous %}{% assign previous_page = nav_data.previous %}{% endif %}
+  {% if nav_data.next %}{% assign next_page = nav_data.next %}{% endif %}
+{% endif %}
+
+{%- comment -%}
+If previous/next not resolved, derive from list-based navigation
+{%- endcomment -%}
+{% if previous_page == nil and next_page == nil %}
+  {% assign items = "" | split: "" %}
+  {% if site.data.navigation.introduction %}
+    {% assign items = items | concat: site.data.navigation.introduction %}
+  {% endif %}
+  {% if site.data.navigation.chapters %}
+    {% assign items = items | concat: site.data.navigation.chapters %}
+  {% endif %}
+  {% if site.data.navigation.appendices %}
+    {% assign items = items | concat: site.data.navigation.appendices %}
+  {% endif %}
+  {% if site.data.navigation.afterword %}
+    {% assign items = items | concat: site.data.navigation.afterword %}
+  {% endif %}
+
+  {% assign current_index = -1 %}
+  {% for it in items %}
+    {% if page.url == it.path or page.url contains it.path %}
+      {% assign current_index = forloop.index0 %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+
+  {% if current_index != -1 %}
+    {% assign prev_index = current_index | minus: 1 %}
+    {% assign next_index = current_index | plus: 1 %}
+    {% if prev_index >= 0 %}
+      {% assign previous_page = items[prev_index] %}
+    {% endif %}
+    {% if next_index < items.size %}
+      {% assign next_page = items[next_index] %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+<div class="page-nav">
+    <!-- Previous Page -->
+    <div class="page-nav-item page-nav-prev">
+        {% if previous_page %}
+        <a href="{{ previous_page.path | relative_url }}" class="page-nav-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <div class="page-nav-content">
+                <span class="page-nav-label">前のページ</span>
+                <span class="page-nav-title">{{ previous_page.title }}</span>
+            </div>
+        </a>
         {% endif %}
-        
-        {% if current_index >= 0 %}
-            {% assign prev_index = current_index | minus: 1 %}
-            {% assign next_index = current_index | plus: 1 %}
-            
-            <div class="nav-prev">
-                {% if prev_index >= 0 %}
-                    {% assign prev_chapter = chapters[prev_index] %}
-                    {% if prev_chapter == "home" %}
-                        <a href="{{ site.baseurl }}/" class="nav-link-prev">
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="15 18 9 12 15 6"></polyline>
-                            </svg>
-                            <span class="nav-content">
-                                <span class="nav-label">前へ</span>
-                                <span class="nav-title">ホーム</span>
-                            </span>
-                        </a>
-                    {% elsif prev_chapter == "chapter0" %}
-                        <a href="{{ site.baseurl }}/chapter0/" class="nav-link-prev">
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="15 18 9 12 15 6"></polyline>
-                            </svg>
-                            <span class="nav-content">
-                                <span class="nav-label">前へ</span>
-                                <span class="nav-title">第0章 WSL2環境構築と基礎</span>
-                            </span>
-                        </a>
-                    {% elsif prev_chapter == "chapter1" %}
-                        <a href="{{ site.baseurl }}/chapter1/" class="nav-link-prev">
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="15 18 9 12 15 6"></polyline>
-                            </svg>
-                            <span class="nav-content">
-                                <span class="nav-label">前へ</span>
-                                <span class="nav-title">第1章 ファイル操作の基本</span>
-                            </span>
-                        </a>
-                    {% elsif prev_chapter == "chapter2" %}
-                        <a href="{{ site.baseurl }}/chapter2/" class="nav-link-prev">
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="15 18 9 12 15 6"></polyline>
-                            </svg>
-                            <span class="nav-content">
-                                <span class="nav-label">前へ</span>
-                                <span class="nav-title">第2章 テキスト処理の基本</span>
-                            </span>
-                        </a>
-                    {% elsif prev_chapter == "chapter3" %}
-                        <a href="{{ site.baseurl }}/chapter3/" class="nav-link-prev">
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="15 18 9 12 15 6"></polyline>
-                            </svg>
-                            <span class="nav-content">
-                                <span class="nav-label">前へ</span>
-                                <span class="nav-title">第3章 プロセスとサービス管理</span>
-                            </span>
-                        </a>
-                    {% elsif prev_chapter == "chapter4" %}
-                        <a href="{{ site.baseurl }}/chapter4/" class="nav-link-prev">
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="15 18 9 12 15 6"></polyline>
-                            </svg>
-                            <span class="nav-content">
-                                <span class="nav-label">前へ</span>
-                                <span class="nav-title">第4章 ネットワークの基礎</span>
-                            </span>
-                        </a>
-                    {% elsif prev_chapter == "chapter5" %}
-                        <a href="{{ site.baseurl }}/chapter5/" class="nav-link-prev">
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="15 18 9 12 15 6"></polyline>
-                            </svg>
-                            <span class="nav-content">
-                                <span class="nav-label">前へ</span>
-                                <span class="nav-title">第5章 シェルスクリプト入門</span>
-                            </span>
-                        </a>
-                    {% endif %}
-                {% else %}
-                    <span class="nav-link-disabled"></span>
-                {% endif %}
+    </div>
+
+    <!-- Next Page -->
+    <div class="page-nav-item page-nav-next">
+        {% if next_page %}
+        <a href="{{ next_page.path | relative_url }}" class="page-nav-link">
+            <div class="page-nav-content">
+                <span class="page-nav-label">次のページ</span>
+                <span class="page-nav-title">{{ next_page.title }}</span>
             </div>
-            
-            <div class="nav-next">
-                {% if next_index < chapters.size %}
-                    {% assign next_chapter = chapters[next_index] %}
-                    {% if next_chapter == "chapter0" %}
-                        <a href="{{ site.baseurl }}/chapter0/" class="nav-link-next">
-                            <span class="nav-content">
-                                <span class="nav-label">次へ</span>
-                                <span class="nav-title">第0章 WSL2環境構築と基礎</span>
-                            </span>
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                        </a>
-                    {% elsif next_chapter == "chapter1" %}
-                        <a href="{{ site.baseurl }}/chapter1/" class="nav-link-next">
-                            <span class="nav-content">
-                                <span class="nav-label">次へ</span>
-                                <span class="nav-title">第1章 ファイル操作の基本</span>
-                            </span>
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                        </a>
-                    {% elsif next_chapter == "chapter2" %}
-                        <a href="{{ site.baseurl }}/chapter2/" class="nav-link-next">
-                            <span class="nav-content">
-                                <span class="nav-label">次へ</span>
-                                <span class="nav-title">第2章 テキスト処理の基本</span>
-                            </span>
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                        </a>
-                    {% elsif next_chapter == "chapter3" %}
-                        <a href="{{ site.baseurl }}/chapter3/" class="nav-link-next">
-                            <span class="nav-content">
-                                <span class="nav-label">次へ</span>
-                                <span class="nav-title">第3章 プロセスとサービス管理</span>
-                            </span>
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                        </a>
-                    {% elsif next_chapter == "chapter4" %}
-                        <a href="{{ site.baseurl }}/chapter4/" class="nav-link-next">
-                            <span class="nav-content">
-                                <span class="nav-label">次へ</span>
-                                <span class="nav-title">第4章 ネットワークの基礎</span>
-                            </span>
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                        </a>
-                    {% elsif next_chapter == "chapter5" %}
-                        <a href="{{ site.baseurl }}/chapter5/" class="nav-link-next">
-                            <span class="nav-content">
-                                <span class="nav-label">次へ</span>
-                                <span class="nav-title">第5章 シェルスクリプト入門</span>
-                            </span>
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                        </a>
-                    {% elsif next_chapter == "chapter6" %}
-                        <a href="{{ site.baseurl }}/chapter6/" class="nav-link-next">
-                            <span class="nav-content">
-                                <span class="nav-label">次へ</span>
-                                <span class="nav-title">第6章 実践プロジェクト</span>
-                            </span>
-                            <svg class="nav-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                        </a>
-                    {% endif %}
-                {% else %}
-                    <span class="nav-link-disabled"></span>
-                {% endif %}
-            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </a>
         {% endif %}
     </div>
 </div>
+
+<style>
+.page-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.page-nav-item {
+    flex: 1;
+    max-width: 45%;
+}
+
+.page-nav-prev {
+    text-align: left;
+}
+
+.page-nav-next {
+    text-align: right;
+    margin-left: auto;
+}
+
+.page-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    background: var(--bg-primary);
+}
+
+.page-nav-link:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.page-nav-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.page-nav-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.page-nav-title {
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .page-nav-link {
+    background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .page-nav-link:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .page-nav {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .page-nav-item {
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .page-nav-next {
+        margin-left: 0;
+    }
+    
+    .page-nav-link {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .page-nav-prev .page-nav-link {
+        flex-direction: row;
+    }
+    
+    .page-nav-next .page-nav-link {
+        flex-direction: row-reverse;
+    }
+}
+</style>
