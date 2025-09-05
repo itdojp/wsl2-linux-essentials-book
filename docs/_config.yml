@@ -37,3 +37,12 @@ defaults:
 
 # リポジトリ設定
 repository: "itdojp/wsl2-linux-essentials-book"
+# Defaults: use custom book layout as default
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "book"
+
+permalink: pretty
