@@ -33,7 +33,7 @@ defaults:
   - scope:
       path: ""
     values:
-      layout: "default"
+# removed legacy:       layout: "default"
 
 # リポジトリ設定
 repository: "itdojp/wsl2-linux-essentials-book"
