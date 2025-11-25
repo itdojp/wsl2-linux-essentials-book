@@ -13,6 +13,13 @@ title: "WSL2 Linux実践ガイド"
 - **本書**: 実践的なLinuxスキルの習得（中級）  
 - **次の書籍**: [linux-infra-textbook](https://github.com/itdojp/linux-infra-textbook)（上級）
 
+### この本を読み終えるとできること
+
+- Windows上のWSL2環境で、Ubuntuを使った開発・検証ができる
+- 基本的なファイル操作・テキスト処理・プロセス／サービス管理・ネットワーク確認がコマンドラインで行える
+- 簡単なシェルスクリプトを書いて、日常作業を自動化できる
+- 学習用のLAMP環境を構築し、WordPressサイトを立ち上げて試せる
+
 ## 📚 目次
 
 - [第0章 WSL2セットアップ]({{ site.baseurl }}/chapter0/)
