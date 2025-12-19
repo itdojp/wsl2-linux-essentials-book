@@ -112,7 +112,7 @@ ls -lh
 ```
 
 #### ls の出力の読み方（重要！）
-```
+```text
 drwxr-xr-x 2 user group 4096 Jan 15 10:30 directory
 │└─┴─┴─┘  │  │    │     │    │             │
 │権限     │  │    │     │    │             └─名前
@@ -382,7 +382,7 @@ cat -A windows_file.txt
 ### 演習1: ディレクトリ構造作成
 
 以下の構造を作成してください：
-```
+```text
 ~/project/
 ├── src/
 │   ├── main/
