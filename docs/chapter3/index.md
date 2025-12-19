@@ -118,7 +118,7 @@ ps auxf
 ```
 
 ps auxの出力解説：
-```
+```text
 USER  PID %CPU %MEM    VSZ   RSS TTY STAT START TIME COMMAND
 root    1  0.0  0.1 169432 11204 ?   Ss   09:00 0:01 /sbin/init
 │       │    │    │      │     │   │    │     │    │    └─ 実行コマンド
