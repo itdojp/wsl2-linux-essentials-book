@@ -1,5 +1,5 @@
 ---
-title: "第5章: シェルスクリプト基礎"
+title: "第5章: シェルスクリプト入門"
 chapter: chapter5
 layout: book
 ---

@@ -1,5 +1,5 @@
 ---
-title: "第4章: ネットワーク基礎"
+title: "第4章: ネットワークの基礎"
 chapter: chapter4
 layout: book
 ---

@@ -1,5 +1,5 @@
 ---
-title: "第2章: テキスト処理入門"
+title: "第2章: テキスト処理の基本"
 chapter: chapter2
 layout: book
 ---
