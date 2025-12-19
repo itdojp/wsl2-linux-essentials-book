@@ -1,5 +1,5 @@
 ---
-title: "第4章: ネットワーク基礎"
+title: "第4章: ネットワークの基礎"
 chapter: chapter4
 layout: book
 ---
@@ -130,7 +130,7 @@ ping -W 2 -c 3 unreachable.host
 ```
 
 pingの結果解釈：
-```
+```text
 64 bytes from 142.250.x.x: icmp_seq=1 ttl=115 time=8.45 ms
 │                │              │       │        └─ 応答時間
 │                │              │       └─ TTL（Time To Live）
@@ -198,7 +198,7 @@ ss -tan | grep :80
 ```
 
 出力の読み方：
-```
+```text
 State  Recv-Q Send-Q Local Address:Port   Peer Address:Port Process
 LISTEN 0      511    0.0.0.0:80           0.0.0.0:*     nginx
 │      │      │      │                    │             └─ プロセス名

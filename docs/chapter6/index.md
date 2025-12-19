@@ -1,5 +1,5 @@
 ---
-title: "第6章: 実践プロジェクト - WordPressサイトを作ろう"
+title: "第6章: WordPress構築"
 chapter: chapter6
 layout: book
 ---
