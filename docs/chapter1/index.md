@@ -1,5 +1,5 @@
 ---
-title: "第1章: ファイル操作の基本"
+title: "第1章: Linuxの世界への第一歩"
 chapter: chapter1
 layout: book
 ---
