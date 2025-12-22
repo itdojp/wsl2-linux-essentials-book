@@ -28,13 +28,6 @@ exclude:
   - Gemfile
   - Gemfile.lock
 
-# デフォルトレイアウト
-defaults:
-  - scope:
-      path: ""
-    values:
-# removed legacy:       layout: "default"
-
 # リポジトリ設定
 repository: "itdojp/wsl2-linux-essentials-book"
 # Defaults: use custom book layout as default
