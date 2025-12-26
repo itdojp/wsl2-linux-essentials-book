@@ -43,7 +43,7 @@ winver
 wsl --install
 ```
 
-このコマンドで以下が自動的にインストールされます：
+このコマンドで以下が自動的にインストールされます。
 - WSL2本体
 - Ubuntu（Linux）
 - 必要な機能すべて
@@ -58,7 +58,7 @@ wsl --install
 
 再起動後、スタートメニューから「Ubuntu」を起動します。
 
-初回起動時の設定：
+初回起動時の設定は次のとおりです。
 ```bash
 # ユーザー名を入力（英数字小文字）
 Enter new UNIX username: myname
@@ -84,14 +84,14 @@ pwd
 
 ## 0.4 Windows Terminalの設定（オプション）
 
-より使いやすいターミナルを使いたい場合：
+より使いやすいターミナルを使いたい場合は次のとおりです。
 
 ```powershell
 # PowerShellで実行
 winget install Microsoft.WindowsTerminal
 ```
 
-Windows Terminalの利点：
+Windows Terminalの利点は次のとおりです。
 - タブで複数のターミナルを開ける
 - 見やすいフォントと色
 - コピー＆ペーストが簡単
