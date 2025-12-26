@@ -18,7 +18,7 @@ layout: book
 
 ## はじめに：プロセスとサービスを理解する
 
-コンピュータで動いているプログラムには、大きく分けて2種類あります：
+コンピュータで動いているプログラムには、大きく分けて2種類あります。
 
 ### 🏃 プロセス（一時的なプログラム）
 - **例**: ls コマンド、電卓、メモ帳
@@ -117,7 +117,7 @@ ps -ef
 ps auxf
 ```
 
-ps auxの出力解説：
+ps auxの出力解説は次のとおりです。
 ```text
 USER  PID %CPU %MEM    VSZ   RSS TTY STAT START TIME COMMAND
 root    1  0.0  0.1 169432 11204 ?   Ss   09:00 0:01 /sbin/init
@@ -134,7 +134,7 @@ root    1  0.0  0.1 169432 11204 ?   Ss   09:00 0:01 /sbin/init
 └─ 実行ユーザー
 ```
 
-プロセス状態（STAT）の意味：
+プロセス状態（STAT）の意味は次のとおりです。
 - R: 実行中（Running）
 - S: スリープ（Sleeping）
 - D: ディスクI/O待ち
@@ -158,7 +158,7 @@ top
 # 1: CPU別表示
 ```
 
-htopの導入と使用：
+htopの導入と使用は次のとおりです。
 ```bash
 # インストール
 sudo apt update
@@ -198,7 +198,7 @@ kill -9 PID     # 強制終了（SIGKILL）
 killall command # 名前指定で終了
 ```
 
-シグナル一覧：
+シグナル一覧は次のとおりです。
 ```bash
 # 主要シグナル
 kill -l
@@ -271,7 +271,7 @@ ls /etc/systemd/system/*.service
 cat /lib/systemd/system/nginx.service
 ```
 
-基本的なユニットファイル構造：
+基本的なユニットファイル構造は次のとおりです。
 ```ini
 [Unit]
 Description=Nginx Web Server
@@ -647,7 +647,7 @@ strace command 2>&1 | grep -i error
 
 ## まとめ
 
-プロセスとサービス管理の要点：
+プロセスとサービス管理の要点は次のとおりです。
 
 1. **systemd有効化**: WSL2では必須の初期設定
 2. **基本コマンド**: ps、top、systemctl の使い分け
