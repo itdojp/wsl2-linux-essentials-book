@@ -75,7 +75,7 @@ vim test.txt
 # コマンドモード: ファイル操作（:）
 ```
 
-最小限の操作：
+最小限の操作は次のとおりです。
 ```bash
 # 1. ファイルを開く
 vim script.sh
@@ -96,7 +96,7 @@ Esc
 :q!
 ```
 
-vim生存必須コマンド10個：
+vim生存必須コマンド10個は次のとおりです。
 ```vim
 i        # 挿入モード開始
 Esc      # ノーマルモードへ
@@ -141,7 +141,7 @@ grep -v "debug" log.txt      # 除外（反転）
 grep -c "WARNING" *.log      # カウント
 ```
 
-実践的なgrepパターン：
+実践的なgrepパターンは次のとおりです。
 ```bash
 # 1. エラーログ抽出
 grep -E "(ERROR|FATAL)" application.log
@@ -178,7 +178,7 @@ sed '1i\#!/bin/bash' script.sh    # 先頭に追加
 sed '$a\exit 0' script.sh         # 末尾に追加
 ```
 
-実用例：
+実用例は次のとおりです。
 ```bash
 # 設定ファイルの値変更
 sed -i 's/port=8080/port=3000/g' app.conf
@@ -205,7 +205,7 @@ awk '$3 > 100 {print $1}' data.txt
 awk '/ERROR/ {print $0}' log.txt
 ```
 
-実用的なawkパターン：
+実用的なawkパターンは次のとおりです。
 ```bash
 # 1. ログ集計
 awk '{count[$1]++} END {for (ip in count) print ip, count[ip]}' access.log
@@ -521,7 +521,7 @@ command 2>&1 | less
 
 ## まとめ
 
-テキスト処理は以下の3段階で習得します：
+テキスト処理は次の3段階で習得します。
 
 1. **エディタ操作**: nanoから始めて徐々にvimへ
 2. **フィルタコマンド**: grep → sed → awkの順で学習
