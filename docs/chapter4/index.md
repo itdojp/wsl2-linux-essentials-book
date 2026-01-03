@@ -56,7 +56,7 @@ cat /etc/resolv.conf | grep nameserver
 # 出力例：172.x.x.1（Windowsへの経路）
 ```
 
-⚠️ **重要な注意点**：
+⚠️ **重要な注意点**は次のとおりです。
 - WSL2のIPは起動のたびに変わることがある
 - 外部からWSL2に直接アクセスはできない（NATの壁）
 - でも心配不要！localhostで自動転送される
@@ -129,7 +129,7 @@ ping -i 1 192.168.1.1
 ping -W 2 -c 3 unreachable.host
 ```
 
-pingの結果解釈：
+pingの結果解釈は次のとおりです。
 ```text
 64 bytes from 142.250.x.x: icmp_seq=1 ttl=115 time=8.45 ms
 │                │              │       │        └─ 応答時間
@@ -197,7 +197,7 @@ ss -uan  # UDP接続
 ss -tan | grep :80
 ```
 
-出力の読み方：
+出力の読み方は次のとおりです。
 ```text
 State  Recv-Q Send-Q Local Address:Port   Peer Address:Port Process
 LISTEN 0      511    0.0.0.0:80           0.0.0.0:*     nginx
@@ -611,7 +611,7 @@ done
 
 ## まとめ
 
-ネットワーク管理の要点：
+ネットワーク管理の要点は次のとおりです。
 
 1. **WSL2の特性理解**: NAT構造とポートフォワーディング
 2. **基本ツール習得**: ping、curl、ss の日常的使用
