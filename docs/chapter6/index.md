@@ -28,7 +28,7 @@ layout: book
 
 ### LAMPって何？
 
-**LAMP**は4つのソフトウェアの頭文字です：
+**LAMP**は4つのソフトウェアの頭文字です。
 - **L**inux: OS（この本で使っているUbuntu環境）
 - **A**pache: Webサーバー（Webページを外部に公開するソフトウェア）
 - **M**ySQL: データベース（記事やユーザー情報などのデータを保存する場所）
@@ -59,7 +59,7 @@ sudo systemctl status apache2
 # 緑色で「active (running)」と表示されればOK！
 ```
 
-🎉 **確認方法**：
+🎉 **確認方法**は次のとおりです。
 Windowsのブラウザで `http://localhost` を開く
 → 「Apache2 Ubuntu Default Page」が表示されれば成功！
 
@@ -73,7 +73,7 @@ sudo apt install mysql-server -y
 sudo mysql
 ```
 
-MySQLプロンプトで以下を実行：
+MySQLプロンプトで以下を実行してください。
 ```sql
 -- WordPress用データベース作成
 CREATE DATABASE wordpress CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
@@ -121,7 +121,7 @@ sudo cp wp-config-sample.php wp-config.php
 sudo vi wp-config.php
 ```
 
-wp-config.php の編集箇所（データベース設定部分のみ変更）：
+wp-config.php の編集箇所（データベース設定部分のみ変更）は次のとおりです。
 ```php
 // ** Database settings ** //
 define( 'DB_NAME', 'wordpress' );
@@ -194,7 +194,7 @@ sudo systemctl restart apache2
 
 ### さらに学びたい方へ
 
-WordPressの基本的な構築ができました！次のステップとして：
+WordPressの基本的な構築ができました！次のステップは次のとおりです。
 
 1. **テーマのカスタマイズ** - 見た目を変更してオリジナルサイトに
 2. **プラグインの追加** - 機能を拡張して便利に
