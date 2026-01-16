@@ -1,1 +1,94 @@
-{}
+{
+  "chapters": [
+    {
+      "title": "第0章: WSL2セットアップ",
+      "url": "/chapter0/"
+    },
+    {
+      "title": "第1章: Linuxの世界への第一歩",
+      "url": "/chapter1/"
+    },
+    {
+      "title": "第2章: テキスト処理の基本",
+      "url": "/chapter2/"
+    },
+    {
+      "title": "第3章: プロセスとサービス管理",
+      "url": "/chapter3/"
+    },
+    {
+      "title": "第4章: ネットワークの基礎",
+      "url": "/chapter4/"
+    },
+    {
+      "title": "第5章: シェルスクリプト入門",
+      "url": "/chapter5/"
+    },
+    {
+      "title": "第6章: WordPress構築",
+      "url": "/chapter6/"
+    }
+  ],
+  "chapter0/": {
+    "next": {
+      "path": "/chapter1/",
+      "title": "第1章: Linuxの世界への第一歩"
+    }
+  },
+  "chapter1/": {
+    "previous": {
+      "path": "/chapter0/",
+      "title": "第0章: WSL2セットアップ"
+    },
+    "next": {
+      "path": "/chapter2/",
+      "title": "第2章: テキスト処理の基本"
+    }
+  },
+  "chapter2/": {
+    "previous": {
+      "path": "/chapter1/",
+      "title": "第1章: Linuxの世界への第一歩"
+    },
+    "next": {
+      "path": "/chapter3/",
+      "title": "第3章: プロセスとサービス管理"
+    }
+  },
+  "chapter3/": {
+    "previous": {
+      "path": "/chapter2/",
+      "title": "第2章: テキスト処理の基本"
+    },
+    "next": {
+      "path": "/chapter4/",
+      "title": "第4章: ネットワークの基礎"
+    }
+  },
+  "chapter4/": {
+    "previous": {
+      "path": "/chapter3/",
+      "title": "第3章: プロセスとサービス管理"
+    },
+    "next": {
+      "path": "/chapter5/",
+      "title": "第5章: シェルスクリプト入門"
+    }
+  },
+  "chapter5/": {
+    "previous": {
+      "path": "/chapter4/",
+      "title": "第4章: ネットワークの基礎"
+    },
+    "next": {
+      "path": "/chapter6/",
+      "title": "第6章: WordPress構築"
+    }
+  },
+  "chapter6/": {
+    "previous": {
+      "path": "/chapter5/",
+      "title": "第5章: シェルスクリプト入門"
+    }
+  }
+}
