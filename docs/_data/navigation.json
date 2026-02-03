@@ -2,31 +2,31 @@
   "chapters": [
     {
       "title": "第0章: WSL2セットアップ",
-      "url": "/chapter0/"
+      "path": "/chapter0/"
     },
     {
       "title": "第1章: Linuxの世界への第一歩",
-      "url": "/chapter1/"
+      "path": "/chapter1/"
     },
     {
       "title": "第2章: テキスト処理の基本",
-      "url": "/chapter2/"
+      "path": "/chapter2/"
     },
     {
       "title": "第3章: プロセスとサービス管理",
-      "url": "/chapter3/"
+      "path": "/chapter3/"
     },
     {
       "title": "第4章: ネットワークの基礎",
-      "url": "/chapter4/"
+      "path": "/chapter4/"
     },
     {
       "title": "第5章: シェルスクリプト入門",
-      "url": "/chapter5/"
+      "path": "/chapter5/"
     },
     {
       "title": "第6章: WordPress構築",
-      "url": "/chapter6/"
+      "path": "/chapter6/"
     }
   ],
   "chapter0/": {
