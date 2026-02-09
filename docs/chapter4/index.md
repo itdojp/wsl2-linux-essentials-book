@@ -86,7 +86,7 @@ cat /etc/resolv.conf
 cat /etc/hosts
 
 # ネットワークインターフェース設定
-cat /etc/netplan/*.yaml  # Ubuntu 18.04以降
+cat /etc/netplan/*.yaml  # Ubuntu（netplan採用）
 # WSL2では自動生成のため編集不要
 ```
 
