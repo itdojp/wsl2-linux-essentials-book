@@ -13,7 +13,7 @@
    - ファイル操作→プロセス管理→ネットワーク→スクリプト
    - WordPress構築まで
 
-3. **linux-infra-textbook**（上級）
+3. **linux-infra-textbook2**（上級）
    - ITインフラ全体像から始まる本格的内容
    - コンテナ（Podman）、AWS、IaCまでカバー
    - 理論的背景も詳しく解説
@@ -69,7 +69,7 @@
 - クラウドサービスとの接続基礎
 - Git/GitHubの基本操作
 
-### 4. linux-infra-textbookへの橋渡し
+### 4. linux-infra-textbook2への橋渡し
 
 #### 準備となる内容を追加
 - [ ] 仮想化の概念紹介（コンテナへの導入）
@@ -98,7 +98,7 @@
 
 1. **学習曲線の最適化**
    - illustrated-linux-basics-book卒業生がスムーズに移行
-   - linux-infra-textbookへの準備が整う
+   - linux-infra-textbook2への準備が整う
 
 2. **認知負荷の軽減**
    - ビジュアル要素で理解度向上

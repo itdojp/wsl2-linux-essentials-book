@@ -11,7 +11,7 @@ title: "WSL2 Linux実践ガイド"
 
 - **前提書籍**: [illustrated-linux-basics-book](https://github.com/itdojp/illustrated-linux-basics-book)（初級）
 - **本書**: 実践的なLinuxスキルの習得（中級）  
-- **次の書籍**: [linux-infra-textbook](https://github.com/itdojp/linux-infra-textbook)（上級）
+- **次の書籍**: [linux-infra-textbook2](https://github.com/itdojp/linux-infra-textbook2)（上級）
 
 ### この本を読み終えるとできること
 
