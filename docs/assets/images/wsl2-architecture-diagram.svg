@@ -3,50 +3,50 @@
   <rect width="800" height="600" fill="#f8f9fa"/>
   
   <!-- タイトル -->
-  <text x="400" y="30" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#333">WSL2の仕組み</text>
+  <text x="400" y="30" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="24" font-weight="bold" text-anchor="middle" fill="#333">WSL2の仕組み</text>
   
   <!-- Windows層 -->
   <rect x="50" y="450" width="700" height="120" fill="#0078d4" rx="10"/>
-  <text x="400" y="520" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="white">Windows 10/11</text>
+  <text x="400" y="520" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="20" font-weight="bold" text-anchor="middle" fill="white">Windows 10/11</text>
   
   <!-- Hyper-V層 -->
   <rect x="100" y="350" width="600" height="80" fill="#40e0d0" rx="8"/>
-  <text x="400" y="395" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#333">仮想化基盤 (Hyper-V)</text>
+  <text x="400" y="395" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="18" text-anchor="middle" fill="#333">仮想化基盤 (Hyper-V)</text>
   
   <!-- WSL2 VM -->
   <rect x="150" y="180" width="500" height="150" fill="#fff" stroke="#333" stroke-width="2" rx="8"/>
-  <text x="400" y="210" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">WSL2 仮想マシン</text>
+  <text x="400" y="210" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">WSL2 仮想マシン</text>
   
   <!-- Linuxカーネル -->
   <rect x="170" y="230" width="210" height="80" fill="#ffcc00" rx="5"/>
-  <text x="275" y="275" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#333">Linuxカーネル</text>
+  <text x="275" y="275" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="14" text-anchor="middle" fill="#333">Linuxカーネル</text>
   
   <!-- Ubuntu -->
   <rect x="420" y="230" width="210" height="80" fill="#e95420" rx="5"/>
-  <text x="525" y="265" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="white">Ubuntu</text>
-  <text x="525" y="285" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="white">(Linuxディストリビューション)</text>
+  <text x="525" y="265" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="14" text-anchor="middle" fill="white">Ubuntu</text>
+  <text x="525" y="285" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="12" text-anchor="middle" fill="white">(Linuxディストリビューション)</text>
   
   <!-- アプリケーション層 -->
   <g id="apps">
     <!-- Terminal -->
     <rect x="50" y="70" width="150" height="80" fill="#333" rx="5"/>
-    <text x="125" y="100" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="white">Windows Terminal</text>
-    <text x="125" y="120" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#aaa">コマンド入力画面</text>
+    <text x="125" y="100" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="14" text-anchor="middle" fill="white">Windows Terminal</text>
+    <text x="125" y="120" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="12" text-anchor="middle" fill="#aaa">コマンド入力画面</text>
     
     <!-- VSCode -->
     <rect x="230" y="70" width="150" height="80" fill="#007acc" rx="5"/>
-    <text x="305" y="100" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="white">VSCode</text>
-    <text x="305" y="120" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#aaa">プログラム編集</text>
+    <text x="305" y="100" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="14" text-anchor="middle" fill="white">VSCode</text>
+    <text x="305" y="120" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="12" text-anchor="middle" fill="#aaa">プログラム編集</text>
     
     <!-- Browser -->
     <rect x="410" y="70" width="150" height="80" fill="#4285f4" rx="5"/>
-    <text x="485" y="100" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="white">ブラウザ</text>
-    <text x="485" y="120" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#aaa">Webサーバー確認</text>
+    <text x="485" y="100" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="14" text-anchor="middle" fill="white">ブラウザ</text>
+    <text x="485" y="120" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="12" text-anchor="middle" fill="#aaa">Webサーバー確認</text>
     
     <!-- File Explorer -->
     <rect x="590" y="70" width="150" height="80" fill="#ffd700" rx="5"/>
-    <text x="665" y="100" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#333">エクスプローラー</text>
-    <text x="665" y="120" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">ファイル管理</text>
+    <text x="665" y="100" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="14" text-anchor="middle" fill="#333">エクスプローラー</text>
+    <text x="665" y="120" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="12" text-anchor="middle" fill="#666">ファイル管理</text>
   </g>
   
   <!-- 矢印 -->
@@ -63,13 +63,13 @@
   <line x1="665" y1="150" x2="525" y2="230" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
   
   <!-- 説明テキスト -->
-  <text x="400" y="55" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#666">Windowsアプリケーションから直接アクセス可能</text>
+  <text x="400" y="55" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="14" text-anchor="middle" fill="#666">Windowsアプリケーションから直接アクセス可能</text>
   
   <!-- メモリ動的割り当て説明 -->
   <g transform="translate(680, 250)">
     <rect x="0" y="0" width="100" height="60" fill="#f0f0f0" stroke="#999" stroke-dasharray="3,3" rx="5"/>
-    <text x="50" y="25" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">メモリは</text>
-    <text x="50" y="40" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">必要な分だけ</text>
-    <text x="50" y="55" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">自動割り当て</text>
+    <text x="50" y="25" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="12" text-anchor="middle" fill="#666">メモリは</text>
+    <text x="50" y="40" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="12" text-anchor="middle" fill="#666">必要な分だけ</text>
+    <text x="50" y="55" font-family="-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"" font-size="12" text-anchor="middle" fill="#666">自動割り当て</text>
   </g>
 </svg>
