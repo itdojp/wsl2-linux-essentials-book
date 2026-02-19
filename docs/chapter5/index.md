@@ -753,7 +753,7 @@ crontab -r
 0 9 * * 1-5 /bin/bash "$HOME/weekday_task.sh"
 
 # 5分ごとに実行
-*/5 * * * * /bin/bash "$HOME/monitor.sh"
+*/5 * * * * /bin/bash "$HOME/system_monitor.sh"
 
 # 毎月1日の午前3時に実行
 0 3 1 * * /bin/bash "$HOME/monthly_report.sh"

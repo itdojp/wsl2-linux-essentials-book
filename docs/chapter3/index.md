@@ -581,11 +581,13 @@ ps aux --sort=-%mem | head -6 | tail -5 | awk '{printf "  %-20s %5s%%\n", $11, $
 # systemdの自動再起動設定
 sudo nano /etc/systemd/system/myapp.service
 
-# Serviceセクションに追加：
-Restart=always
-RestartSec=10
+# Unitセクションに追加（[Unit] で設定）：
 StartLimitIntervalSec=60
 StartLimitBurst=5
+
+# Serviceセクションに追加（[Service] で設定）：
+Restart=always
+RestartSec=10
 
 # 設定反映
 sudo systemctl daemon-reload
