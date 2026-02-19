@@ -107,10 +107,10 @@ echo $PPID
 # 基本表示
 ps
 
-# 全プロセス表示（標準形式）
+# 全プロセス表示（BSD形式）
 ps aux
 
-# 全プロセス表示（BSD形式）  
+# 全プロセス表示（UNIX(System V)形式）
 ps -ef
 
 # ツリー表示
@@ -301,7 +301,7 @@ sudo nano /usr/local/bin/myapp.sh
 #!/bin/bash
 # myapp.sh - サンプルアプリケーション
 while true; do
-    echo "$(date): MyApp is running" >> /var/log/myapp.log
+    echo "$(date): MyApp is running"
     sleep 10
 done
 ```
@@ -339,7 +339,7 @@ sudo systemctl status myapp
 sudo systemctl enable myapp
 
 # 5. ログ確認
-tail -f /var/log/myapp.log
+sudo journalctl -u myapp -f
 ```
 
 ### journalctl - ログ管理
@@ -532,14 +532,18 @@ sudo cgexec -g cpu:mygroup stress --cpu 1
 
 PROCESS_NAME="nginx"
 CHECK_INTERVAL=5
+LOG_DIR="$HOME/logs"
+LOG_FILE="$LOG_DIR/process_monitor.log"
+
+mkdir -p "$LOG_DIR"
 
 while true; do
     if ! pgrep -x "$PROCESS_NAME" > /dev/null; then
         echo "$(date): $PROCESS_NAME is not running. Starting..."
-        sudo systemctl start $PROCESS_NAME
+        sudo systemctl start "$PROCESS_NAME"
         
         # アラート（実際はメール送信等）
-        echo "$(date): $PROCESS_NAME was restarted" >> /var/log/process_monitor.log
+        echo "$(date): $PROCESS_NAME was restarted" >> "$LOG_FILE"
     fi
     sleep $CHECK_INTERVAL
 done
@@ -580,15 +584,15 @@ sudo nano /etc/systemd/system/myapp.service
 # Serviceセクションに追加：
 Restart=always
 RestartSec=10
-StartLimitInterval=60
+StartLimitIntervalSec=60
 StartLimitBurst=5
 
 # 設定反映
 sudo systemctl daemon-reload
 sudo systemctl restart myapp
 
-# テスト
-sudo kill -9 $(pgrep myapp)
+# テスト（疑似クラッシュ）
+sudo systemctl kill -s SIGKILL myapp
 # 10秒後に自動再起動される
 ```
 
@@ -637,7 +641,7 @@ sudo lsof -i :80
 
 # 3. ログ確認優先順位
 journalctl -xe          # systemdログ
-tail -f /var/log/syslog # システムログ
+sudo tail -f /var/log/syslog # システムログ（Ubuntu系。環境によりパスは異なる）
 dmesg                   # カーネルメッセージ
 
 # 4. strace でシステムコール追跡

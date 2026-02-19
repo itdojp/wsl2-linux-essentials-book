@@ -199,10 +199,11 @@ cp -p source.txt destination.txt
 mv oldname.txt newname.txt
 
 # ディレクトリ移動
-mv file.txt /home/user/documents/
+mv file.txt ~/documents/
 
 # 複数ファイル移動
-mv *.log /var/log/archive/
+mkdir -p ~/logs/archive
+mv *.log ~/logs/archive/
 
 # 上書き前に確認
 mv -i source.txt destination.txt

@@ -115,7 +115,16 @@ dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /nores
 
 #### ❌ Ubuntuが起動しない
 ```powershell
-# WSLをリセット
+# まずは軽い対処から試す
+wsl --shutdown
+wsl --status
+wsl --update
+
+# （必要なら）バックアップ
+# wsl --export Ubuntu ubuntu-backup.tar
+
+# [注意] --unregister は対象ディストリビューションのデータを全削除する（復旧不可）
+# 最終手段（データ削除を許容できる場合のみ）
 wsl --unregister Ubuntu
 wsl --install -d Ubuntu
 ```

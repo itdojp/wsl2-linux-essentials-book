@@ -487,17 +487,20 @@ chmod +x ~/get_wsl_ip.sh
 # port_monitor.sh - 指定ポートの監視
 
 PORTS="22 80 443 3306 5432"
-LOG_FILE="/var/log/port_monitor.log"
+LOG_DIR="$HOME/logs"
+LOG_FILE="$LOG_DIR/port_monitor.log"
 
-echo "=== Port Monitoring Report ===" | tee -a $LOG_FILE
-echo "Date: $(date)" | tee -a $LOG_FILE
+mkdir -p "$LOG_DIR"
+
+echo "=== Port Monitoring Report ===" | tee -a "$LOG_FILE"
+echo "Date: $(date)" | tee -a "$LOG_FILE"
 
 for port in $PORTS; do
     if ss -tln | grep -q ":$port "; then
         service=$(ss -tlnp 2>/dev/null | grep ":$port " | awk '{print $NF}' | cut -d'"' -f2)
-        echo "✓ Port $port is open (Service: ${service:-unknown})" | tee -a $LOG_FILE
+        echo "✓ Port $port is open (Service: ${service:-unknown})" | tee -a "$LOG_FILE"
     else
-        echo "✗ Port $port is closed" | tee -a $LOG_FILE
+        echo "✗ Port $port is closed" | tee -a "$LOG_FILE"
     fi
 done
 ```
@@ -506,10 +509,7 @@ done
 
 ```bash
 #!/bin/bash
-# simple_lb.sh - 簡易ラウンドロビン
-
-BACKENDS=("localhost:8001" "localhost:8002" "localhost:8003")
-CURRENT=0
+# simple_lb_demo.sh - バックエンド起動 + 簡易ロードバランサー
 
 # バックエンドサーバー起動
 for i in {1..3}; do
@@ -520,10 +520,53 @@ for i in {1..3}; do
 done
 
 # ロードバランサー
-while true; do
-    nc -l -p 8000 -c "curl -s ${BACKENDS[$CURRENT]}"
-    CURRENT=$(( (CURRENT + 1) % ${#BACKENDS[@]} ))
-done
+# Ubuntu標準のncは -c をサポートしないため、Pythonで簡易ロードバランサーを実装する
+cat > simple_lb.py << 'PY'
+#!/usr/bin/env python3
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import itertools
+import urllib.request
+import urllib.error
+
+BACKENDS = [
+    "http://localhost:8001",
+    "http://localhost:8002",
+    "http://localhost:8003",
+]
+backend_cycle = itertools.cycle(BACKENDS)
+
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        backend = next(backend_cycle)
+        url = backend + self.path
+        try:
+            with urllib.request.urlopen(url, timeout=3) as resp:
+                body = resp.read()
+                status = resp.status
+                content_type = resp.headers.get("Content-Type", "text/html; charset=utf-8")
+        except (urllib.error.URLError, TimeoutError) as e:
+            body = f"Upstream error: {e}\n".encode("utf-8")
+            status = 502
+            content_type = "text/plain; charset=utf-8"
+
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, format, *args):
+        return
+
+
+if __name__ == "__main__":
+    server = HTTPServer(("0.0.0.0", 8000), Handler)
+    print("Listening on http://localhost:8000")
+    server.serve_forever()
+PY
+
+python3 simple_lb.py
 ```
 
 ### 演習3: API監視とアラート
@@ -545,7 +588,10 @@ check_endpoint() {
     if [ "$response" = "200" ]; then
         echo "$(date): ✓ $url is healthy (HTTP $response)"
     else
-        echo "$(date): ✗ $url is down (HTTP $response)" | tee -a /var/log/api_alerts.log
+        LOG_DIR="$HOME/logs"
+        LOG_FILE="$LOG_DIR/api_alerts.log"
+        mkdir -p "$LOG_DIR"
+        echo "$(date): ✗ $url is down (HTTP $response)" | tee -a "$LOG_FILE"
         # アラート送信（メール、Slack等）
         # echo "API Down: $url" | mail -s "API Alert" admin@example.com
     fi
