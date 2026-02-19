@@ -399,12 +399,17 @@ fi
 ```bash
 #!/bin/bash
 
+# ログ出力先（ユーザー書き込み可能な場所に統一）
+LOG_DIR="$HOME/logs"
+LOG_FILE="$LOG_DIR/script.log"
+mkdir -p "$LOG_DIR"
+
 # ログ出力関数
 log_message() {
     local level=$1
     shift
     local message="$@"
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$level] $message" | tee -a /var/log/script.log
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$level] $message" | tee -a "$LOG_FILE"
 }
 
 # エラーハンドリング関数
@@ -589,7 +594,10 @@ set -euo pipefail
 THRESHOLD_CPU=80
 THRESHOLD_MEM=90
 THRESHOLD_DISK=85
-LOG_FILE="/var/log/system_monitor.log"
+LOG_DIR="$HOME/logs"
+LOG_FILE="$LOG_DIR/system_monitor.log"
+
+mkdir -p "$LOG_DIR"
 
 # ログ関数
 log() {
@@ -656,9 +664,9 @@ main
 
 set -euo pipefail
 
-# 設定
-SOURCE_DIR="/home/user/data"
-BACKUP_DIR="/backup"
+# 要変更パラメータ（環境に合わせて調整）
+SOURCE_DIR="$HOME/data"
+BACKUP_DIR="$HOME/backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_NAME="backup_${TIMESTAMP}"
 RETENTION_DAYS=7
@@ -739,16 +747,16 @@ crontab -r
 # (0-59) (0-23) (1-31) (1-12) (0-7, 0と7は日曜)
 
 # 毎日午前2時に実行
-0 2 * * * /home/user/backup.sh
+0 2 * * * /bin/bash "$HOME/backup.sh"
 
 # 平日の午前9時に実行
-0 9 * * 1-5 /home/user/weekday_task.sh
+0 9 * * 1-5 /bin/bash "$HOME/weekday_task.sh"
 
 # 5分ごとに実行
-*/5 * * * * /home/user/monitor.sh
+*/5 * * * * /bin/bash "$HOME/system_monitor.sh"
 
 # 毎月1日の午前3時に実行
-0 3 1 * * /home/user/monthly_report.sh
+0 3 1 * * /bin/bash "$HOME/monthly_report.sh"
 ```
 
 ### WSL2でのcron設定
@@ -773,9 +781,11 @@ echo 'sudo service cron start 2>/dev/null' >> ~/.bashrc
 #!/bin/bash
 # log_rotate.sh - ログファイルローテーション
 
-LOG_DIR="/var/log/myapp"
+LOG_DIR="$HOME/logs/myapp"
 MAX_SIZE=10485760  # 10MB
 MAX_FILES=5
+
+mkdir -p "$LOG_DIR"
 
 rotate_log() {
     local log_file=$1

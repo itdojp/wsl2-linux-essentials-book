@@ -232,13 +232,13 @@ command1 | command2 | command3
 
 # 実用例
 # 1. アクセスログのトップ10 IP
-cat access.log | awk '{print $1}' | sort | uniq -c | sort -rn | head -10
+cat access.log | awk '{print $3}' | sort | uniq -c | sort -rn | head -10
 
 # 2. プロセスメモリ使用量トップ5
 ps aux | sort -k4 -rn | head -5
 
 # 3. 大きいファイル検索
-find /var -type f -size +100M 2>/dev/null | xargs ls -lh
+find /var -type f -size +100M -exec ls -lh {} + 2>/dev/null
 
 # 4. 設定ファイルの有効行のみ表示
 grep -v "^#" /etc/ssh/sshd_config | grep -v "^$"
@@ -271,11 +271,21 @@ chmod +x generate_log.sh
 ./generate_log.sh > access.log
 ```
 
+ログ形式（スペース区切り）は次のとおりです（演習ではこの列番号を使います）。
+
+- 1: 日付
+- 2: 時刻
+- 3: IP
+- 4: メソッド
+- 5: パス
+- 6: ステータスコード
+- 7: サイズ（バイト）
+
 ### 解析タスク1: ステータスコード集計
 
 ```bash
 # ステータスコード別カウント
-awk '{print $5}' access.log | sort | uniq -c | sort -rn
+awk '{print $6}' access.log | sort | uniq -c | sort -rn
 
 # 成功率計算
 total=$(wc -l < access.log)
@@ -297,13 +307,13 @@ grep " 500 " access.log | awk '{print $2}' | cut -d: -f1 | sort | uniq -c | sort
 
 ```bash
 # 転送量合計（バイト）
-awk '{sum += $6} END {print "Total:", sum, "bytes"}' access.log
+awk '{sum += $7} END {print "Total:", sum, "bytes"}' access.log
 
 # IP別アクセス数トップ10
 awk '{print $3}' access.log | sort | uniq -c | sort -rn | head -10
 
 # ページ別アクセス数
-awk '{print $4}' access.log | sort | uniq -c | sort -rn
+awk '{print $5}' access.log | sort | uniq -c | sort -rn
 ```
 
 ## 2.4 正規表現入門
