@@ -6,6 +6,10 @@ layout: book
 
 # 第2章: テキスト処理の基本
 
+## 前提（検証環境）
+- WSL2 上の Ubuntu（例: 22.04/24.04）
+- 設定ファイル編集など一部の操作は `sudo` が必要
+
 ## 🎯 この章の目標
 - テキストファイルを自由に編集できる
 - viエディタの基本操作をマスター
@@ -288,9 +292,7 @@ chmod +x generate_log.sh
 awk '{print $6}' access.log | sort | uniq -c | sort -rn
 
 # 成功率計算
-total=$(wc -l < access.log)
-success=$(grep " 200 " access.log | wc -l)
-echo "Success rate: $(echo "scale=2; $success * 100 / $total" | bc)%"
+awk 'BEGIN { total=0; success=0 } { total++ } $6==200 { success++ } END { if (total>0) { printf "Success rate: %.2f%%\n", success*100/total } else { print "Success rate: 0.00%" } }' access.log
 ```
 
 ### 解析タスク2: エラー分析

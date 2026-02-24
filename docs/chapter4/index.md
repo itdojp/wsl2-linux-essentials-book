@@ -6,6 +6,11 @@ layout: book
 
 # 第4章: ネットワークの基礎
 
+## 前提（検証環境）
+- WSL2 上の Ubuntu（例: 22.04/24.04）
+- Windows 側の操作（例: `netsh interface portproxy`）は PowerShell を管理者権限で実行する
+- 章内で `lsof` / `netcat-openbsd` をインストールする（`sudo` が必要）
+
 ## 🎯 この章の目標
 - ネットワークの基本概念を理解する
 - WSL2のネットワーク構造を把握する
@@ -64,16 +69,18 @@ cat /etc/resolv.conf | grep nameserver
 ### ポートフォワーディングの仕組み
 
 ```bash
-# WSL2 → Windows: 自動転送
-# WSL2でサーバー起動
+# WSL2 → Windows: 自動転送（WSL2 側でサーバー起動）
 python3 -m http.server 8000
 
 # Windowsブラウザでアクセス可能
 # http://localhost:8000
+```
 
-# Windows → WSL2: 手動設定が必要な場合
-# PowerShell（管理者）で実行
-netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=$(wsl hostname -I)
+```powershell
+# Windows → WSL2: 手動設定が必要な場合（PowerShell: 管理者）
+# hostname -I が複数IPを返す場合があるため、先頭のIPのみ使用する
+$wsl_ip = (wsl hostname -I).Trim().Split(' ')[0]
+netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=$wsl_ip
 ```
 
 ### ネットワーク設定ファイル
@@ -143,7 +150,7 @@ pingの結果解釈は次のとおりです。
 
 ```bash
 # インストール
-sudo apt install traceroute -y
+sudo apt install -y traceroute
 
 # 経路追跡
 traceroute google.com
@@ -165,7 +172,7 @@ nslookup google.com
 nslookup google.com 8.8.8.8
 
 # dig（より詳細）
-sudo apt install dnsutils -y
+sudo apt install -y dnsutils
 dig google.com
 
 # 特定レコードタイプ
@@ -213,7 +220,7 @@ LISTEN 0      511    0.0.0.0:80           0.0.0.0:*     nginx
 
 ```bash
 # インストール
-sudo apt install lsof -y
+sudo apt install -y lsof
 
 # 特定ポート使用プロセス
 sudo lsof -i :80
@@ -299,7 +306,7 @@ python3 -m http.server --cgi 8000
 ```bash
 # Node.jsインストール
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install nodejs -y
+sudo apt install -y nodejs
 
 # 簡易サーバー作成
 cat << 'JS' > server.js
@@ -339,10 +346,10 @@ curl http://localhost:3000/api/time
 
 ```bash
 # インストール
-sudo apt install netcat -y
+sudo apt install -y netcat-openbsd
 
 # TCPサーバー起動
-nc -l -p 12345
+nc -l 12345
 
 # TCPクライアント接続
 nc localhost 12345
@@ -352,16 +359,18 @@ nc -zv localhost 20-100
 
 # ファイル転送
 # 受信側：
-nc -l -p 12345 > received_file.txt
+nc -l 12345 > received_file.txt
 # 送信側：
 nc localhost 12345 < send_file.txt
 
 # 簡易チャットサーバー
 # サーバー側：
-nc -l -p 12345
+nc -l 12345
 # クライアント側：
 nc server_ip 12345
 ```
+
+※ Ubuntu では `nc` は `netcat-openbsd` が標準になりやすく、実装差により `nc -l -p ...` が動かない場合があります。本書では Ubuntu 標準環境で動く形として `nc -l <PORT>` を採用します。
 
 ## 4.5 ファイアウォール基礎
 
@@ -369,7 +378,7 @@ nc server_ip 12345
 
 ```bash
 # インストールと有効化
-sudo apt install ufw -y
+sudo apt install -y ufw
 
 # 状態確認
 sudo ufw status
@@ -406,7 +415,7 @@ sudo iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
 sudo iptables -A INPUT -s 192.168.1.100 -j DROP
 
 # ルール保存（再起動後も維持）
-sudo apt install iptables-persistent -y
+sudo apt install -y iptables-persistent
 sudo netfilter-persistent save
 ```
 
@@ -611,7 +620,7 @@ done
 
 ```bash
 # iperfインストール
-sudo apt install iperf3 -y
+sudo apt install -y iperf3
 
 # サーバーモード
 iperf3 -s
@@ -627,7 +636,7 @@ iperf3 -c server_ip -t 30 -P 4  # 30秒間、4並列
 
 ```bash
 # mtr - 継続的なtraceroute
-sudo apt install mtr -y
+sudo apt install -y mtr
 mtr google.com
 
 # 統計情報のみ
