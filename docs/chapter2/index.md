@@ -292,7 +292,7 @@ chmod +x generate_log.sh
 awk '{print $6}' access.log | sort | uniq -c | sort -rn
 
 # 成功率計算
-awk 'BEGIN { total=0; success=0 } { total++ } $6==200 { success++ } END { printf "Success rate: %.2f%%\n", success*100/total }' access.log
+awk 'BEGIN { total=0; success=0 } { total++ } $6==200 { success++ } END { if (total>0) { printf "Success rate: %.2f%%\n", success*100/total } else { print "Success rate: 0.00%" } }' access.log
 ```
 
 ### 解析タスク2: エラー分析

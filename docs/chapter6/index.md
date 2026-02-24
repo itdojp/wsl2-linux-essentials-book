@@ -123,8 +123,8 @@ sudo cp -R wordpress /var/www/html/
 sudo chown -R www-data:www-data /var/www/html/wordpress
 
 # パーミッション（ディレクトリ=755, ファイル=644）
-sudo find /var/www/html/wordpress -type d -exec chmod 755 {} \\;
-sudo find /var/www/html/wordpress -type f -exec chmod 644 {} \\;
+sudo find /var/www/html/wordpress -type d -exec chmod 755 {} \;
+sudo find /var/www/html/wordpress -type f -exec chmod 644 {} \;
 
 # 設定ファイル作成
 cd /var/www/html/wordpress
