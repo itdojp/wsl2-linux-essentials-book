@@ -6,6 +6,11 @@ layout: book
 
 # 第0章: WSL2セットアップ
 
+## 前提（検証環境）
+- Windows 10 Version 2004 以降 / Windows 11
+- PowerShell を管理者権限で実行できること（企業PCなどで制限される場合がある）
+- 本書は WSL2 上の Ubuntu を想定（インターネット接続が必要な手順を含む）
+
 ## 🎯 この章の目標
 - WSL2を5分でインストールできる
 - Ubuntuを起動してLinuxコマンドを試せる

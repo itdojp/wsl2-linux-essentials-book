@@ -6,6 +6,12 @@ layout: book
 
 # 第6章: WordPress構築
 
+## 前提（検証環境）
+- WSL2 上の Ubuntu（例: 22.04/24.04）
+- systemd 有効を推奨（`systemctl` を使用。第3章の手順で有効化できる）
+- 本章はパッケージ導入と `/var/www` 配下への配置を行うため `sudo` が必要
+- 学習用のローカル環境（WSL2内）を前提とし、公開サーバー用途の手順ではない
+
 ## 🎯 この章の目標
 - LAMP環境を構築できる
 - WordPressをインストールできる
@@ -48,7 +54,7 @@ layout: book
 sudo apt update
 
 # Apacheをインストール（Webサーバー）
-sudo apt install apache2 -y
+sudo apt install -y apache2
 
 # 起動と自動起動設定
 sudo systemctl start apache2    # 今すぐ起動
@@ -67,7 +73,7 @@ Windowsのブラウザで `http://localhost` を開く
 
 ```bash
 # MySQLサーバーインストール
-sudo apt install mysql-server -y
+sudo apt install -y mysql-server
 
 # MySQLにログイン
 sudo mysql
@@ -94,7 +100,7 @@ EXIT;
 
 ```bash
 # PHP と必要モジュール
-sudo apt install php libapache2-mod-php php-mysql php-curl php-gd php-mbstring php-xml php-zip -y
+sudo apt install -y php libapache2-mod-php php-mysql php-curl php-gd php-mbstring php-xml php-zip
 
 # バージョン確認
 php -v
@@ -115,11 +121,17 @@ tar -xzvf latest.tar.gz
 # ドキュメントルートへ配置
 sudo cp -R wordpress /var/www/html/
 sudo chown -R www-data:www-data /var/www/html/wordpress
-sudo chmod -R 755 /var/www/html/wordpress
+
+# パーミッション（ディレクトリ=755, ファイル=644）
+sudo find /var/www/html/wordpress -type d -exec chmod 755 {} \\;
+sudo find /var/www/html/wordpress -type f -exec chmod 644 {} \\;
 
 # 設定ファイル作成
 cd /var/www/html/wordpress
 sudo cp wp-config-sample.php wp-config.php
+# 認証情報を含むため、読み取り権限を絞る（Apache は www-data で動作する想定）
+sudo chown root:www-data wp-config.php
+sudo chmod 640 wp-config.php
 sudo vi wp-config.php
 ```
 
@@ -133,6 +145,15 @@ define( 'DB_HOST', 'localhost' );
 define( 'DB_CHARSET', 'utf8mb4' );
 define( 'DB_COLLATE', '' );
 ```
+
+認証キー（ソルト）は、推測困難なランダム値に置き換えます（この手順は学習用のローカル環境でも推奨です）。
+
+```bash
+# 例: ソルト生成（貼り付け用）
+curl -s https://api.wordpress.org/secret-key/1.1/salt/
+```
+
+`wp-config.php` 内の `AUTH_KEY` などのブロックを、上記の出力で置き換えてください。
 
 ### ステップ5: WordPressの初期設定
 
