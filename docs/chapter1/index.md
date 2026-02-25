@@ -204,6 +204,7 @@ cp -p source.txt destination.txt
 mv oldname.txt newname.txt
 
 # ディレクトリ移動
+mkdir -p ~/documents
 mv file.txt ~/documents/
 
 # 複数ファイル移動
@@ -444,7 +445,8 @@ chmod 755 ~/shared
 # 実行可能スクリプト作成
 cat << 'EOF' > ~/backup.sh
 #!/bin/bash
-tar -czf backup_$(date +%Y%m%d).tar.gz ~/documents
+mkdir -p "$HOME/documents"
+tar -czf "backup_$(date +%Y%m%d).tar.gz" "$HOME/documents"
 EOF
 chmod 750 ~/backup.sh
 ```
