@@ -864,10 +864,12 @@ create_users
 set -euo pipefail
 
 # 設定
-APP_DIR="/var/www/myapp"
+# 想定: デプロイユーザーで実行し、必要な操作（systemctl 等）のみ sudo を使う
+# （sudo でスクリプト全体を実行すると $HOME が /root になり、BACKUP_DIR が意図せず変わる）
+APP_DIR="$HOME/apps/myapp"
 GIT_REPO="https://github.com/user/myapp.git"
 BRANCH="main"
-BACKUP_DIR="/var/backups/myapp"
+BACKUP_DIR="$HOME/backups/myapp"
 
 # デプロイ前フック
 pre_deploy() {
@@ -875,6 +877,7 @@ pre_deploy() {
     
     # バックアップ作成
     if [ -d "$APP_DIR" ]; then
+        mkdir -p "$BACKUP_DIR"
         backup_name="backup_$(date +%Y%m%d_%H%M%S).tar.gz"
         tar -czf "${BACKUP_DIR}/${backup_name}" -C "$APP_DIR" .
         echo "Backup created: ${backup_name}"
@@ -889,9 +892,11 @@ deploy() {
     echo "Deploying application..."
     
     # 最新コード取得
+    mkdir -p "$(dirname "$APP_DIR")"
     if [ -d "$APP_DIR/.git" ]; then
         cd "$APP_DIR"
         git fetch origin
+        # [注意] ローカル変更がある場合は破棄される
         git reset --hard "origin/${BRANCH}"
     else
         git clone -b "$BRANCH" "$GIT_REPO" "$APP_DIR"
@@ -905,7 +910,8 @@ deploy() {
     npm run build
     
     # 権限設定
-    chown -R www-data:www-data "$APP_DIR"
+    # 例: ランタイムで書き込みが必要なディレクトリに限定して権限調整する
+    # sudo chown -R www-data:www-data "$APP_DIR/var"
 }
 
 # デプロイ後フック
