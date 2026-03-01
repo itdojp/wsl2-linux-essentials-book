@@ -864,7 +864,9 @@ create_users
 set -euo pipefail
 
 # 設定
-APP_DIR="/var/www/myapp"
+# 想定: デプロイユーザーで実行し、必要な操作（systemctl 等）のみ sudo を使う
+# （sudo でスクリプト全体を実行すると $HOME が /root になり、BACKUP_DIR が意図せず変わる）
+APP_DIR="$HOME/apps/myapp"
 GIT_REPO="https://github.com/user/myapp.git"
 BRANCH="main"
 BACKUP_DIR="$HOME/backups/myapp"
@@ -890,6 +892,7 @@ deploy() {
     echo "Deploying application..."
     
     # 最新コード取得
+    mkdir -p "$(dirname "$APP_DIR")"
     if [ -d "$APP_DIR/.git" ]; then
         cd "$APP_DIR"
         git fetch origin
@@ -907,7 +910,8 @@ deploy() {
     npm run build
     
     # 権限設定
-    sudo chown -R www-data:www-data "$APP_DIR"
+    # 例: ランタイムで書き込みが必要なディレクトリに限定して権限調整する
+    # sudo chown -R www-data:www-data "$APP_DIR/var"
 }
 
 # デプロイ後フック
