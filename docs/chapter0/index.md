@@ -8,20 +8,20 @@ layout: book
 
 ## 前提（検証環境）
 - Windows 10 Version 2004 以降 / Windows 11
-- PowerShell を管理者権限で実行できること（企業PCなどで制限される場合がある）
+- PowerShell を管理者権限で実行できること（企業 PC などで制限される場合がある）
 - 本書は WSL2 上の Ubuntu を想定（インターネット接続が必要な手順を含む）
 
-## 🎯 この章の目標
-- WSL2を5分でインストールできる
-- Ubuntuを起動してLinuxコマンドを試せる
+## この章の目標
+- WSL2 をインストールし、Ubuntu を起動できる
+- Ubuntu 上で基本的な Linux コマンドを実行できる
 
-## 🚀 できるようになること
-- WindowsでLinuxを使える環境が整う
-- ターミナルでコマンドが打てるようになる
+## できるようになること
+- Windows 上で Linux を利用できる環境を構築できる
+- ターミナルからコマンドを実行できる
 
 ## 0.1 必要な環境
 
-### Windows要件の確認
+### Windows 要件の確認
 
 ```powershell
 # PowerShellで実行
@@ -30,28 +30,28 @@ winver
 
 **必要なバージョン**: 
 - Windows 10 Version 2004 以降
-- Windows 11（すべてのバージョンOK）
+- Windows 11（全バージョン）
 
-※企業PCなどで管理者権限がない場合や、組織のポリシーによっては WSL2 のインストールが制限されていることがあります。その場合は、システム管理者や情報システム部門に相談してください。
+※企業 PC などで管理者権限がない場合や、組織のポリシーにより WSL2 のインストールが制限されている場合があります。その場合は、システム管理者または情報システム部門に確認してください。
 
-## 0.2 WSL2のインストール（簡単3ステップ）
+## 0.2 WSL2 のインストール（3 ステップ）
 
-### ステップ1: PowerShellを管理者権限で開く
+### ステップ1: PowerShell を管理者権限で開く
 
 1. スタートボタンを右クリック
 2. 「Windows PowerShell（管理者）」をクリック
 
-### ステップ2: WSL2をインストール
+### ステップ2: WSL2 をインストール
 
 ```powershell
-# これ1行でOK！
+# 1 行で実行
 wsl --install
 ```
 
 このコマンドでインストールされるものは次のとおりです。
 - WSL2本体
 - Ubuntu（Linux）
-- 必要な機能すべて
+- 必要な機能一式
 
 ### ステップ3: PCを再起動
 
@@ -65,7 +65,7 @@ wsl --install
 
 初回起動時の設定は次のとおりです。
 ```bash
-# ユーザー名を入力（英数字小文字）
+# ユーザー名を入力（英小文字と数字）
 Enter new UNIX username: myname
 
 # パスワードを設定（入力時は表示されません）
@@ -73,7 +73,7 @@ New password:
 Retype new password:
 ```
 
-⚠️ **重要**: パスワードは入力しても画面に表示されません。これは正常な動作です。
+注意: パスワードは入力しても画面に表示されません（正常な動作です）。
 ### 動作確認
 
 ```bash
@@ -89,7 +89,7 @@ pwd
 
 ## 0.4 Windows Terminalの設定（オプション）
 
-より使いやすいターミナルを使いたい場合は次のとおりです。
+必要に応じて Windows Terminal を導入します。
 
 ```powershell
 # PowerShellで実行
@@ -99,28 +99,28 @@ winget install Microsoft.WindowsTerminal
 Windows Terminalの利点は次のとおりです。
 - タブで複数のターミナルを開ける
 - 見やすいフォントと色
-- コピー＆ペーストが簡単
+- コピー／ペーストが容易
 
 ## 0.5 トラブルシューティング
 
 ### よくある問題と解決法
 
-#### ❌ エラー: 「WSL 2 requires an update to its kernel component」
+#### エラー: 「WSL 2 requires an update to its kernel component」
 ```powershell
-# カーネルアップデートをダウンロード
-# https://aka.ms/wsl2kernel から手動でダウンロードしてインストール
+# カーネルアップデートをダウンロードし、手動でインストール
+# 参照: https://aka.ms/wsl2kernel
 ```
 
-#### ❌ エラー: 「Virtual Machine Platform」が無効
+#### エラー: 「Virtual Machine Platform」が無効
 ```powershell
 # 管理者権限のPowerShellで実行
 dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 # その後、PC再起動
 ```
 
-#### ❌ Ubuntuが起動しない
+#### Ubuntu が起動しない
 ```powershell
-# まずは軽い対処から試す
+# 初期対応
 wsl --shutdown
 wsl --status
 wsl --update
@@ -128,15 +128,15 @@ wsl --update
 # （必要なら）バックアップ
 # wsl --export Ubuntu ubuntu-backup.tar
 
-# [注意] --unregister は対象ディストリビューションのデータを全削除する（復旧不可）
-# 最終手段（データ削除を許容できる場合のみ）
+# 注意: --unregister は対象ディストリビューションのデータを削除します（復旧不可）
+# 最終手段（データ削除を許容できる場合のみ実施）
 wsl --unregister Ubuntu
 wsl --install -d Ubuntu
 ```
 
-## 🎉 セットアップ完了！
+## セットアップ完了
 
-これでWSL2環境の準備が整いました。次の章から本格的にLinuxを学んでいきましょう。
+WSL2 環境の準備が完了しました。次章以降は、実際にコマンドを実行しながら進めます。
 
 ### 確認コマンド
 ```bash
