@@ -5,13 +5,13 @@ title: "WSL2 Linux実践ガイド"
 
 # WSL2 Linux実践ガイド
 
-概要: illustrated-linux-basics-book の次のステップとして、WSL2 上で実践的な Linux スキルを習得するための技術書
+illustrated-linux-basics-book の次のステップとして、WSL2 上で実践的な Linux スキルを習得するための技術書です。
 
 ## 本書の位置づけ
 
-- **前提書籍**: [illustrated-linux-basics-book](https://github.com/itdojp/illustrated-linux-basics-book)（初級）
+- **前提書籍**: [illustrated-linux-basics-book](https://itdojp.github.io/illustrated-linux-basics-book/)（初級）
 - **本書**: 実践的な Linux スキルの習得（中級）
-- **次の書籍**: [linux-infra-textbook2](https://github.com/itdojp/linux-infra-textbook2)（上級）
+- **次の書籍**: [linux-infra-textbook2](https://itdojp.github.io/linux-infra-textbook2/)（上級）
 
 ### この本を読み終えるとできること
 
@@ -22,10 +22,10 @@ title: "WSL2 Linux実践ガイド"
 
 ## 読み方ガイド
 
-- illustrated-linux-basics-book を読み終えたばかりの読者は、第0章で WSL2 のセットアップを完了させたあと、第1章から順に読み進めることで、基礎を実践に結びつけることを推奨する。
-- Linux の基本コマンドには慣れており、テキスト処理やプロセス管理を強化したい読者は、第1章を軽く確認したうえで、第2章・第3章を重点的に読む読み方も有効である。
-- ネットワークや Web サーバー構築に関心が高い読者は、第4章と第6章を中心に読み、必要に応じて前半の章に戻って基礎操作を復習するパターンも選べる。
-- シェルスクリプトによる自動化を試したい読者は、第1〜3章でコマンドと環境に慣れたうえで、第5章の演習を通じて「自分の作業をスクリプト化する経験」を持つとよい。
+- illustrated-linux-basics-book を読み終えたばかりの読者は、第0章で WSL2 のセットアップを完了させたあと、第1章から順に読み進めることで、基礎を実践に結びつけられます。
+- Linux の基本コマンドには慣れており、テキスト処理やプロセス管理を強化したい読者は、第1章を軽く確認したうえで、第2章・第3章を重点的に読む読み方が有効です。
+- ネットワークや Web サーバー構築に関心が高い読者は、第4章と第6章を中心に読み、必要に応じて前半の章に戻って基礎操作を復習するパターンも選べます。
+- シェルスクリプトによる自動化を試したい読者は、第1〜3章でコマンドと環境に慣れたうえで、第5章の演習を通じて「自分の作業をスクリプト化する経験」を持つとよいでしょう。
 
 ## 所要時間
 - 通読: 約 0.5〜1 時間（本文量ベースの概算。400〜600 文字/分換算）
