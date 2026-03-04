@@ -230,8 +230,8 @@ rm -r directory/
 # 強制削除（注意）
 rm -rf directory/
 
-# 安全な使用例
-rm -rf /home/$(whoami)/tmp/*
+# 安全な使用例（$HOME 配下に限定し、対象を確認してから実行）
+rm -rf -- "$HOME/tmp"/*
 # 危険な例（実行禁止）
 # rm -rf /  # システム全体削除
 ```
@@ -343,17 +343,22 @@ chmod 755 hello.sh
 
 ### Windows-Linux間のファイル共有
 
+注意: Windows のユーザー名（`C:\Users\...`）と Ubuntu のユーザー名（`whoami`）は一致しない場合があります。`<WindowsUser>` は実環境に合わせて読み替えてください。
+
 ```bash
 # LinuxからWindowsファイルへアクセス
-# デスクトップのファイルをコピー
-cp /mnt/c/Users/$(whoami)/Desktop/document.txt ~/
+# Windows側ユーザー名の確認
+ls /mnt/c/Users
+
+# 例: デスクトップのファイルをコピー
+cp "/mnt/c/Users/<WindowsUser>/Desktop/document.txt" ~/
 
 # WindowsからLinuxファイルへアクセス
 # エクスプローラーで開く
 explorer.exe .
 
-# WSL2のネットワークパス
-# \\wsl$\Ubuntu-24.04\home\username
+# WSL2のネットワークパス（例。ディストリビューション名は環境により異なる）
+# \\wsl$\<DistroName>\home\<linuxuser>
 ```
 
 ### パフォーマンス考慮事項
@@ -379,6 +384,7 @@ cat -A windows_file.txt
 # 出力: line1^M$
 
 # Linux改行（LF）へ変換
+# dos2unix がない場合: sudo apt install -y dos2unix
 dos2unix windows_file.txt
 # またはsedで変換
 sed -i 's/\r$//' windows_file.txt
@@ -407,7 +413,7 @@ cat -A windows_file.txt
 ```bash
 mkdir -p ~/project/{src/{main,test},docs,config}
 touch ~/project/README.md
-tree ~/project  # treeコマンドで確認（要インストール: sudo apt install tree）
+tree ~/project  # treeコマンドで確認（未導入の場合: sudo apt install -y tree）
 ```
 
 ### 演習2: ファイル操作練習
