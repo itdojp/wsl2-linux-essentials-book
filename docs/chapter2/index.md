@@ -174,8 +174,9 @@ pgrep -fa nginx
 sed 's/old/new/' file.txt        # 各行の最初のみ
 sed 's/old/new/g' file.txt       # 全置換
 
-# ファイル直接編集（必要に応じてバックアップを残す: -i.bak）
-sed -i 's/localhost/127.0.0.1/g' config.txt
+# ファイル直接編集（WSL2/Ubuntu の GNU sed では -i.bak でバックアップ作成）
+sed -i.bak 's/localhost/127.0.0.1/g' config.txt
+# macOS/BSD sed の場合（バックアップなし）: sed -i '' 's/localhost/127.0.0.1/g' config.txt
 
 # 行削除
 sed '/^#/d' config.txt            # コメント行削除
@@ -189,7 +190,7 @@ sed '$a\exit 0' script.sh         # 末尾に追加
 実用例は次のとおりです。
 ```bash
 # 設定ファイルの値変更
-sed -i 's/port=8080/port=3000/g' app.conf
+sed -i.bak 's/port=8080/port=3000/g' app.conf
 
 # ログファイルの日付形式変更
 sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)/\3\/\2\/\1/g' dates.log
@@ -456,7 +457,8 @@ echo "hello    world" | tr -s ' '
 LOG_FILE="${1:-}"
 
 if [ -z "$LOG_FILE" ] || [ ! -f "$LOG_FILE" ]; then
-    echo "Usage: $0 <access.log>"
+    echo "Usage: $0 <logfile>"
+    echo "  第2.3 のサンプル形式の access.log を想定"
     exit 1
 fi
 
@@ -493,7 +495,8 @@ CONFIG
 # 設定値抽出
 grep -v "^#" app.conf | grep -v "^$" | while IFS='=' read -r key value; do
     [ -n "$key" ] || continue
-    echo "export APP_${key^^}=\"${value}\""
+    escaped_value=$(printf '%q' "$value")
+    echo "export APP_${key^^}=${escaped_value}"
 done > env.sh
 ```
 
