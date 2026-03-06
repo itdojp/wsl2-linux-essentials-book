@@ -153,7 +153,8 @@ grep -c "WARNING" *.log      # カウント
 grep -E "(ERROR|FATAL)" application.log
 
 # 2. IPアドレス検索
-grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" access.log
+# 簡易パターン（厳密な範囲チェックは別途実施）
+grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" access.log
 
 # 3. 空行除外
 grep -v "^$" config.txt
@@ -162,7 +163,8 @@ grep -v "^$" config.txt
 grep -v "^#" /etc/ssh/sshd_config
 
 # 5. プロセス検索の定番
-ps aux | grep nginx | grep -v grep
+# grep 自身が混ざらない形（推奨）
+pgrep -fa nginx
 ```
 
 ### sed - ストリーム編集
@@ -172,8 +174,9 @@ ps aux | grep nginx | grep -v grep
 sed 's/old/new/' file.txt        # 各行の最初のみ
 sed 's/old/new/g' file.txt       # 全置換
 
-# ファイル直接編集
-sed -i 's/localhost/127.0.0.1/g' config.txt
+# ファイル直接編集（WSL2/Ubuntu の GNU sed では -i.bak でバックアップ作成）
+sed -i.bak 's/localhost/127.0.0.1/g' config.txt
+# macOS/BSD sed の場合（バックアップなし）: sed -i '' 's/localhost/127.0.0.1/g' config.txt
 
 # 行削除
 sed '/^#/d' config.txt            # コメント行削除
@@ -187,7 +190,7 @@ sed '$a\exit 0' script.sh         # 末尾に追加
 実用例は次のとおりです。
 ```bash
 # 設定ファイルの値変更
-sed -i 's/port=8080/port=3000/g' app.conf
+sed -i.bak 's/port=8080/port=3000/g' app.conf
 
 # ログファイルの日付形式変更
 sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)/\3\/\2\/\1/g' dates.log
@@ -213,8 +216,8 @@ awk '/ERROR/ {print $0}' log.txt
 
 実用的なawkパターンは次のとおりです。
 ```bash
-# 1. ログ集計
-awk '{count[$1]++} END {for (ip in count) print ip, count[ip]}' access.log
+# 1. ログ集計（2.3 のサンプルログ形式を前提）
+awk '{count[$3]++} END {for (ip in count) print ip, count[ip]}' access.log
 
 # 2. 合計計算
 awk '{sum += $2} END {print "Total:", sum}' numbers.txt
@@ -371,7 +374,7 @@ grep -E "https?://[a-zA-Z0-9./-]+" documents.txt
 grep -E "[0-9]{4}-[0-9]{2}-[0-9]{2}" log.txt
 
 # 時刻（HH:MM:SS）
-grep -E "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]" log.txt
+grep -E "([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]" log.txt
 ```
 
 ## 2.5 ファイル内容の比較と変換
@@ -451,23 +454,28 @@ echo "hello    world" | tr -s ' '
 #!/bin/bash
 # log_analyzer.sh - ログファイル解析ツール
 
-LOG_FILE="$1"
+LOG_FILE="${1:-}"
 
-if [ ! -f "$LOG_FILE" ]; then
+if [ -z "$LOG_FILE" ] || [ ! -f "$LOG_FILE" ]; then
     echo "Usage: $0 <logfile>"
+    echo "  第2.3 のサンプル形式の access.log を想定"
     exit 1
 fi
 
 echo "=== Log Analysis Report ==="
-echo "Total lines: $(wc -l < $LOG_FILE)"
+echo "Total lines: $(wc -l < \"$LOG_FILE\")"
 echo ""
 
-echo "Error summary:"
-grep -i "error" $LOG_FILE | head -5
-
+echo "Status codes:"
+awk '{print $6}' "$LOG_FILE" | sort | uniq -c | sort -rn
 echo ""
+
 echo "Top 5 IP addresses:"
-awk '{print $1}' $LOG_FILE | sort | uniq -c | sort -rn | head -5
+awk '{print $3}' "$LOG_FILE" | sort | uniq -c | sort -rn | head -5
+echo ""
+
+echo "Top 5 paths:"
+awk '{print $5}' "$LOG_FILE" | sort | uniq -c | sort -rn | head -5
 ```
 
 ### 演習2: 設定ファイルパーサー
@@ -485,8 +493,10 @@ max_connections=100
 CONFIG
 
 # 設定値抽出
-grep -v "^#" app.conf | grep -v "^$" | while IFS='=' read key value; do
-    echo "export APP_${key^^}=$value"
+grep -v "^#" app.conf | grep -v "^$" | while IFS='=' read -r key value; do
+    [ -n "$key" ] || continue
+    escaped_value=$(printf '%q' "$value")
+    echo "export APP_${key^^}=${escaped_value}"
 done > env.sh
 ```
 
