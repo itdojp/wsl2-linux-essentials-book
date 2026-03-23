@@ -1,8 +1,8 @@
 {
   "name": "wsl2-linux-essentials-book",
-  "version": "1.0.0",
-  "description": "Windows Subsystem for Linux 2 (WSL2)を使ったLinux環境の構築と基本操作を学ぶ技術書",
-  "author": "itdojp",
+  "version": "2.0.1",
+  "description": "illustrated-linux-basics-book の次のステップとして、WSL2 上で実践的な Linux スキルを習得するための技術書",
+  "author": "株式会社アイティードゥ",
   "license": "CC-BY-NC-SA-4.0",
   "scripts": {
     "build": "bundle exec jekyll build",

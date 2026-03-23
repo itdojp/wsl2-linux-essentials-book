@@ -29,6 +29,12 @@
       "path": "/chapter6/"
     }
   ],
+  "resources": [
+    {
+      "title": "用語集",
+      "path": "/glossary/"
+    }
+  ],
   "chapter0/": {
     "next": {
       "path": "/chapter1/",
@@ -89,6 +95,12 @@
     "previous": {
       "path": "/chapter5/",
       "title": "第5章: シェルスクリプト入門"
+    }
+  },
+  "glossary/": {
+    "previous": {
+      "path": "/chapter6/",
+      "title": "第6章: WordPress構築"
     }
   }
 }
