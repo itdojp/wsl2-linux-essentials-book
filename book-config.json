@@ -9,37 +9,37 @@
     "chapters": [
       {
         "id": "chapter0",
-        "title": "第0章 WSL2セットアップ",
+        "title": "第0章: WSL2セットアップ",
         "description": "Windows 11 上で WSL2 と Ubuntu をセットアップし、学習を始める準備を整える"
       },
       {
         "id": "chapter1",
-        "title": "第1章 Linuxの世界への第一歩",
+        "title": "第1章: Linuxの世界への第一歩",
         "description": "Linux の基本操作とファイルシステムに慣れ、WSL2 環境での作業の土台を作る"
       },
       {
         "id": "chapter2",
-        "title": "第2章 テキスト処理の基本",
+        "title": "第2章: テキスト処理の基本",
         "description": "grep、sed、awk などのテキスト処理コマンドを使い、コマンドラインで情報を加工する"
       },
       {
         "id": "chapter3",
-        "title": "第3章 プロセスとサービス管理",
+        "title": "第3章: プロセスとサービス管理",
         "description": "プロセス監視、systemd、サービス運用の基礎を学び、実行中システムを扱えるようにする"
       },
       {
         "id": "chapter4",
-        "title": "第4章 ネットワークの基礎",
+        "title": "第4章: ネットワークの基礎",
         "description": "WSL2 のネットワーク特性を踏まえ、疎通確認やポート監視などの基本操作を身に付ける"
       },
       {
         "id": "chapter5",
-        "title": "第5章 シェルスクリプト入門",
+        "title": "第5章: シェルスクリプト入門",
         "description": "繰り返し作業をシェルスクリプト化し、日常的な運用を自動化する基礎を学ぶ"
       },
       {
         "id": "chapter6",
-        "title": "第6章 WordPress構築",
+        "title": "第6章: WordPress構築",
         "description": "学習用の LAMP 環境を構築し、WordPress を題材に複数要素を組み合わせて検証する"
       }
     ],

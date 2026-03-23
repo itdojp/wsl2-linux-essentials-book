@@ -33,13 +33,13 @@ description: "illustrated-linux-basics-book の次のステップとして、WSL
 
 ## 目次
 
-- [第0章 WSL2セットアップ]({{ site.baseurl }}/chapter0/)
-- [第1章 Linuxの世界への第一歩]({{ site.baseurl }}/chapter1/)
-- [第2章 テキスト処理の基本]({{ site.baseurl }}/chapter2/)
-- [第3章 プロセスとサービス管理]({{ site.baseurl }}/chapter3/)
-- [第4章 ネットワークの基礎]({{ site.baseurl }}/chapter4/)
-- [第5章 シェルスクリプト入門]({{ site.baseurl }}/chapter5/)
-- [第6章 WordPress構築]({{ site.baseurl }}/chapter6/)
+- [第0章: WSL2セットアップ]({{ site.baseurl }}/chapter0/)
+- [第1章: Linuxの世界への第一歩]({{ site.baseurl }}/chapter1/)
+- [第2章: テキスト処理の基本]({{ site.baseurl }}/chapter2/)
+- [第3章: プロセスとサービス管理]({{ site.baseurl }}/chapter3/)
+- [第4章: ネットワークの基礎]({{ site.baseurl }}/chapter4/)
+- [第5章: シェルスクリプト入門]({{ site.baseurl }}/chapter5/)
+- [第6章: WordPress構築]({{ site.baseurl }}/chapter6/)
 - [用語集]({{ site.baseurl }}/glossary/)
 
 ## 概要
