@@ -1,66 +1,53 @@
 {
-  "title": "WSL2とLinuxの基礎",
-  "description": "Windows Subsystem for Linux 2 (WSL2)を使ったLinux環境の構築と基本操作を学ぶ技術書",
-  "author": "itdojp",
+  "title": "WSL2 Linux実践ガイド",
+  "description": "illustrated-linux-basics-book の次のステップとして、WSL2 上で実践的な Linux スキルを習得するための技術書",
+  "author": "株式会社アイティードゥ",
   "version": "2.0.1",
+  "repository": "https://github.com/itdojp/wsl2-linux-essentials-book",
+  "license": "CC BY-NC-SA 4.0",
   "structure": {
     "chapters": [
       {
-        "id": "introduction",
-        "title": "はじめに",
-        "description": "本書の目的と対象読者について"
+        "id": "chapter0",
+        "title": "第0章: WSL2セットアップ",
+        "description": "Windows 11 上で WSL2 と Ubuntu をセットアップし、学習を始める準備を整える"
       },
       {
-        "id": "chapter01",
-        "title": "第1章 WSL2とは",
-        "description": "WSL2の概要と特徴、従来のWSL1との違い"
+        "id": "chapter1",
+        "title": "第1章: Linuxの世界への第一歩",
+        "description": "Linux の基本操作とファイルシステムに慣れ、WSL2 環境での作業の土台を作る"
       },
       {
-        "id": "chapter02",
-        "title": "第2章 WSL2のインストール",
-        "description": "Windows 10/11でのWSL2のセットアップ手順"
+        "id": "chapter2",
+        "title": "第2章: テキスト処理の基本",
+        "description": "grep、sed、awk などのテキスト処理コマンドを使い、コマンドラインで情報を加工する"
       },
       {
-        "id": "chapter03",
-        "title": "第3章 Linuxディストリビューションの選択",
-        "description": "Ubuntu、Debian、openSUSEなどの選び方と特徴"
+        "id": "chapter3",
+        "title": "第3章: プロセスとサービス管理",
+        "description": "プロセス監視、systemd、サービス運用の基礎を学び、実行中システムを扱えるようにする"
       },
       {
-        "id": "chapter04",
-        "title": "第4章 Linux基本コマンド",
-        "description": "ファイル操作、プロセス管理、パッケージ管理の基礎"
+        "id": "chapter4",
+        "title": "第4章: ネットワークの基礎",
+        "description": "WSL2 のネットワーク特性を踏まえ、疎通確認やポート監視などの基本操作を身に付ける"
       },
       {
-        "id": "chapter05",
-        "title": "第5章 開発環境の構築",
-        "description": "VSCode、Git、Docker Desktop for WSL2の設定"
+        "id": "chapter5",
+        "title": "第5章: シェルスクリプト入門",
+        "description": "繰り返し作業をシェルスクリプト化し、日常的な運用を自動化する基礎を学ぶ"
       },
       {
-        "id": "chapter06",
-        "title": "第6章 ネットワークとファイル共有",
-        "description": "WSL2とWindowsのネットワーク連携、ファイルシステムの相互アクセス"
-      },
-      {
-        "id": "chapter07",
-        "title": "第7章 トラブルシューティング",
-        "description": "よくある問題と解決方法、パフォーマンス最適化"
-      },
-      {
-        "id": "chapter08",
-        "title": "第8章 実践プロジェクト",
-        "description": "WSL2を使った開発プロジェクトの実例"
+        "id": "chapter6",
+        "title": "第6章: WordPress構築",
+        "description": "学習用の LAMP 環境を構築し、WordPress を題材に複数要素を組み合わせて検証する"
       }
     ],
-    "appendices": [
+    "resources": [
       {
-        "id": "commands",
-        "title": "コマンドリファレンス",
-        "description": "本書で使用したコマンドの一覧"
-      },
-      {
-        "id": "resources",
-        "title": "参考資料",
-        "description": "さらなる学習のためのリソース"
+        "id": "glossary",
+        "title": "用語集",
+        "description": "WSL2 と Linux 学習で頻出する用語の短い参照集"
       }
     ]
   },

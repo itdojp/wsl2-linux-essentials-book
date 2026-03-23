@@ -1,7 +1,7 @@
-title: "やさしく学ぶLinux WSL2ではじめる基礎"
-description: "WSL2を使ってLinuxを基礎からやさしく学ぶ技術書"
+title: "WSL2 Linux実践ガイド"
+description: "illustrated-linux-basics-book の次のステップとして、WSL2 上で実践的な Linux スキルを習得するための技術書"
 author: "株式会社アイティードゥ"
-version: "1.0.0"
+version: "2.0.1"
 lang: "ja"
 
 # GitHub Pages設定
@@ -30,6 +30,12 @@ exclude:
 
 # リポジトリ設定
 repository: "itdojp/wsl2-linux-essentials-book"
+repository_url: "https://github.com/itdojp/wsl2-linux-essentials-book"
+repository_branch: "main"
+license: "CC BY-NC-SA 4.0"
+license_text: "Content licensed under CC BY-NC-SA 4.0 (commercial use requires a separate agreement)."
+contact:
+  email: "knowledge@itdo.jp"
 # Defaults: use custom book layout as default
 defaults:
   - scope:
