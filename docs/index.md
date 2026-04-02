@@ -76,7 +76,7 @@ description: "illustrated-linux-basics-book の次のステップとして、WSL
 ## 利用と更新情報
 
 - リポジトリ: [itdojp/wsl2-linux-essentials-book](https://github.com/itdojp/wsl2-linux-essentials-book)
-- 更新差分を追う場合は、GitHub の [コミット履歴](https://github.com/itdojp/wsl2-linux-essentials-book/commits/main/) と [Pull Request](https://github.com/itdojp/wsl2-linux-essentials-book/pulls) を参照してください。
+- 更新差分を追う場合は、GitHub の [コミット履歴](https://github.com/itdojp/wsl2-linux-essentials-book/commits/main/) と [PR 一覧](https://github.com/itdojp/wsl2-linux-essentials-book/pulls) を参照してください。
 - WSL と Ubuntu の動作差は Windows / ディストリビューションのバージョンで変わるため、実行環境のバージョンも併せて確認してください。
 
 お問い合わせ  
