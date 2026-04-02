@@ -68,7 +68,7 @@ description: "illustrated-linux-basics-book の次のステップとして、WSL
 
 ## ライセンス
 
-本書は **Creative Commons BY-NC-SA 4.0** ライセンスで公開されています。  
+本書は **Creative Commons BY-NC-SA 4.0** ライセンスで公開されています。
 教育・研究・個人学習での利用は可能ですが、商用利用には事前の許諾が必要です。
 
 詳細なライセンス条件: [wsl2-linux-essentials-book/LICENSE.md](https://github.com/itdojp/wsl2-linux-essentials-book/blob/main/LICENSE.md)
@@ -79,13 +79,13 @@ description: "illustrated-linux-basics-book の次のステップとして、WSL
 - 更新差分を追う場合は、GitHub の [コミット履歴](https://github.com/itdojp/wsl2-linux-essentials-book/commits/main/) と [PR 一覧](https://github.com/itdojp/wsl2-linux-essentials-book/pulls) を参照してください。
 - WSL と Ubuntu の動作差は Windows / ディストリビューションのバージョンで変わるため、実行環境のバージョンも併せて確認してください。
 
-お問い合わせ  
-株式会社アイティードゥ（ITDO Inc.）  
+お問い合わせ
+株式会社アイティードゥ（ITDO Inc.）
 Email: [knowledge@itdo.jp](mailto:knowledge@itdo.jp)
 
 ---
 
-**著者:** 株式会社アイティードゥ  
-**バージョン:** 2.0.1  
+**著者:** 株式会社アイティードゥ
+**バージョン:** 2.0.1
 **最終更新:** 2026-03-02
 {% include page-navigation.html %}
