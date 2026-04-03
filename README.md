@@ -2,9 +2,9 @@
 
 `illustrated-linux-basics-book` の次のステップとして、WSL2 上でより実践的な Linux スキルを身に付けるための技術書です。
 
-- 公開ページ（GitHub Pages）: https://itdojp.github.io/wsl2-linux-essentials-book/
+- 公開ページ（GitHub Pages）: [wsl2-linux-essentials-book](https://itdojp.github.io/wsl2-linux-essentials-book/)
 - 目次（リポジトリ内）: `docs/index.md`
-- シリーズ: https://github.com/itdojp/it-engineer-knowledge-architecture
+- シリーズ: [it-engineer-knowledge-architecture](https://github.com/itdojp/it-engineer-knowledge-architecture)
 
 ## この本を読み終えるとできること（抜粋）
 
@@ -15,7 +15,7 @@
 
 ## フィードバック（誤り指摘・改善提案）
 
-誤字脱字、技術的な誤り、改善提案は Issues / Pull Request で受け付けます。手順は `CONTRIBUTING.md` を参照してください。
+誤字脱字、技術的な誤り、改善提案は Issues / PR で受け付けます。手順は `CONTRIBUTING.md` を参照してください。
 
 ## ライセンス
 
