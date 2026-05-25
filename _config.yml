@@ -1,8 +1,13 @@
-title: "WSL2とLinuxの基礎"
-description: "Windows Subsystem for Linux 2 (WSL2)を使ったLinux環境の構築と基本操作を学ぶ技術書"
-author: "itdojp"
-version: "1.0.0"
+title: "WSL2 Linux実践ガイド"
+description: "illustrated-linux-basics-book の次のステップとして、WSL2 上で実践的な Linux スキルを習得するための技術書"
+author: "株式会社アイティードゥ"
+version: "2.0.1"
 lang: "ja"
+
+# GitHub Pages設定
+baseurl: "/wsl2-linux-essentials-book"
+url: "https://itdojp.github.io"
+homepage: "https://itdojp.github.io/wsl2-linux-essentials-book/"
 
 # Jekyll設定
 markdown: kramdown
@@ -29,8 +34,12 @@ exclude:
 kramdown:
   input: GFM
   syntax_highlighter: rouge
-  
-# GitHub Pages設定
 
+# リポジトリ設定
 repository: "itdojp/wsl2-linux-essentials-book"
-
+repository_url: "https://github.com/itdojp/wsl2-linux-essentials-book"
+repository_branch: "main"
+license: "CC BY-NC-SA 4.0"
+license_text: "Content licensed under CC BY-NC-SA 4.0 (commercial use requires a separate agreement)."
+contact:
+  email: "knowledge@itdo.jp"

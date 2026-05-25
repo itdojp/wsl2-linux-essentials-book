@@ -10,14 +10,19 @@
     "deploy": "npm run build && gh-pages -d _site",
     "deploy-setup": "gh-pages-clean",
     "validate-deploy": "node scripts/validate-github-pages.js",
-    "pages-status": "node scripts/check-pages-status.js"
+    "pages-status": "node scripts/check-pages-status.js",
+    "check:metadata": "python3 scripts/check_metadata_consistency.py",
+    "test": "npm run check:metadata"
   },
   "devDependencies": {
     "gh-pages": "^6.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/itdojp/wsl2-linux-essentials-book.git"
+    "url": "git+https://github.com/itdojp/wsl2-linux-essentials-book.git"
   },
-  "homepage": "https://itdojp.github.io/wsl2-linux-essentials-book"
+  "homepage": "https://itdojp.github.io/wsl2-linux-essentials-book/",
+  "bugs": {
+    "url": "https://github.com/itdojp/wsl2-linux-essentials-book/issues"
+  }
 }

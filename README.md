@@ -13,6 +13,18 @@
 - 簡単なシェルスクリプトを書いて、日常作業を自動化できる。
 - 学習用の LAMP 環境を構築し、WordPress サイトを立ち上げて試せる。
 
+## ローカル品質確認
+
+公開前の最小確認として、次のコマンドでメタデータ・ナビゲーション・公開ルートの整合性を検証します。
+
+```bash
+npm test
+# または
+npm run check:metadata
+```
+
+この検証では `book-config.json`、`package.json`、Jekyll 設定、`docs/_data/navigation.json`、公開対象の `docs/**/*.md`、および必須公開アセットの対応関係を確認します。
+
 ## フィードバック（誤り指摘・改善提案）
 
 誤字脱字、技術的な誤り、改善提案は Issues / PR で受け付けます。手順は `CONTRIBUTING.md` を参照してください。

@@ -1,6 +1,9 @@
 ---
 layout: book
+title: "WSL2 Linux実践ガイド"
 description: "illustrated-linux-basics-book の次のステップとして、WSL2 上で実践的な Linux スキルを習得するための技術書"
+author: "株式会社アイティードゥ"
+version: "2.0.1"
 ---
 
 # WSL2 Linux実践ガイド

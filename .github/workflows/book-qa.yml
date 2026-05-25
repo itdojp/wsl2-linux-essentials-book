@@ -49,6 +49,9 @@ jobs:
             echo "dir=." >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Book metadata/navigation consistency
+        run: python3 scripts/check_metadata_consistency.py
+
       - name: Unicode check (fail on warnings)
         run: node book-formatter/scripts/check-unicode.js "${{ steps.scan.outputs.dir }}" --allowlist .book-formatter/unicode-allowlist.json --fail-on warn
 
@@ -120,8 +123,13 @@ jobs:
             return p if p.endswith("/") else p + "/"
 
           def read_nav_paths():
-            nav = scan_dir / "_data" / "navigation.yml"
-            if not nav.exists():
+            nav = None
+            for name in ("navigation.yml", "navigation.yaml", "navigation.json"):
+              candidate = scan_dir / "_data" / name
+              if candidate.exists():
+                nav = candidate
+                break
+            if nav is None:
               return []
             try:
               raw = nav.read_text(encoding="utf-8")
@@ -132,39 +140,46 @@ jobs:
                 nav_display = nav.relative_to(Path.cwd())
               except ValueError:
                 pass
-              print(f"::error file={nav_display}::Failed to parse navigation YAML: {e}")
+              print(f"::error file={nav_display}::Failed to parse navigation data: {e}")
               sys.exit(1)
             paths = []
-            # Keep this segment list broad to support different book structures.
-            for key in ["introduction", "chapters", "additional", "resources", "appendices", "afterword"]:
-              for item in (data.get(key) or []):
-                if isinstance(item, dict):
-                  nested = item.get("items")
-                  if not isinstance(nested, list):
-                    nested = item.get("children")
-                  if isinstance(nested, list):
-                    for sub in (nested or []):
-                      if not isinstance(sub, dict):
-                        continue
-                      p = normalize_path(sub.get("path"))
-                      if p:
-                        paths.append(p)
-                    continue
-                if not isinstance(item, dict):
-                  continue
-                p = normalize_path(item.get("path"))
+
+            def walk(value):
+              if isinstance(value, dict):
+                p = normalize_path(value.get("path"))
                 if p:
                   paths.append(p)
+                for nested_key in ("items", "children"):
+                  nested = value.get(nested_key)
+                  if isinstance(nested, list):
+                    for sub in nested:
+                      walk(sub)
+              elif isinstance(value, list):
+                for sub in value:
+                  walk(sub)
+
+            # Keep this segment list broad to support different book structures.
+            for key in ["introduction", "chapters", "additional", "resources", "appendices", "afterword"]:
+              walk(data.get(key) or [])
             return paths
 
           def discover_paths():
             paths = []
+            # Support both grouped structures (docs/chapters/foo/) and this
+            # book's root-level chapter directories (docs/chapter0/).
             for seg in ["introduction", "chapters", "additional", "resources", "appendices", "afterword"]:
               d = scan_dir / seg
               if d.is_dir():
                 for child in sorted(d.iterdir()):
                   if child.is_dir():
                     paths.append(f"/{seg}/{child.name}/")
+            for md in sorted(scan_dir.glob("*.md")):
+              if md.name == "index.md":
+                continue
+              paths.append(f"/{md.stem}/")
+            for child in sorted(scan_dir.iterdir()):
+              if child.is_dir() and (child / "index.md").exists() and not child.name.startswith(("_", "assets")):
+                paths.append(f"/{child.name}/")
             return paths
 
           paths = read_nav_paths() or discover_paths() or ["/"]
