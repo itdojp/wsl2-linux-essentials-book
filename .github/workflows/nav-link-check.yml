@@ -24,7 +24,7 @@ jobs:
         id: build
         run: |
           python3 - << 'PY'
-          import os, yaml, re
+          import os
           from pathlib import Path
           import yaml
           repo = os.environ.get('GITHUB_REPOSITORY','').split('/')[-1]
@@ -46,25 +46,62 @@ jobs:
           # Ensure baseurl starts with '/'
           if not baseurl.startswith('/'):
               baseurl = '/' + baseurl
+          def normalize_path(path):
+              if not isinstance(path, str):
+                  return ''
+              path = path.strip()
+              if not path or path.startswith(('http://', 'https://', 'mailto:')):
+                  return ''
+              if not path.startswith('/'):
+                  path = '/' + path
+              lower = path.lower()
+              if lower.endswith(('.md', '.html', '.htm', '.pdf', '.txt')):
+                  return path
+              return path if path.endswith('/') else path + '/'
           def read_nav():
-              y = Path('docs/_data/navigation.yml')
-              if not y.exists():
+              nav = None
+              for name in ['navigation.yml', 'navigation.yaml', 'navigation.json']:
+                  candidate = Path('docs/_data') / name
+                  if candidate.exists():
+                      nav = candidate
+                      break
+              if nav is None:
                   return []
-              data = yaml.safe_load(y.read_text(encoding='utf-8')) or {}
+              data = yaml.safe_load(nav.read_text(encoding='utf-8')) or {}
               paths = []
+              def walk(value):
+                  if isinstance(value, dict):
+                      p = normalize_path(value.get('path'))
+                      if p:
+                          paths.append(p)
+                      for nested_key in ['items', 'children']:
+                          nested = value.get(nested_key)
+                          if isinstance(nested, list):
+                              for sub in nested:
+                                  walk(sub)
+                  elif isinstance(value, list):
+                      for sub in value:
+                          walk(sub)
               for key in ['introduction','chapters','additional','resources','appendices','afterword']:
-                  for item in (data.get(key) or []):
-                      p = item.get('path') or ''
-                      if p: paths.append(p)
+                  walk(data.get(key) or [])
               return paths
           def discover():
               paths=[]
-              for seg in ['introduction','chapters','appendices','afterword']:
+              # Support both grouped directories such as docs/chapters/foo/ and
+              # this book's root-level chapter directories such as docs/chapter0/.
+              for seg in ['introduction','chapters','additional','resources','appendices','afterword']:
                   d = Path('docs')/seg
                   if d.is_dir():
                       for child in sorted(d.iterdir()):
                           if child.is_dir():
                               paths.append(f'/{seg}/{child.name}/')
+              for md in sorted(Path('docs').glob('*.md')):
+                  if md.name == 'index.md':
+                      continue
+                  paths.append(f'/{md.stem}/')
+              for child in sorted(Path('docs').iterdir()):
+                  if child.is_dir() and (child/'index.md').exists() and not child.name.startswith(('_', 'assets')):
+                      paths.append(f'/{child.name}/')
               return paths
           paths = read_nav() or discover() or ['/']
           # Always include index

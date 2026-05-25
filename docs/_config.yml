@@ -7,6 +7,7 @@ lang: "ja"
 # GitHub Pages設定
 baseurl: "/wsl2-linux-essentials-book"
 url: "https://itdojp.github.io"
+homepage: "https://itdojp.github.io/wsl2-linux-essentials-book/"
 
 # Jekyll設定
 markdown: kramdown
