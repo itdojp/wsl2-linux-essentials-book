@@ -223,7 +223,9 @@ def check_metadata(book: dict[str, Any], package: dict[str, Any]) -> None:
     check_equal(repo.get("url"), EXPECTED["repository_git"], "package.json.repository.url")
     bugs = package.get("bugs") or {}
     check_equal(bugs.get("url"), EXPECTED["repository"] + "/issues", "package.json.bugs.url")
-    scripts = package.get("scripts") or {}
+    scripts = package.get("scripts")
+    if not isinstance(scripts, dict):
+        fail("package.json.scripts must be an object")
     check_equal(scripts.get("check:security"), "npm audit --omit=optional", "package.json.scripts.check:security")
     test_script = scripts.get("test")
     if not isinstance(test_script, str):
