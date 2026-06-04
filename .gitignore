@@ -1,4 +1,9 @@
 node_modules/
+_site/
+.jekyll-cache/
+.jekyll-metadata
+.bundle/
+vendor/bundle/
 .DS_Store
 Thumbs.db
 *.log
@@ -7,4 +12,3 @@ Thumbs.db
 *.swp
 *.swo
 *~
-package-lock.json
