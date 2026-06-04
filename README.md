@@ -18,12 +18,15 @@
 公開前の最小確認として、次のコマンドでメタデータ・ナビゲーション・公開ルートの整合性を検証します。
 
 ```bash
+npm ci
 npm test
 # または
 npm run check:metadata
+npm run check:security
 ```
 
 この検証では `book-config.json`、`package.json`、Jekyll 設定、`docs/_data/navigation.json`、公開対象の `docs/**/*.md`、および必須公開アセットの対応関係を確認します。
+`npm run check:security` は `package-lock.json` に基づいて任意依存を除いた npm 依存関係監査を実行します。
 
 ## フィードバック（誤り指摘・改善提案）
 
