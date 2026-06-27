@@ -10,13 +10,13 @@
     "chapters": [
       {
         "id": "chapter0",
-        "title": "第0章: WSL2セットアップ",
+        "title": "第0章: WSL2 セットアップ",
         "description": "Windows 11 上で WSL2 と Ubuntu をセットアップし、学習を始める準備を整える",
         "path": "/chapter0/"
       },
       {
         "id": "chapter1",
-        "title": "第1章: Linuxの世界への第一歩",
+        "title": "第1章: Linux の世界への第一歩",
         "description": "Linux の基本操作とファイルシステムに慣れ、WSL2 環境での作業の土台を作る",
         "path": "/chapter1/"
       },

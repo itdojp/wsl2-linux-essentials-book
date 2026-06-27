@@ -10,7 +10,7 @@ layout: book
 - WSL2 上の Ubuntu（例: 22.04/24.04）
 - systemd 有効を推奨（`systemctl` を使用。第3章の手順で有効化できる）
 - 本章はパッケージ導入と `/var/www` 配下への配置を行うため `sudo` が必要
-- 学習用のローカル環境（WSL2内）を前提とし、公開サーバー用途の手順ではない
+- 学習用のローカル環境（WSL2 内）を前提とし、公開サーバー用途の手順ではない
 
 ## この章の目標
 - LAMP 環境の構成要素を把握し、構築手順を実行できる
@@ -36,24 +36,24 @@ layout: book
 
 **LAMP**は4つのソフトウェアの頭文字です。
 - **L**inux: OS（この本で使っているUbuntu環境）
-- **A**pache: Webサーバー（Webページを外部に公開するソフトウェア）
+- **A**pache: Web サーバー（Webページを外部に公開するソフトウェア）
 - **M**ySQL: データベース（記事やユーザー情報などのデータを保存する場所）
 - **P**HP: プログラミング言語（動的なWebページを生成するための言語）
 
-これらを組み合わせると、WordPressのようなWebサイトが作れます。
+これらを組み合わせると、WordPressのようなWeb サイトが作れます。
 
 ### 完成イメージ
 1. ブラウザで `http://localhost/wordpress` にアクセス
 2. WordPressの初期設定画面が表示される
 3. ブログ記事を投稿できる
 
-### ステップ1: Apache Webサーバーのインストール
+### ステップ1: Apache Web サーバーのインストール
 
 ```bash
 # まずはシステムを最新に
 sudo apt update
 
-# Apacheをインストール（Webサーバー）
+# Apacheをインストール（Web サーバー）
 sudo apt install -y apache2
 
 # 起動と自動起動設定
@@ -72,10 +72,10 @@ sudo systemctl status apache2
 ### ステップ2: MySQL データベースのインストール
 
 ```bash
-# MySQLサーバーインストール
+# MySQL サーバーインストール
 sudo apt install -y mysql-server
 
-# MySQLにログイン
+# MySQL にログイン
 sudo mysql
 ```
 
@@ -94,7 +94,7 @@ SHOW DATABASES;
 EXIT;
 ```
 
-※ `StrongPassword123!` はサンプルです。学習用のローカル環境（WSL2内）でのみ使用し、本番環境や公開サーバーでは必ず強力なパスワードに変更したうえで、認証情報を安全に管理してください。
+※ `StrongPassword123!` はサンプルです。学習用のローカル環境（WSL2 内）でのみ使用し、本番環境や公開サーバーでは必ず強力なパスワードに変更したうえで、認証情報を安全に管理してください。
 
 ### ステップ3: PHPのインストール
 
@@ -196,9 +196,9 @@ sudo journalctl -xe | grep apache2
 sudo apache2ctl configtest
 ```
 
-#### MySQLに接続できない場合
+#### MySQL に接続できない場合
 ```bash
-# MySQLサービスの状態確認
+# MySQL サービスの状態確認
 sudo systemctl status mysql
 
 # 再起動

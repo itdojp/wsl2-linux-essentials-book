@@ -1,10 +1,10 @@
 ---
-title: "第1章: Linuxの世界への第一歩"
+title: "第1章: Linux の世界への第一歩"
 chapter: chapter1
 layout: book
 ---
 
-# 第1章: Linuxの世界への第一歩
+# 第1章: Linux の世界への第一歩
 
 ## 前提（検証環境）
 - WSL2 上の Ubuntu（例: 22.04/24.04）
@@ -32,7 +32,7 @@ Linux では主にコマンドでファイルを操作するため、「現在�
 
 Linux は Windows と異なる設計思想を持ちます。本書では差分を整理しながら説明します。
 
-![Linuxファイルシステム構造図]({{ site.baseurl }}/assets/images/linux-filesystem-tree.svg)
+![Linux ファイルシステム構造図]({{ site.baseurl }}/assets/images/linux-filesystem-tree.svg)
 
 例えとして、次のように捉えると理解しやすくなります。
 - Windows は「複数の建物（C:、D: ドライブ）」がある
@@ -64,11 +64,11 @@ ls -la
 WSL2 では、Windows ファイルシステムが `/mnt` 以下にマウントされます。
 
 ```bash
-# Windowsのドライブ確認
+# Windows のドライブ確認
 ls /mnt/
 # 出力: c  d  （ドライブに応じて）
 
-# WindowsのCドライブアクセス
+# Windows のCドライブアクセス
 cd /mnt/c/Users/
 ls
 ```
@@ -290,7 +290,7 @@ ls -l script.sh
 # └┴┴─ 所有者（user）: 読み取り・書き込み・実行
 ```
 
-上の図は、Linuxのファイルパーミッション（権限）システムを分かりやすく説明しています。所有者、グループ、その他のユーザーごとに、読み取り（r）、書き込み（w）、実行（x）の権限がどのように設定されるかを視覚的に理解できます。
+上の図は、Linux のファイルパーミッション（権限）システムを分かりやすく説明しています。所有者、グループ、その他のユーザーごとに、読み取り（r）、書き込み（w）、実行（x）の権限がどのように設定されるかを視覚的に理解できます。
 
 ### chmod - 権限変更
 
@@ -339,38 +339,38 @@ chmod 755 hello.sh
 #      Tue Jan 15 10:30:45 JST 2025
 ```
 
-## 1.4 WSL2特有のファイル操作
+## 1.4 WSL2 特有のファイル操作
 
-### Windows-Linux間のファイル共有
+### Windows-Linux 間のファイル共有
 
 注意: Windows のユーザー名（`C:\Users\...`）と Ubuntu のユーザー名（`whoami`）は一致しない場合があります。`<WindowsUser>` は実環境に合わせて読み替えてください。
 
 ```bash
-# LinuxからWindowsファイルへアクセス
-# Windows側ユーザー名の確認
+# Linux から Windows ファイルへアクセス
+# Windows 側ユーザー名の確認
 ls /mnt/c/Users
 
 # 例: デスクトップのファイルをコピー
 cp "/mnt/c/Users/<WindowsUser>/Desktop/document.txt" ~/
 
-# WindowsからLinuxファイルへアクセス
+# Windows から Linux ファイルへアクセス
 # エクスプローラーで開く
 explorer.exe .
 
-# WSL2のネットワークパス（例。ディストリビューション名は環境により異なる）
+# WSL2 のネットワークパス（例。ディストリビューション名は環境により異なる）
 # \\wsl$\<DistroName>\home\<linuxuser>
 ```
 
 ### パフォーマンス考慮事項
 
 ```bash
-# 高速: Linux側ファイルシステム
+# 高速: Linux 側ファイルシステム
 time find ~ -name "*.txt" | head -100
 
-# 低速: Windows側ファイルシステム
+# 低速: Windows 側ファイルシステム
 time find /mnt/c -name "*.txt" | head -100
 
-# 推奨: 作業ファイルはLinux側に配置
+# 推奨: 作業ファイルは Linux 側に配置
 cp -r /mnt/c/project ~/
 cd ~/project
 # 作業実施
@@ -379,11 +379,11 @@ cd ~/project
 ### 改行コード問題の対処
 
 ```bash
-# Windows改行（CRLF）確認
+# Windows 改行（CRLF）確認
 cat -A windows_file.txt
 # 出力: line1^M$
 
-# Linux改行（LF）へ変換
+# Linux 改行（LF）へ変換
 # dos2unix がない場合: sudo apt install -y dos2unix
 dos2unix windows_file.txt
 # またはsedで変換
@@ -467,7 +467,7 @@ chmod 750 ~/backup.sh
 | `Permission denied` | 権限不足 | `ls -l`で権限確認、必要に応じて`sudo`使用 |
 | `No such file or directory` | ファイルパス誤り | タブ補完使用、大文字小文字確認 |
 | `Directory not empty` | 空でないディレクトリ削除 | `rm -r`使用 |
-| `/mnt/c`が遅い | ファイルシステム越境 | Linux側へファイルコピー |
+| `/mnt/c`が遅い | ファイルシステム越境 | Linux 側へファイルコピー |
 
 ### デバッグのコツ
 

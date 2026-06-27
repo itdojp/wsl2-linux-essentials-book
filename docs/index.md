@@ -36,8 +36,8 @@ version: "2.0.1"
 
 ## 目次
 
-- [第0章: WSL2セットアップ]({{ site.baseurl }}/chapter0/)
-- [第1章: Linuxの世界への第一歩]({{ site.baseurl }}/chapter1/)
+- [第0章: WSL2 セットアップ]({{ site.baseurl }}/chapter0/)
+- [第1章: Linux の世界への第一歩]({{ site.baseurl }}/chapter1/)
 - [第2章: テキスト処理の基本]({{ site.baseurl }}/chapter2/)
 - [第3章: プロセスとサービス管理]({{ site.baseurl }}/chapter3/)
 - [第4章: ネットワークの基礎]({{ site.baseurl }}/chapter4/)
@@ -52,13 +52,13 @@ version: "2.0.1"
 ### 想定読者
 
 - illustrated-linux-basics-bookを終えた方
-- Linuxの基本コマンドは知っているが、実践経験が少ない方
-- WindowsでLinux開発環境を構築したい方
-- Webサーバー構築に興味がある方
+- Linux の基本コマンドは知っているが、実践経験が少ない方
+- Windows で Linux 開発環境を構築したい方
+- Web サーバー構築に興味がある方
 
 ### 前提知識
 
-- 基本的なLinuxコマンド（ls, cd, cp, mv等）
+- 基本的な Linux コマンド（ls, cd, cp, mv等）
 - ファイルとディレクトリの概念
 - テキストエディタの基本操作
 

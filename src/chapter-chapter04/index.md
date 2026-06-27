@@ -1,37 +1,37 @@
 ---
-title: "第4章 Linux基本コマンド"
+title: "第4章 Linux 基本コマンド"
 chapter: chapter04
 layout: default
 ---
 
-# 第4章 Linux基本コマンド
+# 第4章 Linux 基本コマンド
 
 ## はじめに：この章で学ぶこと
 
-この章では、Linuxでファイルやフォルダを扱う基本的な操作を学びます。
-Windowsでマウスを使って行っていた操作を、コマンドで行えるようになります。
+この章では、Linux でファイルやフォルダを扱う基本的な操作を学びます。
+Windows でマウスを使って行っていた操作を、コマンドで行えるようになります。
 
 ### 📝 学習の前に知っておくべきこと
 - **コマンド** = 命令文のこと（例：「ファイルを表示して」）
 - **ターミナル** = コマンドを入力する黒い画面
 - **大文字と小文字は区別される**（File.txt と file.txt は別物）
 
-## Linuxファイルシステムの構造理解
+## Linux ファイルシステムの構造理解
 
 ### なぜファイルシステムを理解する必要があるのか？
 
-Windowsでは、エクスプローラーを使って視覚的にファイルを操作します。
-Linuxでは、主にコマンドでファイルを操作するため、「今どこにいるか」「どこに何があるか」を理解することが重要です。
+Windows では、エクスプローラーを使って視覚的にファイルを操作します。
+Linux では、主にコマンドでファイルを操作するため、「今どこにいるか」「どこに何があるか」を理解することが重要です。
 
 ### ディレクトリ階層の基本概念
 
-Linuxのファイルシステムは単一のルート（/）から始まる階層構造です。これは木を逆さまにしたような構造です。
+Linux のファイルシステムは単一のルート（/）から始まる階層構造です。これは木を逆さまにしたような構造です。
 
 ![ファイルシステム構造](/wsl2-linux-essentials-book/assets/images/linux-filesystem-tree.svg)
 
 💡 **簡単な例え話**：
-- Windowsは「複数の建物（C:、D:ドライブ）」がある
-- Linuxは「1つの大きな建物（/）」の中に全部屋がある
+- Windows は「複数の建物（C:、D:ドライブ）」がある
+- Linux は「1つの大きな建物（/）」の中に全部屋がある
 
 ```bash
 # 現在位置の確認
@@ -52,16 +52,16 @@ ls -la
 - `/usr`: ユーザープログラム
 - `/tmp`: 一時ファイル（再起動で削除）
 
-### WSL2環境での特殊性
+### WSL2 環境での特殊性
 
-WSL2では、Windowsファイルシステムが`/mnt`以下にマウントされます。
+WSL2 では、Windows ファイルシステムが`/mnt`以下にマウントされます。
 
 ```bash
-# Windowsのドライブ確認
+# Windows のドライブ確認
 ls /mnt/
 # 出力: c  d  （ドライブに応じて）
 
-# WindowsのCドライブアクセス
+# Windows のCドライブアクセス
 cd /mnt/c/Users/
 ls
 ```
@@ -328,33 +328,33 @@ chmod 755 hello.sh
 #      Tue Jan 15 10:30:45 JST 2025
 ```
 
-## WSL2特有のファイル操作
+## WSL2 特有のファイル操作
 
-### Windows-Linux間のファイル共有
+### Windows-Linux 間のファイル共有
 
 ```bash
-# LinuxからWindowsファイルへアクセス
+# Linux から Windows ファイルへアクセス
 # デスクトップのファイルをコピー
 cp /mnt/c/Users/$(whoami)/Desktop/document.txt ~/
 
-# WindowsからLinuxファイルへアクセス
+# Windows から Linux ファイルへアクセス
 # エクスプローラーで開く
 explorer.exe .
 
-# WSL2のネットワークパス
+# WSL2 のネットワークパス
 # \\wsl$\Ubuntu-24.04\home\username
 ```
 
 ### パフォーマンス考慮事項
 
 ```bash
-# 高速: Linux側ファイルシステム
+# 高速: Linux 側ファイルシステム
 time find ~ -name "*.txt" | head -100
 
-# 低速: Windows側ファイルシステム
+# 低速: Windows 側ファイルシステム
 time find /mnt/c -name "*.txt" | head -100
 
-# 推奨: 作業ファイルはLinux側に配置
+# 推奨: 作業ファイルは Linux 側に配置
 cp -r /mnt/c/project ~/
 cd ~/project
 # 作業実施
@@ -363,11 +363,11 @@ cd ~/project
 ### 改行コード問題の対処
 
 ```bash
-# Windows改行（CRLF）確認
+# Windows 改行（CRLF）確認
 cat -A windows_file.txt
 # 出力: line1^M$
 
-# Linux改行（LF）へ変換
+# Linux 改行（LF）へ変換
 dos2unix windows_file.txt
 # またはsedで変換
 sed -i 's/\r$//' windows_file.txt
@@ -449,7 +449,7 @@ chmod 750 ~/backup.sh
 | `Permission denied` | 権限不足 | `ls -l`で権限確認、必要に応じて`sudo`使用 |
 | `No such file or directory` | ファイルパス誤り | タブ補完使用、大文字小文字確認 |
 | `Directory not empty` | 空でないディレクトリ削除 | `rm -r`使用 |
-| `/mnt/c`が遅い | ファイルシステム越境 | Linux側へファイルコピー |
+| `/mnt/c`が遅い | ファイルシステム越境 | Linux 側へファイルコピー |
 
 ### デバッグのコツ
 
@@ -466,7 +466,7 @@ which command_name # 実行ファイルパス確認
 
 ## まとめ
 
-本章で習得した10個のコマンドは、Linux操作の90%以上をカバーします。特に重要なのは：
+本章で習得した10個のコマンドは、Linux 操作の90%以上をカバーします。特に重要なのは：
 
 1. **階層構造の理解**: pwdとcdで位置を常に把握
 2. **権限の意識**: ls -laで確認を習慣化

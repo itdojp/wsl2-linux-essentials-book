@@ -1,19 +1,19 @@
 ---
-title: "第2章 WSL2のインストール"
+title: "第2章 WSL2 のインストール"
 chapter: chapter02
 layout: default
 ---
 
-# 第2章 WSL2のインストール
+# 第2章 WSL2 のインストール
 
 ## システム要件確認
 
 ### 最小要件
 
 ```powershell
-# Windows PowerShellで実行
+# Windows PowerShell で実行
 
-# Windowsバージョン確認
+# Windows バージョン確認
 winver
 # 必要: Windows 10 Version 2004 (Build 19041) 以降
 #      または Windows 11
@@ -31,14 +31,14 @@ systeminfo
 ### 仮想化機能の確認
 
 ```powershell
-# 管理者権限でPowerShellを開く
+# 管理者権限で PowerShell を開く
 # スタートメニュー → PowerShell → 右クリック → 管理者として実行
 
 # 仮想化サポート確認
 systeminfo | Select-String "仮想化"
 # "ファームウェアで仮想化が有効になっています" が表示されればOK
 
-# CPUの仮想化機能確認（Intel VT-x / AMD-V）
+# CPU の仮想化機能確認（Intel VT-x / AMD-V）
 Get-ComputerInfo | Select-Object "HyperV*"
 ```
 
@@ -60,20 +60,20 @@ Get-ComputerInfo | Select-Object "HyperV*"
 - ASUS: F2 または DEL
 - MSI: DEL
 
-## WSL2のインストール
+## WSL2 のインストール
 
 ### 方法1: 簡易インストール（推奨）
 
 ```powershell
-# 管理者権限PowerShellで実行
+# 管理者権限 PowerShell で実行
 
-# WSL2と既定のUbuntuを一括インストール
+# WSL2 と既定のUbuntuを一括インストール
 wsl --install
 
 # インストール内容:
-# - WSL2基本コンポーネント
+# - WSL2 基本コンポーネント
 # - 仮想マシンプラットフォーム
-# - Linuxカーネル
+# - Linux カーネル
 # - Ubuntu（最新LTS版）
 
 # 再起動が必要
@@ -92,10 +92,10 @@ dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /nores
 # 3. 再起動
 Restart-Computer
 
-# 4. WSL2を既定バージョンに設定
+# 4. WSL2 を既定バージョンに設定
 wsl --set-default-version 2
 
-# 5. Linuxカーネル更新（必要な場合）
+# 5. Linux カーネル更新（必要な場合）
 # https://aka.ms/wsl2kernel からダウンロードしてインストール
 
 # 6. Ubuntuインストール
@@ -126,7 +126,7 @@ wsl --install -d Ubuntu-24.04
 
 ```bash
 # 初回起動時の設定
-# 1. ユーザー名入力（小文字のみ、Windowsユーザー名と異なってもOK）
+# 1. ユーザー名入力（小文字のみ、Windows ユーザー名と異なってもOK）
 Enter new UNIX username: myuser
 
 # 2. パスワード設定（入力時は表示されない）
@@ -202,7 +202,7 @@ Windows Terminalの設定（Ctrl+,）：
 
 ```json
 {
-    "defaultProfile": "{Ubuntu-24.04のGUID}",
+    "defaultProfile": "{Ubuntu-24.04の GUID}",
     "profiles": {
         "defaults": {
             "fontSize": 11,
@@ -213,7 +213,7 @@ Windows Terminalの設定（Ctrl+,）：
         },
         "list": [
             {
-                "guid": "{Ubuntu-24.04のGUID}",
+                "guid": "{Ubuntu-24.04の GUID}",
                 "name": "Ubuntu 24.04",
                 "startingDirectory": "//wsl$/Ubuntu-24.04/home/username"
             }
@@ -239,7 +239,7 @@ winget install Microsoft.CascadiaCode
 ### Linux→Windows
 
 ```bash
-# WindowsのCドライブアクセス
+# Windows のCドライブアクセス
 cd /mnt/c
 
 # ユーザーフォルダへのショートカット作成
@@ -252,14 +252,14 @@ cd /mnt/c/Users/$(whoami)/Desktop
 ### Windows→Linux
 
 ```powershell
-# エクスプローラーでWSL2ファイルアクセス
+# エクスプローラーで WSL2 ファイルアクセス
 # アドレスバーに入力
 \\wsl$\Ubuntu-24.04
 
-# PowerShellから
+# PowerShell から
 cd \\wsl$\Ubuntu-24.04\home\username
 
-# WSL2内から現在のディレクトリをエクスプローラーで開く
+# WSL2 内から現在のディレクトリをエクスプローラーで開く
 explorer.exe .
 ```
 
@@ -267,16 +267,16 @@ explorer.exe .
 
 ```bash
 # 作業ファイルの配置推奨場所
-# 高速: Linux側（/home/user/projects/）
-# 低速: Windows側（/mnt/c/）
+# 高速: Linux 側（/home/user/projects/）
+# 低速: Windows 側（/mnt/c/）
 
 # パフォーマンステスト
-time find ~ -name "*.txt" | wc -l      # Linux側: 高速
-time find /mnt/c -name "*.txt" | wc -l # Windows側: 低速
+time find ~ -name "*.txt" | wc -l      # Linux 側: 高速
+time find /mnt/c -name "*.txt" | wc -l # Windows 側: 低速
 
 # 推奨ワークフロー
-# 1. 開発ファイルはLinux側に配置
-# 2. 必要時のみWindows側にコピー
+# 1. 開発ファイルは Linux 側に配置
+# 2. 必要時のみ Windows 側にコピー
 cp -r ~/project /mnt/c/Users/$(whoami)/Desktop/
 ```
 
@@ -285,13 +285,13 @@ cp -r ~/project /mnt/c/Users/$(whoami)/Desktop/
 ### Remote-WSL拡張機能
 
 ```bash
-# WSL2内からVSCode起動
+# WSL2 内からVSCode起動
 code .
 
 # 初回実行時は自動的に:
-# 1. Windows側のVSCodeが起動
+# 1. Windows 側のVSCodeが起動
 # 2. Remote-WSL拡張機能のインストール提案
-# 3. WSL2環境に接続
+# 3. WSL2 環境に接続
 
 # ファイル指定で開く
 code ~/.bashrc
@@ -299,19 +299,19 @@ code ~/.bashrc
 
 ### 推奨拡張機能
 
-VSCode拡張機能（WSL2環境用）：
+VSCode拡張機能（WSL2 環境用）：
 - **Remote - WSL**: WSL統合（必須）
-- **Docker**: Dockerサポート
+- **Docker**: Docker サポート
 - **GitLens**: Git可視化
 - **Python**: Python開発
 - **ESLint**: JavaScript検証
 - **Prettier**: コード整形
 
-## メモリとCPU設定
+## メモリと CPU 設定
 
-### WSL2リソース設定
+### WSL2 リソース設定
 
-`.wslconfig`ファイルを作成（Windows側）：
+`.wslconfig`ファイルを作成（Windows 側）：
 
 ```powershell
 # %USERPROFILE%\.wslconfig を作成
@@ -322,7 +322,7 @@ notepad.exe $env:USERPROFILE\.wslconfig
 ```ini
 [wsl2]
 memory=4GB        # メモリ上限
-processors=2      # CPU数
+processors=2      # CPU 数
 swap=8GB         # スワップサイズ
 localhostForwarding=true  # localhost転送
 ```
@@ -330,7 +330,7 @@ localhostForwarding=true  # localhost転送
 ### 設定適用
 
 ```powershell
-# WSL2完全シャットダウン
+# WSL2 完全シャットダウン
 wsl --shutdown
 
 # 再起動（設定が適用される）
@@ -341,7 +341,7 @@ wsl
 
 ### よくある問題と解決方法
 
-**1. WSL2が起動しない**
+**1. WSL2 が起動しない**
 ```powershell
 # 仮想化機能の確認
 bcdedit /enum | findstr hypervisorlaunchtype
@@ -353,28 +353,28 @@ bcdedit /set hypervisorlaunchtype auto
 
 **2. メモリ使用量が多い**
 ```powershell
-# メモリキャッシュクリア（WSL2内）
+# メモリキャッシュクリア（WSL2 内）
 echo 1 | sudo tee /proc/sys/vm/drop_caches
 ```
 
 **3. ネットワーク接続できない**
 ```powershell
-# DNSリセット（WSL2内）
+# DNS リセット（WSL2 内）
 echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
 ```
 
 ## まとめ
 
-この章では、WSL2のインストールから初期設定まで、実践的なセットアップ方法を学びました：
+この章では、WSL2 のインストールから初期設定まで、実践的なセットアップ方法を学びました：
 
 - システム要件の確認方法
-- WSL2のインストール手順
+- WSL2 のインストール手順
 - Ubuntu初期設定
 - Windows Terminalのカスタマイズ
 - ファイルシステムの相互アクセス
 - VSCodeとの統合
 - リソース管理とトラブルシューティング
 
-次の章では、目的に応じたLinuxディストリビューションの選び方について詳しく説明します。
+次の章では、目的に応じた Linux ディストリビューションの選び方について詳しく説明します。
 
 ---

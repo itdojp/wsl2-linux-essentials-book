@@ -43,22 +43,22 @@ WSL2 は仮想化された Linux 環境として動作するため、Windows ホ
 - **WSL2**: ホスト内の仮想ネットワークに接続するゲスト
 - **NAT**: アドレス変換により外部との通信を中継する仕組み
 
-### WSL2ネットワークアーキテクチャ
+### WSL2 ネットワークアーキテクチャ
 
 WSL2 は仮想マシンとして動作し、独自の仮想ネットワークアダプタを持ちます。Windows ホストとは NAT 経由で通信します。
 
-![WSL2ネットワーク構造図]({{ site.baseurl }}/assets/images/wsl2-network-structure.svg)
+![WSL2 ネットワーク構造図]({{ site.baseurl }}/assets/images/wsl2-network-structure.svg)
 
 この図は、WSL2 が Windows ホストと連携してネットワーク通信を行う流れを示しています。
 
 ```bash
-# WSL2のIPアドレス確認（内部IP）
+# WSL2 の IP アドレス確認（内部 IP）
 ip addr show eth0
 # 出力例：172.x.x.x（これは内部専用）
 
-# WindowsのIP確認（WSL2から見た）
+# Windows の IP 確認（WSL2 から見た）
 cat /etc/resolv.conf | grep nameserver
-# 出力例：172.x.x.1（Windowsへの経路）
+# 出力例：172.x.x.1（Windows への経路）
 ```
 
 注意点は次のとおりです。
@@ -72,13 +72,13 @@ cat /etc/resolv.conf | grep nameserver
 # WSL2 → Windows: 自動転送（WSL2 側でサーバー起動）
 python3 -m http.server 8000
 
-# Windowsブラウザでアクセス可能
+# Windows ブラウザでアクセス可能
 # http://localhost:8000
 ```
 
 ```powershell
 # Windows → WSL2: 手動設定が必要な場合（PowerShell: 管理者）
-# hostname -I が複数IPを返す場合があるため、先頭のIPのみ使用する
+# hostname -I が複数 IP を返す場合があるため、先頭の IP のみ使用する
 $wsl_ip = (wsl hostname -I).Trim().Split(' ')[0]
 netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=$wsl_ip
 ```
@@ -86,7 +86,7 @@ netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 conne
 ### ネットワーク設定ファイル
 
 ```bash
-# DNS設定
+# DNS 設定
 cat /etc/resolv.conf
 
 # ホスト名解決
@@ -94,7 +94,7 @@ cat /etc/hosts
 
 # ネットワークインターフェース設定
 cat /etc/netplan/*.yaml  # Ubuntu（netplan採用）
-# WSL2では自動生成のため編集不要
+# WSL2 では自動生成のため編集不要
 ```
 
 ## 4.2 基本ネットワークコマンド
@@ -105,7 +105,7 @@ cat /etc/netplan/*.yaml  # Ubuntu（netplan採用）
 # インターフェース一覧
 ip link show
 
-# IPアドレス表示
+# IP アドレス表示
 ip addr show
 ip a  # 省略形
 
@@ -142,7 +142,7 @@ pingの結果解釈は次のとおりです。
 │                │              │       │        └─ 応答時間
 │                │              │       └─ TTL（Time To Live）
 │                │              └─ シーケンス番号
-│                └─ 応答元IP
+│                └─ 応答元 IP
 └─ パケットサイズ
 ```
 
@@ -162,13 +162,13 @@ traceroute -I google.com
 traceroute -m 10 google.com
 ```
 
-### nslookup/dig - DNS問い合わせ
+### nslookup/dig - DNS 問い合わせ
 
 ```bash
 # nslookup基本
 nslookup google.com
 
-# 特定DNSサーバー指定
+# 特定 DNS サーバー指定
 nslookup google.com 8.8.8.8
 
 # dig（より詳細）
@@ -233,7 +233,7 @@ sudo lsof -i TCP
 sudo lsof -i -p PID
 ```
 
-### curl - HTTPクライアント
+### curl - HTTP クライアント
 
 ```bash
 # 基本的なGET
@@ -248,7 +248,7 @@ curl -v http://example.com
 # POSTリクエスト
 curl -X POST -d "name=value" http://example.com/api
 
-# JSONデータ送信
+# JSON データ送信
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"key":"value"}' \
@@ -264,7 +264,7 @@ curl -# -O http://example.com/largefile.zip
 # Basic認証
 curl -u username:password http://example.com
 
-# HTTPステータスコードのみ
+# HTTP ステータスコードのみ
 curl -s -o /dev/null -w "%{http_code}" http://example.com
 ```
 
@@ -285,23 +285,23 @@ wget -b http://example.com/largefile.zip
 tail -f wget-log  # ログ確認
 ```
 
-## 4.4 実践: ローカルWebサーバー構築
+## 4.4 実践: ローカルWeb サーバー構築
 
-### Python簡易HTTPサーバー
+### Python簡易 HTTP サーバー
 
 ```bash
-# Python3 HTTPサーバー（開発用）
+# Python3 HTTP サーバー（開発用）
 cd ~/public_html
 python3 -m http.server 8000
 
-# 特定IPでバインド
+# 特定 IP でバインド
 python3 -m http.server 8000 --bind 127.0.0.1
 
 # CGI有効化
 python3 -m http.server --cgi 8000
 ```
 
-### Node.js HTTPサーバー
+### Node.js HTTP サーバー
 
 ```bash
 # Node.jsインストール
@@ -392,13 +392,13 @@ sudo ufw allow 22/tcp   # SSH
 sudo ufw allow 80/tcp   # HTTP
 sudo ufw allow 443/tcp  # HTTPS
 
-# 特定IPからのみ許可
+# 特定 IP からのみ許可
 sudo ufw allow from 192.168.1.100 to any port 22
 
 # ルール削除
 sudo ufw delete allow 80/tcp
 
-# 有効化（WSL2では通常不要）
+# 有効化（WSL2 では通常不要）
 sudo ufw enable
 ```
 
@@ -411,7 +411,7 @@ sudo iptables -L -n -v
 # 特定ポートを開く
 sudo iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
 
-# 特定IPからの接続を拒否
+# 特定 IP からの接続を拒否
 sudo iptables -A INPUT -s 192.168.1.100 -j DROP
 
 # ルール保存（再起動後も維持）
@@ -433,7 +433,7 @@ echo "=== Network Diagnostics ==="
 echo "1. Network Interfaces:"
 ip link show | grep -E "^[0-9]:" | awk '{print $2}'
 
-# 2. IPアドレス確認
+# 2. IP アドレス確認
 echo -e "\n2. IP Addresses:"
 ip -4 addr show | grep inet | grep -v 127.0.0.1
 
@@ -441,7 +441,7 @@ ip -4 addr show | grep inet | grep -v 127.0.0.1
 echo -e "\n3. Default Gateway:"
 ip route | grep default
 
-# 4. DNS確認
+# 4. DNS 確認
 echo -e "\n4. DNS Servers:"
 cat /etc/resolv.conf | grep nameserver
 
@@ -458,28 +458,28 @@ ping -c 1 google.com > /dev/null 2>&1 && echo "✓ DNS Resolution" || echo "✗ 
 | 問題 | 症状 | 対処法 |
 |------|------|--------|
 | localhostに接続できない | `curl: (7) Failed to connect` | サービス起動確認、ポート確認 |
-| 外部から接続できない | タイムアウト | Windows Firewall確認 |
-| DNS解決失敗 | `cannot resolve host` | `/etc/resolv.conf`確認 |
+| 外部から接続できない | タイムアウト | Windows Firewall 確認 |
+| DNS 解決失敗 | `cannot resolve host` | `/etc/resolv.conf`確認 |
 | ポート既に使用中 | `Address already in use` | `lsof -i :PORT`で確認 |
-| WSL2 IP変更 | 接続先不明 | `hostname -I`で再確認 |
+| WSL2 IP 変更 | 接続先不明 | `hostname -I`で再確認 |
 
-### WSL2特有の問題対処
+### WSL2 特有の問題対処
 
 ```bash
-# Windows Defenderファイアウォール例外追加（PowerShell管理者）
+# Windows Defenderファイアウォール例外追加（PowerShell 管理者）
 New-NetFirewallRule -DisplayName "WSL2 Port 8080" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
 
-# WSL2のIP自動取得スクリプト
+# WSL2 の IP 自動取得スクリプト
 cat << 'SCRIPT' > ~/get_wsl_ip.sh
 #!/bin/bash
-# WSL2 IP取得
+# WSL2 IP 取得
 WSL_IP=$(hostname -I | awk '{print $1}')
 WIN_IP=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}')
 
 echo "WSL2 IP: $WSL_IP"
 echo "Windows IP (from WSL2): $WIN_IP"
 
-# Windowsのhostsファイル更新用
+# Windows のhostsファイル更新用
 echo "Add to C:\\Windows\\System32\\drivers\\etc\\hosts:"
 echo "$WSL_IP wsl.local"
 SCRIPT
@@ -578,11 +578,11 @@ PY
 python3 simple_lb.py
 ```
 
-### 演習3: API監視とアラート
+### 演習3: API 監視とアラート
 
 ```bash
 #!/bin/bash
-# api_health_check.sh - API死活監視
+# api_health_check.sh - API 死活監視
 
 ENDPOINTS=(
     "http://localhost:3000/health"
@@ -643,7 +643,7 @@ mtr google.com
 mtr -r -c 100 google.com
 ```
 
-### HTTP応答時間測定
+### HTTP 応答時間測定
 
 ```bash
 # 詳細な時間測定

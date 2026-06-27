@@ -1,14 +1,14 @@
 ---
-title: "第3章 Linuxディストリビューションの選択"
+title: "第3章 Linux ディストリビューションの選択"
 chapter: chapter03
 layout: default
 ---
 
-# 第3章 Linuxディストリビューションの選択
+# 第3章 Linux ディストリビューションの選択
 
 ## ディストリビューションとは
 
-Linuxディストリビューション（略して「ディストロ」）は、Linuxカーネルにさまざまなソフトウェアやツールを組み合わせた完全なOSパッケージです。WSL2では、複数のディストリビューションを同時にインストールして使い分けることができます。
+Linux ディストリビューション（略して「ディストロ」）は、Linux カーネルにさまざまなソフトウェアやツールを組み合わせた完全なOSパッケージです。WSL2 では、複数のディストリビューションを同時にインストールして使い分けることができます。
 
 ## 主要ディストリビューションの特徴
 
@@ -24,7 +24,7 @@ Linuxディストリビューション（略して「ディストロ」）は、
 - Web開発
 - データサイエンス
 - 一般的な開発作業
-- Linux学習
+- Linux 学習
 
 ```bash
 # Ubuntu 24.04 LTS インストール
@@ -109,7 +109,7 @@ sudo apt install kali-linux-large  # 大規模ツールセット
 **適している用途：**
 - RHEL環境の開発・テスト
 - エンタープライズアプリケーション
-- 商用Linux環境の学習
+- 商用 Linux 環境の学習
 
 ```bash
 # AlmaLinux インストール
@@ -127,7 +127,7 @@ sudo dnf groupinstall "Development Tools"
  |
  用途は？
  |
- ├─ 初めてLinuxを学ぶ → Ubuntu 24.04 LTS
+ ├─ 初めて Linux を学ぶ → Ubuntu 24.04 LTS
  ├─ Web開発 → Ubuntu / Debian
  ├─ データサイエンス → Ubuntu（豊富なパッケージ）
  ├─ セキュリティ → Kali Linux
@@ -159,7 +159,7 @@ wsl --status
 # Ubuntu から Debian のファイルにアクセス
 cd /mnt/wsl/instances/Debian/home/username/
 
-# Windows経由での共有
+# Windows 経由での共有
 cp ~/file.txt /mnt/c/Users/$(whoami)/
 wsl -d Debian
 cp /mnt/c/Users/$(whoami)/file.txt ~/
@@ -192,7 +192,7 @@ wsl --export Ubuntu-24.04 - | wsl --import UbuntuClone C:\WSL\Clone -
 ### 最小構成からの構築
 
 ```bash
-# Alpine Linuxベースの軽量環境
+# Alpine Linux ベースの軽量環境
 wsl --install -d Alpine
 
 # 基本ツールセットアップ
@@ -204,10 +204,10 @@ apk add build-base python3 nodejs npm
 chsh -s /bin/bash
 ```
 
-### Dockerコンテナからのインポート
+### Docker コンテナからのインポート
 
 ```bash
-# Dockerイメージからディストリビューション作成
+# Docker イメージからディストリビューション作成
 docker export $(docker create ubuntu:22.04) > ubuntu-custom.tar
 wsl --import UbuntuCustom C:\WSL\Custom ubuntu-custom.tar
 ```
@@ -304,15 +304,15 @@ du -sh ~/.cache && rm -rf ~/.cache/*
 
 ## まとめ
 
-WSL2でのディストリビューション選択は、用途と好みによって決まります。具体的には次のとおりです。
+WSL2 でのディストリビューション選択は、用途と好みによって決まります。具体的には次のとおりです。
 
 - **初心者**: Ubuntu 24.04 LTSから始める
 - **開発者**: プロジェクトに応じて複数インストール
 - **学習者**: 異なるディストロで比較学習
 - **専門家**: 用途特化型ディストロを活用
 
-複数のディストリビューションを使い分けることで、さまざまなLinux環境を体験できるのがWSL2の大きな利点です。
+複数のディストリビューションを使い分けることで、さまざまな Linux 環境を体験できるのが WSL2 の大きな利点です。
 
-次の章では、Linux基本コマンドの使い方について詳しく学習します。
+次の章では、Linux 基本コマンドの使い方について詳しく学習します。
 
 ---

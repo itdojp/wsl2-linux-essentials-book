@@ -5,8 +5,8 @@
   "author": "株式会社アイティードゥ",
   "license": "CC-BY-NC-SA-4.0",
   "scripts": {
-    "build": "bundle exec jekyll build",
-    "serve": "bundle exec jekyll serve --livereload",
+    "build": "jekyll build --source docs --destination _site",
+    "serve": "jekyll serve --source docs --destination _site --livereload",
     "deploy": "npm run build && gh-pages -d _site",
     "deploy-setup": "gh-pages-clean",
     "validate-deploy": "node scripts/validate-github-pages.js",

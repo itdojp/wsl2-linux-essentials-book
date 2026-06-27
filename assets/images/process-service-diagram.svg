@@ -86,14 +86,14 @@
     <text x="660" y="115" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="14" text-anchor="middle" fill="#666">バックグラウンドで常に動作</text>
     
     <!-- サービスの例 -->
-    <!-- Webサーバー -->
+    <!-- Web サーバー -->
     <g transform="translate(500, 140)">
       <rect x="0" y="0" width="320" height="80" fill="#fff" stroke="#c2185b" stroke-width="2" rx="5"/>
       <circle cx="30" cy="40" r="15" fill="#e91e63"/>
       <text x="30" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="12" text-anchor="middle" fill="white">PID</text>
       <text x="30" y="60" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="10" text-anchor="middle" fill="#666">980</text>
       
-      <text x="60" y="30" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="14" font-weight="bold" fill="#333">nginx (Webサーバー)</text>
+      <text x="60" y="30" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="14" font-weight="bold" fill="#333">nginx (Web サーバー)</text>
       <text x="60" y="50" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="12" fill="#666">24時間365日稼働</text>
       <text x="60" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="12" fill="#27ae60">寿命: システム起動中ずっと</text>
       
@@ -103,7 +103,7 @@
       <text x="250" y="50" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="10" text-anchor="middle" fill="#666">OS起動時</text>
     </g>
     
-    <!-- SSHサーバー -->
+    <!-- SSH サーバー -->
     <g transform="translate(500, 240)">
       <rect x="0" y="0" width="320" height="80" fill="#fff" stroke="#c2185b" stroke-width="2" rx="5"/>
       <circle cx="30" cy="40" r="15" fill="#e91e63"/>
