@@ -3,18 +3,18 @@
   <rect width="900" height="700" fill="#f5f5f5"/>
   
   <!-- タイトル -->
-  <text x="450" y="30" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="24" font-weight="bold" text-anchor="middle" fill="#333">Linuxのファイル構造（木構造）</text>
+  <text x="450" y="30" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="24" font-weight="bold" text-anchor="middle" fill="#333">Linux のファイル構造（木構造）</text>
   
-  <!-- Windowsとの比較 -->
+  <!-- Windows との比較 -->
   <g id="comparison">
-    <!-- Windows側 -->
+    <!-- Windows 側 -->
     <rect x="50" y="60" width="350" height="100" fill="#fff" stroke="#0078d4" stroke-width="2" rx="5"/>
     <text x="225" y="85" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="16" font-weight="bold" text-anchor="middle" fill="#0078d4">Windows の場合</text>
     <text x="100" y="110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="14" fill="#333">C:\ ドライブ</text>
     <text x="100" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="14" fill="#333">D:\ ドライブ</text>
     <text x="100" y="150" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="14" fill="#333">（ドライブごとに独立）</text>
     
-    <!-- Linux側 -->
+    <!-- Linux 側 -->
     <rect x="500" y="60" width="350" height="100" fill="#fff" stroke="#e95420" stroke-width="2" rx="5"/>
     <text x="675" y="85" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="16" font-weight="bold" text-anchor="middle" fill="#e95420">Linux の場合</text>
     <text x="550" y="110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" font-size="14" fill="#333">/ （ルート）から始まる</text>

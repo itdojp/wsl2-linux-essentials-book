@@ -6,7 +6,7 @@ chapter: chapter05
 # 第5章 開発環境の構築
 
 
-VSCode、Git、Docker Desktop for WSL2の設定
+VSCode、Git、Docker Desktop for WSL2 の設定
 
 
 ## 概要

@@ -59,10 +59,10 @@ sudo vi /etc/wsl.conf
 [boot]
 systemd=true
 
-# 3. WSL2再起動（PowerShellで実行）
+# 3. WSL2 再起動（PowerShell で実行）
 wsl --shutdown
 
-# 4. WSL2再開
+# 4. WSL2 再開
 wsl
 
 # 5. systemd動作確認
@@ -122,14 +122,14 @@ ps auxの出力解説は次のとおりです。
 USER  PID %CPU %MEM    VSZ   RSS TTY STAT START TIME COMMAND
 root    1  0.0  0.1 169432 11204 ?   Ss   09:00 0:01 /sbin/init
 │       │    │    │      │     │   │    │     │    │    └─ 実行コマンド
-│       │    │    │      │     │   │    │     │    └─ CPU使用時間
+│       │    │    │      │     │   │    │     │    └─ CPU 使用時間
 │       │    │    │      │     │   │    │     └─ 開始時刻
 │       │    │    │      │     │   │    └─ プロセス状態
 │       │    │    │      │     │   └─ 制御端末
 │       │    │    │      │     └─ 物理メモリ（KB）
 │       │    │    │      └─ 仮想メモリ（KB）
 │       │    │    └─ メモリ使用率
-│       │    └─ CPU使用率
+│       │    └─ CPU 使用率
 │       └─ プロセスID
 └─ 実行ユーザー
 ```
@@ -154,8 +154,8 @@ top
 # k: プロセスkill
 # r: nice値変更
 # M: メモリ使用順ソート
-# P: CPU使用順ソート
-# 1: CPU別表示
+# P: CPU 使用順ソート
+# 1: CPU 別表示
 ```
 
 htopの導入と使用は次のとおりです。
@@ -171,7 +171,7 @@ htop
 # - カラー表示
 # - マウス操作対応
 # - プロセスツリー表示
-# - より直感的なUI
+# - より直感的な UI
 ```
 
 ### プロセスの制御
@@ -370,7 +370,7 @@ journalctl -b  # 現在のブート
 journalctl -b -1  # 前回のブート
 ```
 
-## 3.4 実践: Webサーバーの導入と管理
+## 3.4 実践: Web サーバーの導入と管理
 
 ### Nginx導入
 
@@ -443,7 +443,7 @@ sudo nginx -t
 # 6. Nginx再起動
 sudo systemctl reload nginx
 
-# 7. hosts編集（Windows側）
+# 7. hosts編集（Windows 側）
 # C:\Windows\System32\drivers\etc\hosts に追加
 # 127.0.0.1 mysite.local
 ```
@@ -508,14 +508,14 @@ ulimit -c unlimited  # 無制限に設定
 ### cgroups - リソース制御
 
 ```bash
-# CPU使用率制限例
+# CPU 使用率制限例
 # 1. cgroupsインストール（必要な場合）
 sudo apt install cgroup-tools -y
 
 # 2. グループ作成
 sudo cgcreate -g cpu:/mygroup
 
-# 3. CPU使用率50%に制限
+# 3. CPU 使用率50%に制限
 sudo cgset -r cpu.cfs_quota_us=50000 mygroup
 
 # 4. プロセス実行
@@ -607,14 +607,14 @@ sudo systemctl kill -s SIGKILL myapp
 | `System has not been booted with systemd` | systemd未有効 | `/etc/wsl.conf`でsystemd有効化 |
 | `Failed to connect to bus` | D-Bus未起動 | `sudo service dbus start` |
 | サービスが起動しない | 設定エラー | `journalctl -xe`でエラー確認 |
-| CPU使用率100% | 暴走プロセス | `top`で特定し`kill -9` |
-| メモリ不足 | WSL2メモリ制限 | `.wslconfig`で調整 |
+| CPU 使用率100% | 暴走プロセス | `top`で特定し`kill -9` |
+| メモリ不足 | WSL2 メモリ制限 | `.wslconfig`で調整 |
 
 ### WSL2 特有の問題
 
 ```bash
-# WSL2メモリ制限設定
-# Windows側で %USERPROFILE%\.wslconfig 作成
+# WSL2 メモリ制限設定
+# Windows 側で %USERPROFILE%\.wslconfig 作成
 [wsl2]
 memory=4GB
 processors=2
@@ -626,8 +626,8 @@ cat /etc/hosts
 # 127.0.0.1 localhost が存在することを確認
 
 # ネットワーク接続リセット
-wsl --shutdown  # PowerShellで実行
-netsh winsock reset  # 管理者権限PowerShell
+wsl --shutdown  # PowerShell で実行
+netsh winsock reset  # 管理者権限 PowerShell
 ```
 
 ### デバッグ手順

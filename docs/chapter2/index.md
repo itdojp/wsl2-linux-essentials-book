@@ -44,7 +44,7 @@ Linux で広く利用できるエディタは vi（vim）です。多くの Linu
 
 補足: vi/vim は習熟に時間を要する場合がありますが、最低限の編集（保存・終了）だけでも把握しておくと運用上有効です。
 
-### vi/vim - Linux標準エディタ
+### vi/vim - Linux 標準エディタ
 
 ```bash
 # viの起動
@@ -152,7 +152,7 @@ grep -c "WARNING" *.log      # カウント
 # 1. エラーログ抽出
 grep -E "(ERROR|FATAL)" application.log
 
-# 2. IPアドレス検索
+# 2. IP アドレス検索
 # 簡易パターン（厳密な範囲チェックは別途実施）
 grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" access.log
 
@@ -303,7 +303,7 @@ awk 'BEGIN { total=0; success=0 } { total++ } $6==200 { success++ } END { if (to
 ### 解析タスク2: エラー分析
 
 ```bash
-# 500エラーの時刻とIP抽出
+# 500エラーの時刻と IP 抽出
 grep " 500 " access.log | awk '{print $1, $2, $3}'
 
 # エラー多発時間帯の特定
@@ -316,7 +316,7 @@ grep " 500 " access.log | awk '{print $2}' | cut -d: -f1 | sort | uniq -c | sort
 # 転送量合計（バイト）
 awk '{sum += $7} END {print "Total:", sum, "bytes"}' access.log
 
-# IP別アクセス数トップ10
+# IP 別アクセス数トップ10
 awk '{print $3}' access.log | sort | uniq -c | sort -rn | head -10
 
 # ページ別アクセス数
@@ -524,7 +524,7 @@ awk -F, 'NR>1 {sales[$2] += $3 * $4} END {for (p in sales) print p":", sales[p]}
 |------|------|----------|
 | `Binary file matches` | バイナリファイル検索 | `grep -a`オプション使用 |
 | 文字化け | 文字コード不一致 | `iconv -f SJIS -t UTF-8` |
-| 改行コード問題 | Windows/Linux混在 | `dos2unix`使用 |
+| 改行コード問題 | Windows/Linux 混在 | `dos2unix`使用 |
 | 正規表現が動かない | 基本/拡張の違い | `grep -E`使用 |
 | パイプが機能しない | バッファリング | `stdbuf -o0`使用 |
 

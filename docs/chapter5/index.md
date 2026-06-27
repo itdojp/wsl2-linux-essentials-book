@@ -608,7 +608,7 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
-# CPU使用率チェック
+# CPU 使用率チェック
 check_cpu() {
     local cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2)}')
     if [ $cpu_usage -gt $THRESHOLD_CPU ]; then
@@ -763,7 +763,7 @@ crontab -r
 0 3 1 * * /bin/bash "$HOME/monthly_report.sh"
 ```
 
-### WSL2でのcron設定
+### WSL2 でのcron設定
 
 ```bash
 # cron起動（systemd有効時）

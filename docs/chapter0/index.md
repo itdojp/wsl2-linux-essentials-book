@@ -1,10 +1,10 @@
 ---
-title: "第0章: WSL2セットアップ"
+title: "第0章: WSL2 セットアップ"
 chapter: chapter0
 layout: book
 ---
 
-# 第0章: WSL2セットアップ
+# 第0章: WSL2 セットアップ
 
 ## 前提（検証環境）
 - Windows 10 Version 2004 以降 / Windows 11
@@ -24,7 +24,7 @@ layout: book
 ### Windows 要件の確認
 
 ```powershell
-# PowerShellで実行
+# PowerShell で実行
 winver
 ```
 
@@ -49,7 +49,7 @@ wsl --install
 ```
 
 このコマンドでインストールされるものは次のとおりです。
-- WSL2本体
+- WSL2 本体
 - Ubuntu（Linux）
 - 必要な機能一式
 
@@ -93,7 +93,7 @@ pwd
 必要に応じて Windows Terminal を導入します。
 
 ```powershell
-# PowerShellで実行
+# PowerShell で実行
 winget install Microsoft.WindowsTerminal
 ```
 
@@ -114,7 +114,7 @@ Windows Terminalの利点は次のとおりです。
 
 #### エラー: 「Virtual Machine Platform」が無効
 ```powershell
-# 管理者権限のPowerShellで実行
+# 管理者権限の PowerShell で実行
 dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 # その後、PC再起動
 ```
@@ -155,4 +155,4 @@ ls -la
 
 ---
 
-**次章へ**: [第1章 Linuxの世界への第一歩](../chapter1/)
+**次章へ**: [第1章 Linux の世界への第一歩](../chapter1/)

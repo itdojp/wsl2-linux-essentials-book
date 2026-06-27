@@ -1,7 +1,7 @@
 ---
 layout: book
 title: "用語集"
-description: "WSL2 Linux実践ガイドで頻出する用語の短い参照集"
+description: "WSL2 Linux 実践ガイドで頻出する用語の短い参照集"
 permalink: /glossary/
 ---
 

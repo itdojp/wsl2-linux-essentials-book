@@ -1,11 +1,11 @@
 {
   "chapters": [
     {
-      "title": "第0章: WSL2セットアップ",
+      "title": "第0章: WSL2 セットアップ",
       "path": "/chapter0/"
     },
     {
-      "title": "第1章: Linuxの世界への第一歩",
+      "title": "第1章: Linux の世界への第一歩",
       "path": "/chapter1/"
     },
     {
@@ -38,13 +38,13 @@
   "chapter0/": {
     "next": {
       "path": "/chapter1/",
-      "title": "第1章: Linuxの世界への第一歩"
+      "title": "第1章: Linux の世界への第一歩"
     }
   },
   "chapter1/": {
     "previous": {
       "path": "/chapter0/",
-      "title": "第0章: WSL2セットアップ"
+      "title": "第0章: WSL2 セットアップ"
     },
     "next": {
       "path": "/chapter2/",
@@ -54,7 +54,7 @@
   "chapter2/": {
     "previous": {
       "path": "/chapter1/",
-      "title": "第1章: Linuxの世界への第一歩"
+      "title": "第1章: Linux の世界への第一歩"
     },
     "next": {
       "path": "/chapter3/",
