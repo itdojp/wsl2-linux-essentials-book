@@ -95,12 +95,16 @@ netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 conne
 
 # 確認
 netsh interface portproxy show all
-
-# 検証後に不要なら削除
-netsh interface portproxy delete v4tov4 listenport=8080 listenaddress=0.0.0.0
 ```
 
 `listenaddress=0.0.0.0` は Windows の全 IPv4 インターフェースで待ち受けます。LAN 等への公開が本当に必要な場合だけ使い、Windows Firewall で送信元を制限してください。Windows ホスト内だけの確認なら自動 localhost 転送を優先します。
+
+LANからの接続確認が終わり、転送が不要になった後で、別途次のcleanupを実行します。
+
+```powershell
+# 検証後に不要になったport proxyを削除（PowerShell: 管理者）
+netsh interface portproxy delete v4tov4 listenport=8080 listenaddress=0.0.0.0
+```
 
 ### ネットワーク設定ファイル
 
