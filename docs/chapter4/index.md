@@ -10,6 +10,7 @@ layout: book
 - WSL2 上の Ubuntu（例: 22.04/24.04）
 - Windows 側の操作（例: `netsh interface portproxy`）は PowerShell を管理者権限で実行する
 - 章内で `lsof` / `netcat-openbsd` をインストールする（`sudo` が必要）
+- WSL ネットワーク仕様の確認日: 2026-07-11。既定 NAT と Windows 11 22H2 以降の mirrored mode を区別する
 
 ## この章の目標
 - ネットワークの基本概念を説明できる
@@ -36,7 +37,7 @@ layout: book
 
 ### WSL2 ネットワークの特性
 
-WSL2 は仮想化された Linux 環境として動作するため、Windows ホストとの通信は NAT 等を介します。
+WSL2 は仮想化された Linux 環境として動作します。既定は NAT 方式ですが、Windows 11 22H2 以降では mirrored mode も選択できます。まず自分の設定を確認し、ネットワーク方式を決めつけないことが重要です。
 
 概念上は、次のように整理できます。
 - **Windows**: 外部ネットワークに接続するホスト
@@ -45,7 +46,7 @@ WSL2 は仮想化された Linux 環境として動作するため、Windows ホ
 
 ### WSL2 ネットワークアーキテクチャ
 
-WSL2 は仮想マシンとして動作し、独自の仮想ネットワークアダプタを持ちます。Windows ホストとは NAT 経由で通信します。
+既定の NAT 方式では、WSL2 は独自の仮想ネットワークアダプタを持ち、Windows ホストとは NAT 経由で通信します。mirrored mode では Windows のネットワークインターフェースを Linux 側へ反映するため、IP アドレス、IPv6、VPN、LAN からの到達性、Firewall の扱いが NAT 方式と異なります。
 
 ![WSL2 ネットワーク構造図]({{ site.baseurl }}/assets/images/wsl2-network-structure.svg)
 
@@ -56,15 +57,25 @@ WSL2 は仮想マシンとして動作し、独自の仮想ネットワークア
 ip addr show eth0
 # 出力例：172.x.x.x（これは内部専用）
 
-# Windows の IP 確認（WSL2 から見た）
-cat /etc/resolv.conf | grep nameserver
-# 出力例：172.x.x.1（Windows への経路）
+# NAT 方式で Windows ホストの IP を確認（WSL2 から見た default gateway）
+ip route show default | awk '{print $3; exit}'
+# 出力例：172.x.x.1
 ```
 
 注意点は次のとおりです。
-- WSL2 の IP アドレスは起動のたびに変わる場合がある
-- 外部ネットワークから WSL2 に直接アクセスできない場合がある（NAT 等の制約）
-- 既定の構成では `localhost` 経由でアクセスできる場合がある（転送機構による）
+- NAT 方式では WSL2 の IP アドレスが再起動で変わる場合がある
+- NAT 方式では外部ネットワークから WSL2 へ直接アクセスできず、port proxy 等が必要な場合がある
+- Windows から WSL2 内の TCP サービスへは、既定設定でも通常 `localhost` でアクセスできる
+- DNS tunneling が有効な環境では、`/etc/resolv.conf` の nameserver を Windows ホストの IP として流用しない
+
+Windows 11 22H2 以降で mirrored mode を利用する場合は、Windows ユーザーのホームにある `.wslconfig` へ次を設定し、PowerShell で `wsl --shutdown` を実行します。これは全ディストリビューションを停止するため、作業を保存してから実行してください。
+
+```ini
+[wsl2]
+networkingMode=mirrored
+```
+
+mirrored mode で LAN からの受信を許可する場合は、Windows Firewall に加えて Hyper-V Firewall の設定も確認します。組織管理 PC ではポリシーを優先してください。
 
 ### ポートフォワーディングの仕組み
 
@@ -77,10 +88,22 @@ python3 -m http.server 8000
 ```
 
 ```powershell
-# Windows → WSL2: 手動設定が必要な場合（PowerShell: 管理者）
+# NAT 方式で LAN 等から接続させる必要がある場合だけ手動設定（PowerShell: 管理者）
 # hostname -I が複数 IP を返す場合があるため、先頭の IP のみ使用する
 $wsl_ip = (wsl hostname -I).Trim().Split(' ')[0]
 netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=$wsl_ip
+
+# 確認
+netsh interface portproxy show all
+```
+
+`listenaddress=0.0.0.0` は Windows の全 IPv4 インターフェースで待ち受けます。LAN 等への公開が本当に必要な場合だけ使い、Windows Firewall で送信元を制限してください。Windows ホスト内だけの確認なら自動 localhost 転送を優先します。
+
+LANからの接続確認が終わり、転送が不要になった後で、別途次のcleanupを実行します。
+
+```powershell
+# 検証後に不要になったport proxyを削除（PowerShell: 管理者）
+netsh interface portproxy delete v4tov4 listenport=8080 listenaddress=0.0.0.0
 ```
 
 ### ネットワーク設定ファイル
@@ -261,8 +284,8 @@ curl -o myfile.zip http://example.com/file.zip  # 名前指定
 # 進捗表示付きダウンロード
 curl -# -O http://example.com/largefile.zip
 
-# Basic認証
-curl -u username:password http://example.com
+# Basic認証（パスワードはプロンプトで入力し、履歴や引数へ残さない）
+curl -u username https://example.com
 
 # HTTP ステータスコードのみ
 curl -s -o /dev/null -w "%{http_code}" http://example.com
@@ -301,12 +324,14 @@ python3 -m http.server 8000 --bind 127.0.0.1
 python3 -m http.server --cgi 8000
 ```
 
-### Node.js HTTP サーバー
+### Node.js HTTP サーバー（オプション）
+
+この例はサポート中の Node.js 24 LTS を前提とします。Node.js 20 は 2026-03-24 に EOL となりました。未導入または EOL 版の場合は、Node.js 公式のインストール案内から環境に合う方法を選び、署名・配布元を確認してください。
 
 ```bash
-# Node.jsインストール
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
+# サポート中の版であることを確認
+node --version
+# 出力例: v24.x
 
 # 簡易サーバー作成
 cat << 'JS' > server.js
@@ -474,10 +499,10 @@ cat << 'SCRIPT' > ~/get_wsl_ip.sh
 #!/bin/bash
 # WSL2 IP 取得
 WSL_IP=$(hostname -I | awk '{print $1}')
-WIN_IP=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}')
+WIN_IP=$(ip route show default | awk '{print $3; exit}')
 
 echo "WSL2 IP: $WSL_IP"
-echo "Windows IP (from WSL2): $WIN_IP"
+echo "Windows IP (NAT mode, from WSL2): ${WIN_IP:-not detected}"
 
 # Windows のhostsファイル更新用
 echo "Add to C:\\Windows\\System32\\drivers\\etc\\hosts:"
@@ -486,6 +511,8 @@ SCRIPT
 
 chmod +x ~/get_wsl_ip.sh
 ```
+
+この取得方法は NAT 方式向けです。mirrored mode では Windows 上のサービスへ `127.0.0.1` で接続でき、NAT 方式のホスト IP 取得が不要な場合があります。Firewall ルールや hosts 追記は検証後に不要なら削除してください。
 
 ## 4.7 演習問題
 

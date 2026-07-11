@@ -47,28 +47,40 @@ systemd は、Linux のサービスを管理するマネージャーです。Win
 - サービスの状態を監視
 - ログを統一管理
 
-注意: WSL2 では systemd が無効の場合があります。`systemctl` を利用する場合は、有効化が必要です。
+現在の `wsl --install` で導入される Ubuntu では systemd が既定です。既存環境や他のディストリビューションでは無効の場合があるため、設定変更の前に PID 1 を確認します。
 
 ### 有効化手順
 
 ```bash
-# 1. 設定ファイル作成
-sudo vi /etc/wsl.conf
+# 1. 現在の init を確認（systemd なら以降の変更は不要）
+ps -p 1 -o comm=
 
-# 2. 以下の内容を記入
+# 2. systemd でない場合だけ設定ファイルを編集
+sudo vi /etc/wsl.conf
+```
+
+`/etc/wsl.conf` へ次を記入します。
+
+```ini
 [boot]
 systemd=true
-
-# 3. WSL2 再起動（PowerShell で実行）
-wsl --shutdown
-
-# 4. WSL2 再開
-wsl
-
-# 5. systemd動作確認
-systemctl --version
-# 出力: systemd 249 (249.11-0ubuntu3)
 ```
+
+保存後、PowerShell で対象ディストリビューションを停止して再開します。`Ubuntu` は `wsl --list --verbose` に表示された名前へ読み替えてください。
+
+```powershell
+$distro = "Ubuntu"
+wsl --terminate $distro
+wsl -d $distro
+```
+
+再開した Ubuntu で確認します。
+
+```bash
+systemctl status
+```
+
+`wsl --terminate` は指定したディストリビューションだけを停止します。`wsl --shutdown` は実行中の全ディストリビューションと WSL 2 の軽量 VM を停止するため、他の作業がないことを確認して使います。`wsl --version` が利用できない場合や古い場合は、先に PowerShell で `wsl --update` を実行します。
 
 ### systemd無効時の代替手段
 
@@ -76,10 +88,9 @@ systemctl --version
 # systemd無効環境での手動サービス起動
 sudo service nginx start
 sudo service mysql start
-
-# 自動起動の代替（.bashrcに追加）
-echo 'sudo service ssh start 2>/dev/null' >> ~/.bashrc
 ```
+
+これは現在のセッションでの手動起動です。`.bashrc` に `sudo service ... start` を追加すると、シェルを開くたびに権限昇格とサービス起動を試みるため、本書では自動起動の代替として使用しません。自動起動が必要なら systemd を有効にし、対象サービスの unit と公開範囲を確認します。
 
 ## 3.2 プロセスの概念と管理
 
