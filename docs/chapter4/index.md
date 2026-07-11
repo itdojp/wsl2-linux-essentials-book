@@ -58,7 +58,7 @@ ip addr show eth0
 # 出力例：172.x.x.x（これは内部専用）
 
 # NAT 方式で Windows ホストの IP を確認（WSL2 から見た default gateway）
-ip route show default | awk '{print $3}'
+ip route show default | awk '{print $3; exit}'
 # 出力例：172.x.x.1
 ```
 
