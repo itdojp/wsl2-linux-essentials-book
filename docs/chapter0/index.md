@@ -10,6 +10,7 @@ layout: book
 - Windows 10 Version 2004 以降 / Windows 11
 - PowerShell を管理者権限で実行できること（企業 PC などで制限される場合がある）
 - 本書は WSL2 上の Ubuntu を想定（インターネット接続が必要な手順を含む）
+- WSL の仕様確認日: 2026-07-11（Microsoft Learn の現行手順を基準とする）
 
 ## この章の目標
 - WSL2 をインストールし、Ubuntu を起動できる
@@ -44,7 +45,11 @@ winver
 ### ステップ2: WSL2 をインストール
 
 ```powershell
-# 1 行で実行
+# WSLが既にある場合は、先に状態と更新を確認
+wsl --version
+wsl --update
+
+# WSLを初めて導入する場合に実行
 wsl --install
 ```
 
@@ -76,6 +81,24 @@ Retype new password:
 注意: パスワードは入力しても画面に表示されません（正常な動作です）。
 
 ### 動作確認
+
+PowerShell で、インストールしたディストリビューションと WSL の世代を確認します。
+
+```powershell
+wsl --status
+wsl --list --verbose
+# VERSION 列が 2 であることを確認
+```
+
+既存ディストリビューションがWSL 1の場合に限り、必要性とバックアップを確認してから変換します。ディストリビューション名は `wsl --list --verbose` の表示に合わせてください。変換には時間がかかり、失敗する可能性もあります。
+
+```powershell
+# 例: 事前にバックアップを取得
+wsl --export Ubuntu ubuntu-backup.tar
+wsl --set-version Ubuntu 2
+```
+
+Ubuntu 側では次を確認します。
 
 ```bash
 # Ubuntuのバージョン確認
@@ -121,7 +144,11 @@ dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /nores
 
 #### Ubuntu が起動しない
 ```powershell
-# 初期対応
+# 対象ディストリビューションだけを停止して再起動
+wsl --terminate Ubuntu
+wsl -d Ubuntu
+
+# WSL 全体を再起動する必要がある場合（他の実行中ディストリビューションも停止する）
 wsl --shutdown
 wsl --status
 wsl --update

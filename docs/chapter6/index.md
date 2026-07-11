@@ -56,9 +56,9 @@ sudo apt update
 # Apacheをインストール（Web サーバー）
 sudo apt install -y apache2
 
-# 起動と自動起動設定
+# 起動とディストリビューション起動時の自動起動設定
 sudo systemctl start apache2    # 今すぐ起動
-sudo systemctl enable apache2   # PC起動時に自動起動
+sudo systemctl enable apache2   # WSLディストリビューション起動時に自動起動
 
 # 動作確認
 sudo systemctl status apache2
@@ -150,7 +150,7 @@ define( 'DB_COLLATE', '' );
 
 ```bash
 # 例: ソルト生成（貼り付け用）
-curl -s https://api.wordpress.org/secret-key/1.1/salt/
+curl --fail --silent --show-error https://api.wordpress.org/secret-key/1.1/salt/
 ```
 
 `wp-config.php` 内の `AUTH_KEY` などのブロックを、上記の出力で置き換えてください。
@@ -165,7 +165,7 @@ curl -s https://api.wordpress.org/secret-key/1.1/salt/
 
 3. **サイト情報の入力**
    - サイトのタイトル: 任意の名称（例: 私のブログ）
-   - ユーザー名: admin（または任意の名前）
+   - ユーザー名: 推測されにくい管理用ユーザー名（`admin` 等の既定候補は避ける）
    - パスワード: 強力なパスワードを設定
    - メールアドレス: 任意のメールアドレス
 
@@ -209,7 +209,10 @@ sudo systemctl restart mysql
 ```bash
 # パーミッションの再設定
 sudo chown -R www-data:www-data /var/www/html/wordpress
-sudo chmod -R 755 /var/www/html/wordpress
+sudo find /var/www/html/wordpress -type d -exec chmod 755 {} \;
+sudo find /var/www/html/wordpress -type f -exec chmod 644 {} \;
+sudo chown root:www-data /var/www/html/wordpress/wp-config.php
+sudo chmod 640 /var/www/html/wordpress/wp-config.php
 
 # Apacheの再起動
 sudo systemctl restart apache2
