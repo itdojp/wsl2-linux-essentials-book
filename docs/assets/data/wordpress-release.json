@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "confirmedDate": "2026-07-21",
+  "confirmedTimeZone": "Asia/Tokyo",
+  "wordpress": {
+    "version": "7.0.2",
+    "checksumLocale": "en_US",
+    "archiveUrl": "https://downloads.wordpress.org/release/wordpress-7.0.2.tar.gz",
+    "checksumApiUrl": "https://api.wordpress.org/core/checksums/1.0/?version=7.0.2&locale=en_US",
+    "checksumAlgorithm": "md5",
+    "expectedCoreFiles": 3945
+  },
+  "requirements": {
+    "versionApiMinimum": {
+      "php": "7.4",
+      "mysql": "5.5.5"
+    },
+    "wordpressOrgRecommended": {
+      "php": "8.3",
+      "mysql": "8.0",
+      "mariadb": "10.11",
+      "https": true
+    }
+  },
+  "maintenance": {
+    "updateMode": "explicit-book-revision",
+    "requiredValidation": [
+      "archive-download-over-verified-tls",
+      "official-core-checksums-positive-case",
+      "modified-core-file-negative-case",
+      "missing-or-unexpected-core-file-negative-case",
+      "php-and-database-requirements-review"
+    ]
+  }
+}

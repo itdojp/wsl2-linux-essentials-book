@@ -245,8 +245,8 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
         "読むだけ",
         "実測保証値ではありません",
         "article.page-content",
-        "71,365文字・170 code blocks",
-        "119〜179分（約2〜3時間）",
+        "75,239文字・170 code blocks",
+        "126〜189分（約2〜3時間）",
         "LAN公開runbookは別clientが必要なため任意",
         "download速度、machine性能、既存環境、入力速度、troubleshooting",
         "assets/data/learning-time.json",
@@ -390,7 +390,7 @@ def check_built(site: Path, data: dict[str, Any]) -> None:
         "復習込みの必須経路",
         "基礎既習者の必須経路",
         "第1〜2章のskip判定",
-        "119〜179分（約2〜3時間）",
+        "126〜189分（約2〜3時間）",
         "2026-07-21",
     ]:
         require(top_text, token, "built top learning contract")
@@ -436,7 +436,7 @@ def self_test() -> None:
         (
             "stale top time",
             lambda: check_source(
-                replace_text("top", "119〜179分（約2〜3時間）", "0.5〜1時間"), check_workflow=False
+                replace_text("top", "126〜189分（約2〜3時間）", "0.5〜1時間"), check_workflow=False
             ),
             "learning contract",
         ),
