@@ -800,7 +800,7 @@ service cron status
 
 #### WSL instanceのライフサイクル
 
-systemd service だけを起動しても、WSL instance は常時稼働になりません。Microsoft Learnによれば、systemd serviceはWSL instanceを存続させず、WSLのライフサイクルは従来と同じです。したがって、この手順を常駐サーバー運用やWindows再起動後の永続稼働の保証として扱わないでください。
+systemd service だけを起動しても、WSL instance は常時稼働になりません。Microsoft Learn によれば、systemd service は WSL instance を存続させず、WSL のライフサイクルは従来と同じです。したがって、この手順を常駐サーバー運用や Windows 再起動後の永続稼働の保証として扱わないでください。
 
 #### Cron / WSL Source Notes（確認日: 2026-07-20）
 

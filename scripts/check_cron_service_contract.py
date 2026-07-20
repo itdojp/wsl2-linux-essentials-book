@@ -96,7 +96,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
         "このコマンドを `.bashrc`、`.profile` などの対話shell初期化ファイルへ追加してはいけません",
         "エラー出力も破棄しません",
         "systemd service だけを起動しても、WSL instance は常時稼働になりません",
-        "systemd serviceはWSL instanceを存続させず",
+        "systemd service は WSL instance を存続させず",
         "../chapter3/#wsl-systemd-service-management",
         "https://learn.microsoft.com/en-us/windows/wsl/systemd",
         "https://www.freedesktop.org/software/systemd/man/latest/systemctl.html",
@@ -127,14 +127,25 @@ class TextExtractor(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.parts: list[str] = []
+        self.ignored_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.lower() in {"script", "style"}:
+            self.ignored_depth += 1
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() in {"script", "style"} and self.ignored_depth:
+            self.ignored_depth -= 1
 
     def handle_data(self, data: str) -> None:
-        self.parts.append(data)
+        if not self.ignored_depth:
+            self.parts.append(data)
 
 
 def visible_text(document: str) -> str:
     parser = TextExtractor()
     parser.feed(document)
+    parser.close()
     text = html.unescape("".join(parser.parts))
     return "\n".join(line.strip() for line in text.splitlines() if line.strip())
 
@@ -232,7 +243,7 @@ def self_test() -> None:
         (
             "missing lifecycle boundary",
             "chapter5",
-            "systemd serviceはWSL instanceを存続させず",
+            "systemd service は WSL instance を存続させず",
             "systemd serviceなら常時稼働します",
             "存続させず",
         ),
