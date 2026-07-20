@@ -106,7 +106,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
 
     for pattern in [
         r"echo\s+['\"]sudo\s+service\s+cron\s+start.*(?:\.bashrc|\.profile)",
-        r"sudo\s+service\s+cron\s+start\s+2>/dev/null",
+        r"sudo\s+service\s+cron\s+start\s+2>\s*/dev/null",
     ]:
         reject(combined, pattern, "interactive-shell privileged startup")
 
@@ -196,7 +196,7 @@ def check_built(snapshot: Snapshot) -> None:
     combined = chapter3 + "\n" + chapter5
     for pattern in [
         r"echo\s+['\"]sudo\s+service\s+cron\s+start.*(?:\.bashrc|\.profile)",
-        r"sudo\s+service\s+cron\s+start\s+2>/dev/null",
+        r"sudo\s+service\s+cron\s+start\s+2>\s*/dev/null",
     ]:
         reject(combined, pattern, "built interactive-shell privileged startup")
     print("Built WSL cron service contract passed (2 pages).")
@@ -236,6 +236,14 @@ def self_test() -> None:
         ),
         "forbidden pattern",
     )
+    expect_failure(
+        "stderr suppression whitespace variant",
+        lambda: check_source(
+            appended("chapter5", "\nsudo service cron start 2> /dev/null\n"),
+            check_workflow=False,
+        ),
+        "forbidden pattern",
+    )
     for label, name, old, new, expected in [
         ("missing PID 1 branch", "chapter5", "ps -p 1 -o comm=", "ps aux", "comm="),
         ("missing active state", "chapter5", "systemctl is-active cron", "systemctl show cron", "is-active"),
@@ -267,7 +275,7 @@ def self_test() -> None:
             lambda n=name, o=old, v=new: check_source(replaced(n, o, v), check_workflow=False),
             expected,
         )
-    print("WSL cron service contract self-test passed (7 negative mutations).")
+    print("WSL cron service contract self-test passed (8 negative mutations).")
 
 
 def main() -> int:
