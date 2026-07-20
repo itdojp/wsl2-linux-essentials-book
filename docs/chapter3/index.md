@@ -486,11 +486,25 @@ sudo rm -f /etc/nginx/sites-enabled/default
 # 6. 設定テスト
 sudo nginx -t
 
-# 7. 検証済み設定でNginxを起動
-sudo systemctl start nginx
+# 7. 検証済み設定をactive processへ反映
+# 既に起動中ならreloadし、inactiveならstartする
+if systemctl is-active --quiet nginx; then
+    sudo systemctl reload nginx
+else
+    sudo systemctl start nginx
+fi
 
-# 8. 実際の待受addressとlocal疎通を確認
-sudo ss -ltnp '( sport = :80 )'
+# 8. 待受addressを検査し、loopback以外が残っていれば停止
+ListenerOutput=$(sudo ss -H -ltn '( sport = :80 )')
+printf '%s\n' "$ListenerOutput"
+if ! awk '$4 == "127.0.0.1:80" { found=1 } END { exit(found ? 0 : 1) }' <<<"$ListenerOutput"; then
+    echo "Expected Nginx to listen on 127.0.0.1:80" >&2
+    exit 1
+fi
+if awk '$4 ~ /^(0\.0\.0\.0|\*|\[::\]):80$/ { found=1 } END { exit(found ? 0 : 1) }' <<<"$ListenerOutput"; then
+    echo "Unsafe wildcard Nginx listener remains" >&2
+    exit 1
+fi
 curl --fail http://127.0.0.1/
 
 # 9. hosts編集（Windows 側）
@@ -498,7 +512,7 @@ curl --fail http://127.0.0.1/
 # 127.0.0.1 mysite.local
 ```
 
-`ss`のLocal Addressが`127.0.0.1:80`であることを確認します。`0.0.0.0:80`や`[::]:80`なら全interface待受が残っているため、公開範囲を確認してから設定を見直してください。この例はlocal学習用です。LANへ公開する場合は[第4章のLAN公開runbook](../chapter4/#wsl-lan-publication)を別途実施します。
+上の検査は`127.0.0.1:80`が存在しない場合、または`0.0.0.0:80`、`*:80`、`[::]:80`が残る場合に失敗します。失敗時は公開範囲を確認し、設定を見直してください。この例はlocal学習用です。LANへ公開する場合は[第4章のLAN公開runbook](../chapter4/#wsl-lan-publication)を別途実施します。
 
 ### パフォーマンス監視
 
