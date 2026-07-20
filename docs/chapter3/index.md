@@ -406,8 +406,11 @@ trap cleanup_policy_rcd EXIT
 printf '%s\n' '#!/bin/sh' 'exit 101' | sudo tee /usr/sbin/policy-rc.d >/dev/null
 sudo chmod 0755 /usr/sbin/policy-rc.d
 
-# 3. 自動起動を拒否した状態でinstall
-sudo apt install nginx -y
+# 3. 自動起動を拒否した状態でinstall。失敗時のexitでtrapがcleanupする
+if ! sudo apt install nginx -y; then
+    echo "Nginx installation failed; temporary policy will be removed" >&2
+    exit 1
+fi
 
 # install成否にかかわらずtrapが削除する。成功時はここで明示的に解除
 cleanup_policy_rcd
@@ -501,8 +504,8 @@ if ! awk '$4 == "127.0.0.1:80" { found=1 } END { exit(found ? 0 : 1) }' <<<"$Lis
     echo "Expected Nginx to listen on 127.0.0.1:80" >&2
     exit 1
 fi
-if awk '$4 ~ /^(0\.0\.0\.0|\*|\[::\]):80$/ { found=1 } END { exit(found ? 0 : 1) }' <<<"$ListenerOutput"; then
-    echo "Unsafe wildcard Nginx listener remains" >&2
+if awk '$4 != "127.0.0.1:80" { found=1 } END { exit(found ? 0 : 1) }' <<<"$ListenerOutput"; then
+    echo "Unexpected non-loopback Nginx listener remains" >&2
     exit 1
 fi
 curl --fail http://127.0.0.1/
@@ -512,7 +515,7 @@ curl --fail http://127.0.0.1/
 # 127.0.0.1 mysite.local
 ```
 
-上の検査は`127.0.0.1:80`が存在しない場合、または`0.0.0.0:80`、`*:80`、`[::]:80`が残る場合に失敗します。失敗時は公開範囲を確認し、設定を見直してください。この例はlocal学習用です。LANへ公開する場合は[第4章のLAN公開runbook](../chapter4/#wsl-lan-publication)を別途実施します。
+上の検査は`127.0.0.1:80`が存在しない場合、またはwildcard、IPv6 loopback、特定LAN IPv4を含む`127.0.0.1:80`以外の待受が1件でも残る場合に失敗します。失敗時は公開範囲を確認し、設定を見直してください。この例はlocal学習用です。LANへ公開する場合は[第4章のLAN公開runbook](../chapter4/#wsl-lan-publication)を別途実施します。
 
 ### パフォーマンス監視
 
