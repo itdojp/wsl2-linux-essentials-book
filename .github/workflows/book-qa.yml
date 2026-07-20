@@ -73,6 +73,11 @@ jobs:
           python3 scripts/check_learning_path_contract.py --self-test
           python3 scripts/check_learning_path_contract.py
 
+      - name: WordPress supply-chain contract (source + self-test)
+        run: |
+          python3 scripts/check_wordpress_supply_chain_contract.py --self-test
+          python3 scripts/check_wordpress_supply_chain_contract.py
+
       - name: Security audit (book dependencies)
         run: npm run check:security
 
@@ -123,6 +128,9 @@ jobs:
 
       - name: Learning path and time contract (built site)
         run: python3 scripts/check_learning_path_contract.py --built-site _site
+
+      - name: WordPress supply-chain contract (built site)
+        run: python3 scripts/check_wordpress_supply_chain_contract.py --built-site _site
 
       - name: Smoke check built site (top + navigation + assets)
         shell: bash
