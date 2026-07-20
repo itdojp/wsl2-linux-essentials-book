@@ -62,6 +62,12 @@ jobs:
           python3 scripts/check_cron_service_contract.py --self-test
           python3 scripts/check_cron_service_contract.py
 
+      - name: WSL network exposure contract (source + self-test + runtime)
+        run: |
+          python3 scripts/check_network_exposure_contract.py --self-test
+          python3 scripts/check_network_exposure_contract.py
+          python3 scripts/check_network_exposure_contract.py --runtime-test
+
       - name: Security audit (book dependencies)
         run: npm run check:security
 
@@ -106,6 +112,9 @@ jobs:
 
       - name: WSL cron service contract (built site)
         run: python3 scripts/check_cron_service_contract.py --built-site _site
+
+      - name: WSL network exposure contract (built site)
+        run: python3 scripts/check_network_exposure_contract.py --built-site _site
 
       - name: Smoke check built site (top + navigation + assets)
         shell: bash

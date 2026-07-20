@@ -75,36 +75,325 @@ Windows 11 22H2 以降で mirrored mode を利用する場合は、Windows ユ�
 networkingMode=mirrored
 ```
 
-mirrored mode で LAN からの受信を許可する場合は、Windows Firewall に加えて Hyper-V Firewall の設定も確認します。組織管理 PC ではポリシーを優先してください。
+mirrored mode で LAN からの受信を許可する場合は、Hyper-V FirewallのActiveStoreと、そこへmergeされるWindows Firewall/GPO/CSPのpolicyを確認します。組織管理 PC ではポリシーを優先してください。
 
-### ポートフォワーディングの仕組み
+### local確認（既定・推奨）
 
 ```bash
-# WSL2 → Windows: 自動転送（WSL2 側でサーバー起動）
-python3 -m http.server 8000
+# WSL2内のloopbackだけで一時serverを起動
+python3 -m http.server --bind 127.0.0.1 8000
 
-# Windows ブラウザでアクセス可能
-# http://localhost:8000
+# 別terminalで待受addressとWSL内の疎通を確認
+ss -ltnp '( sport = :8000 )'
+curl --fail http://127.0.0.1:8000/
 ```
+
+Windows PowerShellからも確認します。
 
 ```powershell
-# NAT 方式で LAN 等から接続させる必要がある場合だけ手動設定（PowerShell: 管理者）
-# hostname -I が複数 IP を返す場合があるため、先頭の IP のみ使用する
-$wsl_ip = (wsl hostname -I).Trim().Split(' ')[0]
-netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=$wsl_ip
-
-# 確認
-netsh interface portproxy show all
+Test-NetConnection -ComputerName localhost -Port 8000
 ```
 
-`listenaddress=0.0.0.0` は Windows の全 IPv4 インターフェースで待ち受けます。LAN 等への公開が本当に必要な場合だけ使い、Windows Firewall で送信元を制限してください。Windows ホスト内だけの確認なら自動 localhost 転送を優先します。
+`TcpTestSucceeded`が`True`であることを確認します。local確認ではportproxyやFirewall許可ruleを追加しません。検証後はPython serverを起動したterminalで`Ctrl+C`を押して終了します。
 
-LANからの接続確認が終わり、転送が不要になった後で、別途次のcleanupを実行します。
+### LAN公開runbook（必要な場合だけ）
+{: #wsl-lan-publication}
+
+LAN公開はlocal確認とは別の演習です。学習用データだけを使用し、組織管理PCではGPO/CSPと管理者の指示を優先します。公開中はWSL側serverを`0.0.0.0`へbindするため、以下のFirewall制限とcleanupを省略しないでください。
+
+| ネットワーク方式 | LANへの経路 | 必要な保護 | cleanup |
+|---|---|---|---|
+| NAT | Windowsの特定LAN IPv4へのportproxy | Windows Firewallを`Private` profile、特定client IPv4、特定portへ限定 | Firewall ruleとportproxyを両方削除 |
+| mirrored mode | LANからWSLへ直接接続。portproxyは作成しない | WSL用Hyper-V Firewall ruleを`Private` profile、特定client IPv4、特定portへ限定 | Hyper-V Firewall ruleを削除 |
+
+Firewall設定前にwildcard serverを起動してはいけません。次の順序を守ります。
+
+1. NATまたはmirrored modeの**どちらか一方**について、blocking baselineとscoped ruleを確認する
+2. 保護が有効になった後で、WSL側serverを`0.0.0.0`へbindする
+3. 許可clientと非許可clientから到達範囲を確認する
+4. WSL側serverを停止し、待受が消えたことを確認する
+5. 最後にFirewall ruleとportproxyをcleanupする
+
+`0.0.0.0`はWSLの全IPv4 interfaceで待ち受けるため、local用serverでは使用しません。baseline確認またはrule作成に失敗した場合はserverを起動せず、設定を広げないでください。
+
+#### NAT方式: portproxyとWindows Firewallを対で管理
+
+管理者PowerShellで実行します。`ListenAddress`にはWindowsの対象LAN adapterに割り当てられた**特定のIPv4**、`AllowedRemote`には接続を許可する**1台の検証clientのIPv4**を入力します。`0.0.0.0`、`Any`、全profileへ広げないでください。対象adapterが`Private`でなければ実行を止め、profileを勝手に変更せず管理者へ確認します。
 
 ```powershell
-# 検証後に不要になったport proxyを削除（PowerShell: 管理者）
-netsh interface portproxy delete v4tov4 listenport=8080 listenaddress=0.0.0.0
+$RuleName = "WSL2-Lab-NAT-TCP-8080"
+$BlockRuleName = "WSL2-Lab-NAT-TCP-8080-Block-Others"
+$ListenPort = 8080
+$Distro = Read-Host "Exact WSL distribution name"
+$ListenAddress = Read-Host "Windows LAN IPv4 (not 0.0.0.0)"
+$AllowedRemote = Read-Host "One allowed LAN client IPv4"
+$WslAddress = (wsl.exe -d $Distro hostname -I).Trim().Split(' ')[0]
+
+if ($ListenAddress -eq "0.0.0.0") { throw "Use one Windows LAN IPv4" }
+$NatAllowedRemoteAddress = $null
+if (-not [System.Net.IPAddress]::TryParse($AllowedRemote, [ref]$NatAllowedRemoteAddress) -or
+    $NatAllowedRemoteAddress.AddressFamily -ne [System.Net.Sockets.AddressFamily]::InterNetwork -or
+    $NatAllowedRemoteAddress.ToString() -cne $AllowedRemote) {
+    throw "NAT AllowedRemote must be exactly one dotted-decimal IPv4 address"
+}
+$AllowedBytes = $NatAllowedRemoteAddress.GetAddressBytes()
+$IsPrivateClient = $AllowedBytes[0] -eq 10 -or
+    ($AllowedBytes[0] -eq 172 -and $AllowedBytes[1] -ge 16 -and $AllowedBytes[1] -le 31) -or
+    ($AllowedBytes[0] -eq 192 -and $AllowedBytes[1] -eq 168)
+if (-not $IsPrivateClient) { throw "NAT AllowedRemote must be one RFC1918 LAN client" }
+
+function ConvertTo-IPv4UInt32([System.Net.IPAddress]$Address) {
+    $Bytes = $Address.GetAddressBytes()
+    [Array]::Reverse($Bytes)
+    return [BitConverter]::ToUInt32($Bytes, 0)
+}
+function ConvertFrom-IPv4UInt32([uint32]$Value) {
+    $Bytes = [BitConverter]::GetBytes($Value)
+    [Array]::Reverse($Bytes)
+    return ([System.Net.IPAddress]::new($Bytes)).ToString()
+}
+$AllowedNumber = ConvertTo-IPv4UInt32 $NatAllowedRemoteAddress
+$BlockedRemote = @(
+    "0.0.0.0-$(ConvertFrom-IPv4UInt32 ([uint32]($AllowedNumber - 1)))"
+    "$(ConvertFrom-IPv4UInt32 ([uint32]($AllowedNumber + 1)))-255.255.255.255"
+)
+
+if (Get-NetFirewallRule -Name $RuleName -ErrorAction SilentlyContinue) { throw "Allow RuleName already exists" }
+if (Get-NetFirewallRule -Name $BlockRuleName -ErrorAction SilentlyContinue) { throw "Block RuleName already exists" }
+$ListenInterface = Get-NetIPAddress -AddressFamily IPv4 -IPAddress $ListenAddress -ErrorAction Stop
+$ListenProfile = Get-NetConnectionProfile -InterfaceIndex $ListenInterface.InterfaceIndex -ErrorAction Stop
+if ($ListenProfile.NetworkCategory -ne "Private") { throw "The listen interface must use the Private profile" }
+$PrivateFirewallProfile = Get-NetFirewallProfile -PolicyStore ActiveStore -Name Private -ErrorAction Stop
+if ($PrivateFirewallProfile.Enabled.ToString() -cne "True") { throw "Windows Private Firewall must be enabled" }
+if ($PrivateFirewallProfile.DefaultInboundAction.ToString() -cne "Block") { throw "Windows Private Firewall default inbound action must be Block" }
+if ($PrivateFirewallProfile.AllowLocalFirewallRules.ToString() -cne "True") { throw "Windows Private Firewall must allow local rules" }
+
+# 既存proxyを引き継いだり削除したりしないよう、同じlisten endpointが未使用であることを確認
+$PortProxyRows = netsh interface portproxy show v4tov4
+if ($LASTEXITCODE -ne 0) { throw "Failed to inspect existing portproxy entries" }
+$ExistingProxy = $PortProxyRows | Select-String -Pattern "^\s*$([regex]::Escape($ListenAddress))\s+$ListenPort\s+"
+if ($ExistingProxy) { throw "The listen address and port already have a portproxy entry" }
+
+$FirewallParams = @{
+    Name = $RuleName
+    DisplayName = "WSL2 lab TCP 8080 (Private, one client)"
+    Direction = "Inbound"
+    Action = "Allow"
+    Protocol = "TCP"
+    LocalAddress = $ListenAddress
+    LocalPort = $ListenPort
+    RemoteAddress = $AllowedRemote
+    Profile = "Private"
+}
+$BlockFirewallParams = @{
+    Name = $BlockRuleName
+    DisplayName = "WSL2 lab TCP 8080 block every other IPv4 client"
+    Direction = "Inbound"
+    Action = "Block"
+    Protocol = "TCP"
+    LocalAddress = $ListenAddress
+    LocalPort = $ListenPort
+    RemoteAddress = $BlockedRemote
+    Profile = "Private"
+}
+New-NetFirewallRule @BlockFirewallParams -ErrorAction Stop
+try {
+    New-NetFirewallRule @FirewallParams -ErrorAction Stop
+} catch {
+    Remove-NetFirewallRule -Name $BlockRuleName -ErrorAction SilentlyContinue
+    throw
+}
+netsh interface portproxy add v4tov4 listenport=$ListenPort listenaddress=$ListenAddress connectport=8080 connectaddress=$WslAddress
+if ($LASTEXITCODE -ne 0) {
+    $AddExitCode = $LASTEXITCODE
+    $PartialRows = netsh interface portproxy show v4tov4
+    if ($LASTEXITCODE -ne 0) { throw "Portproxy add failed and cleanup state cannot be inspected; Firewall rules were retained" }
+    $PartialProxy = $PartialRows | Select-String -Pattern "^\s*$([regex]::Escape($ListenAddress))\s+$ListenPort\s+"
+    if ($PartialProxy) {
+        netsh interface portproxy delete v4tov4 listenport=$ListenPort listenaddress=$ListenAddress
+        if ($LASTEXITCODE -ne 0) { throw "Portproxy add and rollback failed; Firewall rules were retained" }
+    }
+    $RollbackRows = netsh interface portproxy show v4tov4
+    if ($LASTEXITCODE -ne 0 -or
+        ($RollbackRows | Select-String -Pattern "^\s*$([regex]::Escape($ListenAddress))\s+$ListenPort\s+")) {
+        throw "Portproxy rollback could not be verified; Firewall rules were retained"
+    }
+    Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop
+    throw "Portproxy add failed with exit code $AddExitCode; no proxy remains and both Firewall rules were rolled back"
+}
+
+# serverを起動する前に保護設定を確認
+netsh interface portproxy show v4tov4
+Get-NetFirewallRule -Name $RuleName, $BlockRuleName | Format-List Name, Enabled, Profile, Direction, Action
+Get-NetFirewallRule -Name $RuleName, $BlockRuleName | Get-NetFirewallAddressFilter | Format-List LocalAddress, RemoteAddress
 ```
+
+`$BlockRuleName`は、許可する1台のIPv4だけを除いた2つのaddress rangeを明示的にblockします。Windows Firewallでは明示的なblockが競合するallowより優先されるため、既存の広いallow ruleが同じportにあっても非許可clientを通しません。一方、許可clientに重なる別のblock ruleがある場合は接続できません。その場合も既存ruleを削除したり本runbookの範囲を広げたりせず、serverを起動しないで管理者へ確認します。
+
+作成からcleanupまでは変数を保持した同じ管理者PowerShellを使用します。作成途中または確認が失敗した場合はserverを起動せず、ruleを広げないでください。allow/blockの両ruleは一意な`Name`で作成し、cleanupではその2つだけを削除します。
+
+#### mirrored mode: Hyper-V Firewall ruleを個別管理
+
+mirrored modeではportproxyと上のWindows Firewall ruleを作成しません。Windows 11 22H2以降のHyper-V Firewall設定とactive profileを確認し、WSLのVMCreatorIdに個別ruleを作成します。組織ポリシーでlocal ruleが許可されない場合やblocking baselineを確認できない場合は、`Any`へ広げず管理者へ確認します。
+
+```powershell
+$HvRuleName = "WSL2-Lab-Mirrored-TCP-8080"
+$HvBlockRuleName = "WSL2-Lab-Mirrored-TCP-8080-Block-Others"
+$WslVmCreatorId = "{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}"
+$AllowedRemote = Read-Host "One allowed LAN client IPv4"
+
+$HvAllowedRemoteAddress = $null
+if (-not [System.Net.IPAddress]::TryParse($AllowedRemote, [ref]$HvAllowedRemoteAddress) -or
+    $HvAllowedRemoteAddress.AddressFamily -ne [System.Net.Sockets.AddressFamily]::InterNetwork -or
+    $HvAllowedRemoteAddress.ToString() -cne $AllowedRemote) {
+    throw "Mirrored AllowedRemote must be exactly one dotted-decimal IPv4 address"
+}
+$AllowedBytes = $HvAllowedRemoteAddress.GetAddressBytes()
+$IsPrivateClient = $AllowedBytes[0] -eq 10 -or
+    ($AllowedBytes[0] -eq 172 -and $AllowedBytes[1] -ge 16 -and $AllowedBytes[1] -le 31) -or
+    ($AllowedBytes[0] -eq 192 -and $AllowedBytes[1] -eq 168)
+if (-not $IsPrivateClient) { throw "Mirrored AllowedRemote must be one RFC1918 LAN client" }
+
+function ConvertTo-IPv4UInt32([System.Net.IPAddress]$Address) {
+    $Bytes = $Address.GetAddressBytes()
+    [Array]::Reverse($Bytes)
+    return [BitConverter]::ToUInt32($Bytes, 0)
+}
+function ConvertFrom-IPv4UInt32([uint32]$Value) {
+    $Bytes = [BitConverter]::GetBytes($Value)
+    [Array]::Reverse($Bytes)
+    return ([System.Net.IPAddress]::new($Bytes)).ToString()
+}
+$AllowedNumber = ConvertTo-IPv4UInt32 $HvAllowedRemoteAddress
+$BlockedRemote = @(
+    "0.0.0.0-$(ConvertFrom-IPv4UInt32 ([uint32]($AllowedNumber - 1)))"
+    "$(ConvertFrom-IPv4UInt32 ([uint32]($AllowedNumber + 1)))-255.255.255.255"
+)
+
+$ActiveLanProfiles = @(Get-NetConnectionProfile | Where-Object { $_.IPv4Connectivity.ToString() -ne "Disconnected" })
+if ($ActiveLanProfiles.Count -eq 0 -or @($ActiveLanProfiles | Where-Object { $_.NetworkCategory.ToString() -ne "Private" }).Count -gt 0) {
+    throw "Every active IPv4 network profile must be Private for this mirrored lab"
+}
+Get-NetFirewallHyperVVMSetting -PolicyStore ActiveStore -VMCreatorId $WslVmCreatorId
+$HvPrivateProfile = Get-NetFirewallHyperVProfile -PolicyStore ActiveStore -Name $WslVmCreatorId -Profile Private -ErrorAction Stop
+if ($HvPrivateProfile.Enabled.ToString() -cne "True") { throw "Hyper-V Private Firewall must be enabled" }
+if ($HvPrivateProfile.DefaultInboundAction.ToString() -cne "Block") { throw "Hyper-V Private Firewall default inbound action must be Block" }
+if ($HvPrivateProfile.AllowLocalFirewallRules.ToString() -cne "True") { throw "Hyper-V Private Firewall must allow local rules" }
+if (Get-NetFirewallHyperVRule -Name $HvRuleName -ErrorAction SilentlyContinue) { throw "Allow RuleName already exists" }
+if (Get-NetFirewallHyperVRule -Name $HvBlockRuleName -ErrorAction SilentlyContinue) { throw "Block RuleName already exists" }
+$HvFirewallParams = @{
+    Name = $HvRuleName
+    DisplayName = "WSL2 lab mirrored TCP 8080 (Private, one client)"
+    Direction = "Inbound"
+    Action = "Allow"
+    VMCreatorId = $WslVmCreatorId
+    Protocol = "TCP"
+    LocalPorts = 8080
+    RemoteAddresses = $AllowedRemote
+    Profiles = "Private"
+    RulePriority = 2
+}
+$HvBlockFirewallParams = @{
+    Name = $HvBlockRuleName
+    DisplayName = "WSL2 lab mirrored TCP 8080 block every other IPv4 client"
+    Direction = "Inbound"
+    Action = "Block"
+    VMCreatorId = $WslVmCreatorId
+    Protocol = "TCP"
+    LocalPorts = 8080
+    RemoteAddresses = $BlockedRemote
+    Profiles = "Private"
+    RulePriority = 1
+}
+New-NetFirewallHyperVRule @HvBlockFirewallParams -ErrorAction Stop
+try {
+    New-NetFirewallHyperVRule @HvFirewallParams -ErrorAction Stop
+} catch {
+    Remove-NetFirewallHyperVRule -Name $HvBlockRuleName -ErrorAction SilentlyContinue
+    throw
+}
+
+# serverを起動する前に保護設定を確認
+Get-NetFirewallHyperVRule -PolicyStore ActiveStore -Name $HvRuleName, $HvBlockRuleName | Format-List Name, Enabled, Direction, Action, RulePriority, Profiles, RemoteAddresses, LocalPorts
+```
+
+`$HvBlockRuleName`も許可clientを除く全IPv4をblockします。Hyper-V Firewallでは小さい`RulePriority`から評価されるため、blockを1、allowを2に固定します。許可clientへの別の高優先度blockなどにより期待値を満たさない場合は、既存ruleやpriorityを変更せずserverを起動しません。
+
+作成からcleanupまでは変数を保持した同じ管理者PowerShellを使用します。Hyper-V ruleの作成または確認に失敗した場合はserverを起動しません。allow/blockの両ruleは一意な`Name`で作成し、cleanupではその2つだけを削除します。
+
+#### 保護設定の確認後にWSL側serverを起動
+
+上のどちらか一方の保護設定が成功した後だけ、WSL側でLAN演習専用serverを起動します。
+
+```bash
+python3 -m http.server --bind 0.0.0.0 8080
+
+# 別terminalで0.0.0.0:8080の待受とlocal応答を確認
+ss -ltnp '( sport = :8080 )'
+ip -4 addr show scope global
+curl --fail http://127.0.0.1:8080/
+```
+
+許可したLAN clientから、NAT方式では`Test-NetConnection -ComputerName <Windows-LAN-IPv4> -Port 8080`、mirrored modeでは`Test-NetConnection -ComputerName <WSL-LAN-IPv4> -Port 8080`を実行し`True`を確認します。mirrored modeの宛先は上の`ip -4 addr show scope global`で確認したWSLのLAN IPv4です。許可していない別clientからは同じ宛先への結果が`False`であることを確認します。期待値と異なる場合はruleを広げず、次の順序でcleanupします。
+
+#### cleanup: server停止を保護設定の削除より先に行う
+
+最初にPython serverを起動したWSL terminalで`Ctrl+C`を押します。別のWSL terminalで待受が消えたことを確認します。
+
+```bash
+if ss -H -ltn '( sport = :8080 )' | grep -q .; then
+    echo "Port 8080 listener remains; keep Firewall protection and stop the server first" >&2
+    exit 1
+fi
+```
+
+待受が残る場合はFirewall保護を削除しません。server停止を確認できた場合だけ、設定した方式のcleanupへ進みます。
+
+##### NAT方式のcleanup
+
+変数を保持した同じ管理者PowerShellで、最初にportproxyを削除して同じendpointが消えたことを確認します。削除または確認に失敗した場合は、orphaned proxyを保護するallow/block ruleを残して停止します。proxy不在を確認できた場合だけ両ruleを削除します。
+
+```powershell
+netsh interface portproxy delete v4tov4 listenport=$ListenPort listenaddress=$ListenAddress
+if ($LASTEXITCODE -ne 0) { throw "Failed to remove the portproxy entry; Firewall rules were retained" }
+$RemainingPortProxyRows = netsh interface portproxy show v4tov4
+if ($LASTEXITCODE -ne 0) { throw "Failed to verify portproxy removal; Firewall rules were retained" }
+$RemainingProxy = $RemainingPortProxyRows | Select-String -Pattern "^\s*$([regex]::Escape($ListenAddress))\s+$ListenPort\s+"
+if ($RemainingProxy) { throw "Portproxy entry remains; Firewall rules were retained" }
+
+Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop
+if (Get-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction SilentlyContinue) { throw "Firewall rule remains" }
+Test-NetConnection -ComputerName $ListenAddress -Port $ListenPort
+```
+
+削除後の`TcpTestSucceeded`は`False`、`netsh`の一覧には同じaddress/portの行がないことが期待値です。
+
+##### mirrored modeのcleanup
+
+**必ず一意なNameを指定して**削除します。引数なしの`Remove-NetFirewallHyperVRule`は全ruleを削除し得るため、本書では使用しません。
+
+```powershell
+Remove-NetFirewallHyperVRule -Name $HvRuleName, $HvBlockRuleName -ErrorAction Stop
+if (Get-NetFirewallHyperVRule -Name $HvRuleName, $HvBlockRuleName -ErrorAction SilentlyContinue) { throw "Hyper-V Firewall rule remains" }
+```
+
+許可していたLAN clientから再度`Test-NetConnection`を実行し、`TcpTestSucceeded`が`False`であることを確認します。process停止とrule削除の両方を確認してcleanup完了とします。
+
+#### Network Exposure Source Notes（確認日: 2026-07-20）
+
+- [Accessing network applications with WSL](https://learn.microsoft.com/en-us/windows/wsl/networking): NATのlocalhost forwarding、portproxyの`listenaddress`、mirrored mode、Hyper-V Firewallの適用境界を確認しました。
+- [Configure Hyper-V firewall](https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/hyper-v-firewall): WSL VMCreatorId、ActiveStore、profile、個別ruleの確認方法を確認しました。
+- [Get-NetFirewallHyperVVMSetting](https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallhypervvmsetting): VM設定の`Name` parameterに`VMCreatorId` aliasがあり、VM creator IDを明示して取得できることを確認しました。
+- [New-NetFirewallRule](https://learn.microsoft.com/en-us/powershell/module/netsecurity/new-netfirewallrule) / [Remove-NetFirewallRule](https://learn.microsoft.com/en-us/powershell/module/netsecurity/remove-netfirewallrule): 一意なName、address/profile条件、個別rule削除を確認しました。
+- [Get-NetFirewallProfile](https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallprofile): Windows FirewallのActiveStoreにおける有効状態、既定inbound action、local rule mergeを確認しました。
+- [Windows Firewall rules](https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/rules): 明示的なblock ruleが競合するallow ruleより優先されることと、許可対象に重なる別のblock ruleは意図した通信も止めることを確認しました。
+- [New-NetFirewallHyperVRule](https://learn.microsoft.com/en-us/powershell/module/netsecurity/new-netfirewallhypervrule) / [Remove-NetFirewallHyperVRule](https://learn.microsoft.com/en-us/powershell/module/netsecurity/remove-netfirewallhypervrule): `RemoteAddresses`、`Profiles`、一意なNameによる作成・削除を確認しました。
+- [MSFT_NetFirewallHyperVRule class](https://learn.microsoft.com/en-us/windows/win32/fwp/wmi/wfascimprov/msft-netfirewallhypervrule): 小さい`RulePriority`から評価され、未指定時はblockに1、allowに2が割り当てられることを確認しました。本runbookでは同じ優先関係を明示します。
+- [Get-NetFirewallHyperVProfile](https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallhypervprofile): WSL VMCreatorIdのPrivate profileについて、ActiveStoreの有効状態、既定inbound action、local rule mergeを確認しました。
+- [NGINX `listen` directive](https://nginx.org/en/docs/http/ngx_http_core_module.html#listen): addressを指定したsocketの待受範囲を確認しました。
+- [Python `http.server --bind`](https://docs.python.org/3/library/http.server.html#cmdoption-http-server-bind): command lineで待受addressを明示する方法を確認しました。
+- [Node.js `net.Server.listen`](https://nodejs.org/api/net.html#serverlisten): host省略時はIPv6 `::`またはIPv4 `0.0.0.0`で待ち受けるため、local例ではhostを省略しません。
+- [Node.js release schedule](https://github.com/nodejs/release#release-schedule): Node.js 20のEOLが2026-04-30であることを確認しました。
 
 ### ネットワーク設定ファイル
 
@@ -230,7 +519,7 @@ ss -tan | grep :80
 出力の読み方は次のとおりです。
 ```text
 State  Recv-Q Send-Q Local Address:Port   Peer Address:Port Process
-LISTEN 0      511    0.0.0.0:80           0.0.0.0:*     nginx
+LISTEN 0      511    127.0.0.1:80         0.0.0.0:*     nginx
 │      │      │      │                    │             └─ プロセス名
 │      │      │      │                    └─ 接続先（*は任意）
 │      │      │      └─ ローカルアドレス:ポート
@@ -313,20 +602,20 @@ tail -f wget-log  # ログ確認
 ### Python簡易 HTTP サーバー
 
 ```bash
-# Python3 HTTP サーバー（開発用）
+# Python3 HTTP サーバー（local開発用）
 cd ~/public_html
-python3 -m http.server 8000
+python3 -m http.server --bind 127.0.0.1 8000
 
-# 特定 IP でバインド
-python3 -m http.server 8000 --bind 127.0.0.1
+# 待受addressを確認
+ss -ltnp '( sport = :8000 )'
 
-# CGI有効化
-python3 -m http.server --cgi 8000
+# CGI有効化時もloopbackへ限定
+python3 -m http.server --bind 127.0.0.1 --cgi 8000
 ```
 
 ### Node.js HTTP サーバー（オプション）
 
-この例はサポート中の Node.js 24 LTS を前提とします。Node.js 20 は 2026-03-24 に EOL となりました。未導入または EOL 版の場合は、Node.js 公式のインストール案内から環境に合う方法を選び、署名・配布元を確認してください。
+この例はサポート中の Node.js 24 LTS を前提とします。Node.js 20 は 2026-04-30 に EOL となりました。未導入または EOL 版の場合は、Node.js 公式のインストール案内から環境に合う方法を選び、署名・配布元を確認してください。
 
 ```bash
 # サポート中の版であることを確認
@@ -354,7 +643,7 @@ const server = http.createServer((req, res) => {
     }
 });
 
-server.listen(3000, () => {
+server.listen(3000, '127.0.0.1', () => {
     console.log('Server running at http://localhost:3000/');
 });
 JS
@@ -363,6 +652,7 @@ JS
 node server.js
 
 # 別ターミナルでテスト
+ss -ltnp '( sport = :3000 )'
 curl http://localhost:3000/
 curl http://localhost:3000/api/time
 ```
@@ -373,8 +663,8 @@ curl http://localhost:3000/api/time
 # インストール
 sudo apt install -y netcat-openbsd
 
-# TCPサーバー起動
-nc -l 12345
+# TCPサーバー起動（localだけで待受）
+nc -l 127.0.0.1 12345
 
 # TCPクライアント接続
 nc localhost 12345
@@ -384,18 +674,18 @@ nc -zv localhost 20-100
 
 # ファイル転送
 # 受信側：
-nc -l 12345 > received_file.txt
+nc -l 127.0.0.1 12345 > received_file.txt
 # 送信側：
 nc localhost 12345 < send_file.txt
 
-# 簡易チャットサーバー
+# 簡易localチャットサーバー
 # サーバー側：
-nc -l 12345
+nc -l 127.0.0.1 12345
 # クライアント側：
-nc server_ip 12345
+nc 127.0.0.1 12345
 ```
 
-※ Ubuntu では `nc` は `netcat-openbsd` が標準になりやすく、実装差により `nc -l -p ...` が動かない場合があります。本書では Ubuntu 標準環境で動く形として `nc -l <PORT>` を採用します。
+※ Ubuntu では `nc` は `netcat-openbsd` が標準になりやすく、実装差により `nc -l -p ...` が動かない場合があります。本書のlocal例ではUbuntu標準環境で動く`nc -l <ADDRESS> <PORT>`を採用します。LAN公開はNetcat例を流用せず、[LAN公開runbook](#wsl-lan-publication)で範囲とcleanupを管理します。
 
 ## 4.5 ファイアウォール基礎
 
@@ -491,9 +781,6 @@ ping -c 1 google.com > /dev/null 2>&1 && echo "✓ DNS Resolution" || echo "✗ 
 ### WSL2 特有の問題対処
 
 ```bash
-# Windows Defenderファイアウォール例外追加（PowerShell 管理者）
-New-NetFirewallRule -DisplayName "WSL2 Port 8080" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
-
 # WSL2 の IP 自動取得スクリプト
 cat << 'SCRIPT' > ~/get_wsl_ip.sh
 #!/bin/bash
@@ -512,7 +799,7 @@ SCRIPT
 chmod +x ~/get_wsl_ip.sh
 ```
 
-この取得方法は NAT 方式向けです。mirrored mode では Windows 上のサービスへ `127.0.0.1` で接続でき、NAT 方式のホスト IP 取得が不要な場合があります。Firewall ルールや hosts 追記は検証後に不要なら削除してください。
+この取得方法は NAT 方式向けです。mirrored mode では Windows 上のサービスへ `127.0.0.1` で接続でき、NAT 方式のホスト IP 取得が不要な場合があります。Firewallを一時変更する場合は、上の[LAN公開runbook](#wsl-lan-publication)に従って一意なrule name、送信元、profile、cleanupを対にしてください。
 
 ## 4.7 演習問題
 
@@ -552,7 +839,7 @@ for i in {1..3}; do
     port=$((8000 + i))
     mkdir -p ~/backend$i
     echo "<h1>Backend Server $i</h1>" > ~/backend$i/index.html
-    (cd ~/backend$i && python3 -m http.server $port) &
+    (cd ~/backend$i && python3 -m http.server --bind 127.0.0.1 "$port") &
 done
 
 # ロードバランサー

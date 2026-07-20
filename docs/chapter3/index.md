@@ -389,22 +389,60 @@ journalctl -b -1  # 前回のブート
 ### Nginx導入
 
 ```bash
-# 1. パッケージ更新とインストール
+# 1. パッケージ更新
 sudo apt update
-sudo apt install nginx -y
 
-# 2. 状態確認
-systemctl status nginx
+# 2. package install中のservice自動起動を一時的に拒否
+# 既存policyがある環境では上書きせず、ここで停止して管理者へ確認する
+if [ -e /usr/sbin/policy-rc.d ] || [ -L /usr/sbin/policy-rc.d ]; then
+    echo "Existing /usr/sbin/policy-rc.d: stop and consult the administrator" >&2
+    exit 1
+fi
 
-# 3. 設定ファイル構造
+cleanup_policy_rcd() {
+    if ! sudo rm -f /usr/sbin/policy-rc.d; then
+        echo "Failed to remove temporary /usr/sbin/policy-rc.d" >&2
+        return 1
+    fi
+}
+trap cleanup_policy_rcd EXIT
+if ! printf '%s\n' '#!/bin/sh' 'exit 101' | sudo tee /usr/sbin/policy-rc.d >/dev/null; then
+    echo "Failed to write temporary /usr/sbin/policy-rc.d; abort before apt install" >&2
+    exit 1
+fi
+if ! sudo chmod 0755 /usr/sbin/policy-rc.d; then
+    echo "Failed to make temporary /usr/sbin/policy-rc.d executable; abort before apt install" >&2
+    exit 1
+fi
+
+# 3. 自動起動を拒否した状態でinstall。失敗時のexitでtrapがcleanupする
+if ! sudo apt install nginx -y; then
+    echo "Nginx installation failed; temporary policy will be removed" >&2
+    exit 1
+fi
+
+# install成否にかかわらずtrapが削除する。成功時はここで明示的に解除し、削除失敗時も停止
+if ! cleanup_policy_rcd; then
+    echo "Temporary policy cleanup failed; stop before configuring Nginx" >&2
+    exit 1
+fi
+trap - EXIT
+
+# 4. 状態確認（設定作業中はinactiveが期待値）
+systemctl is-active nginx
+
+# 5. 設定ファイル構造
 ls -la /etc/nginx/
 # nginx.conf         - メイン設定
 # sites-available/   - 利用可能サイト設定
 # sites-enabled/     - 有効化されたサイト
-
-# 4. デフォルトページ確認
-curl http://localhost
 ```
+
+Debian系の`invoke-rc.d`では、`policy-rc.d`が終了status 101を返すとservice actionをpolicyにより拒否した扱いになります。この例ではinstall前だけ一時policyを作り、`trap`でinstall失敗時にも削除します。既存の`policy-rc.d`は管理者の意図を表す可能性があるため、上書きせず処理を停止します。
+
+#### Nginx install Source Note（確認日: 2026-07-20）
+
+- Debian `invoke-rc.d(8)`: [`policy-rc.d`と終了status 101](https://manpages.debian.org/bookworm/init-system-helpers/invoke-rc.d.8.en.html)
 
 ### 仮想ホスト設定
 
@@ -431,8 +469,8 @@ sudo nano /etc/nginx/sites-available/mysite
 
 ```nginx
 server {
-    listen 80;
-    listen [::]:80;
+    # この章のlocal演習ではWSL内のloopbackだけで待ち受ける
+    listen 127.0.0.1:80;
     
     server_name mysite.local;
     root /var/www/mysite;
@@ -441,6 +479,12 @@ server {
     location / {
         try_files $uri $uri/ =404;
     }
+
+    location = /nginx_status {
+        stub_status;
+        allow 127.0.0.1;
+        deny all;
+    }
     
     access_log /var/log/nginx/mysite_access.log;
     error_log /var/log/nginx/mysite_error.log;
@@ -448,38 +492,86 @@ server {
 ```
 
 ```bash
+stop_nginx_fail_closed() {
+    if ! sudo systemctl stop nginx; then
+        echo "Failed to stop Nginx; disconnect from the network and stop it manually" >&2
+    fi
+}
+
 # 4. サイト有効化
-sudo ln -s /etc/nginx/sites-available/mysite /etc/nginx/sites-enabled/
+if ! sudo ln -sfn /etc/nginx/sites-available/mysite /etc/nginx/sites-enabled/mysite; then
+    echo "Failed to enable the mysite configuration" >&2
+    stop_nginx_fail_closed
+    exit 1
+fi
 
-# 5. 設定テスト
-sudo nginx -t
+# 5. package既定のwildcard待受を行うsymlinkをlocal演習では無効化
+if ! sudo rm -f /etc/nginx/sites-enabled/default; then
+    echo "Failed to disable the package-default Nginx site" >&2
+    stop_nginx_fail_closed
+    exit 1
+fi
 
-# 6. Nginx再起動
-sudo systemctl reload nginx
+# 6. 設定テスト
+if ! sudo nginx -t; then
+    echo "Nginx configuration test failed" >&2
+    stop_nginx_fail_closed
+    exit 1
+fi
 
-# 7. hosts編集（Windows 側）
+# 7. 検証済み設定をactive processへ反映
+# 既に起動中ならreloadし、inactiveならstartする
+if systemctl is-active --quiet nginx; then
+    if ! sudo systemctl reload nginx; then
+        echo "Failed to reload Nginx" >&2
+        stop_nginx_fail_closed
+        exit 1
+    fi
+else
+    if ! sudo systemctl start nginx; then
+        echo "Failed to start Nginx" >&2
+        stop_nginx_fail_closed
+        exit 1
+    fi
+fi
+if ! systemctl is-active --quiet nginx; then
+    echo "Nginx is not active after applying the configuration" >&2
+    stop_nginx_fail_closed
+    exit 1
+fi
+
+# 8. 待受addressを検査し、loopback以外が残っていれば停止
+if ! ListenerOutput=$(sudo ss -H -ltn '( sport = :80 )'); then
+    echo "Failed to inspect the port 80 listener" >&2
+    stop_nginx_fail_closed
+    exit 1
+fi
+printf '%s\n' "$ListenerOutput"
+if ! awk '$4 == "127.0.0.1:80" { found=1 } END { exit(found ? 0 : 1) }' <<<"$ListenerOutput"; then
+    echo "Expected Nginx to listen on 127.0.0.1:80" >&2
+    stop_nginx_fail_closed
+    exit 1
+fi
+if awk '$4 != "127.0.0.1:80" { found=1 } END { exit(found ? 0 : 1) }' <<<"$ListenerOutput"; then
+    echo "Unexpected non-loopback Nginx listener remains" >&2
+    stop_nginx_fail_closed
+    exit 1
+fi
+curl --fail http://127.0.0.1/
+
+# 9. hosts編集（Windows 側）
 # C:\Windows\System32\drivers\etc\hosts に追加
 # 127.0.0.1 mysite.local
 ```
 
+上の検査は設定test・reload/start・active状態・待受取得のいずれかが失敗した場合、`127.0.0.1:80`が存在しない場合、またはwildcard、IPv6 loopback、特定LAN IPv4を含む`127.0.0.1:80`以外の待受が1件でも残る場合にNginxの停止を試みて終了します。停止自体が失敗した場合はネットワークから切断し、processを手動で停止してから設定を見直してください。この例はlocal学習用です。LANへ公開する場合は[第4章のLAN公開runbook](../chapter4/#wsl-lan-publication)を別途実施します。
+
 ### パフォーマンス監視
 
+上で有効化した`mysite`の`location = /nginx_status`はloopbackだけを許可しています。次のコマンドで状態を確認します。
+
 ```bash
-# Nginxステータスモジュール有効化
-sudo nano /etc/nginx/sites-available/default
-
-# server ブロック内に追加：
-location /nginx_status {
-    stub_status;
-    allow 127.0.0.1;
-    deny all;
-}
-
-# 再読み込み
-sudo systemctl reload nginx
-
-# ステータス確認
-curl http://localhost/nginx_status
+curl --fail http://127.0.0.1/nginx_status
 ```
 
 ## 3.5 プロセス優先度とリソース制限
