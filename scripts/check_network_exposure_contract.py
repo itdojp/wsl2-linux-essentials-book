@@ -84,7 +84,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
     check_order(
         nginx_section,
         [
-            "if [ -e /usr/sbin/policy-rc.d ]; then",
+            "if [ -e /usr/sbin/policy-rc.d ] || [ -L /usr/sbin/policy-rc.d ]; then",
             "trap cleanup_policy_rcd EXIT",
             "'exit 101'",
             "if ! sudo chmod 0755 /usr/sbin/policy-rc.d; then",
@@ -112,6 +112,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
     )
     for token in [
         "既存policyがある環境では上書きせず",
+        "if [ -e /usr/sbin/policy-rc.d ] || [ -L /usr/sbin/policy-rc.d ]; then",
         "終了status 101を返すとservice actionをpolicyにより拒否",
         "if ! sudo apt install nginx -y; then",
         "Nginx installation failed; temporary policy will be removed",
@@ -619,6 +620,13 @@ def self_test() -> None:
             "chapter3",
             "trap cleanup_policy_rcd EXIT",
             "# package may start here",
+            "install and enabled-site flow",
+        ),
+        (
+            "dangling policy symlink accepted",
+            "chapter3",
+            "if [ -e /usr/sbin/policy-rc.d ] || [ -L /usr/sbin/policy-rc.d ]; then",
+            "if [ -e /usr/sbin/policy-rc.d ]; then",
             "install and enabled-site flow",
         ),
         (

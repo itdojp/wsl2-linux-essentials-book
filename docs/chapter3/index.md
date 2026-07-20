@@ -394,7 +394,7 @@ sudo apt update
 
 # 2. package install中のservice自動起動を一時的に拒否
 # 既存policyがある環境では上書きせず、ここで停止して管理者へ確認する
-if [ -e /usr/sbin/policy-rc.d ]; then
+if [ -e /usr/sbin/policy-rc.d ] || [ -L /usr/sbin/policy-rc.d ]; then
     echo "Existing /usr/sbin/policy-rc.d: stop and consult the administrator" >&2
     exit 1
 fi
