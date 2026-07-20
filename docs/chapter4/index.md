@@ -122,17 +122,26 @@ curl --fail http://127.0.0.1:8080/
 
 ```powershell
 $RuleName = "WSL2-Lab-NAT-TCP-8080"
+$ListenPort = 8080
 $Distro = Read-Host "Exact WSL distribution name"
 $ListenAddress = Read-Host "Windows LAN IPv4 (not 0.0.0.0)"
 $AllowedRemote = Read-Host "One allowed LAN client IPv4"
 $WslAddress = (wsl.exe -d $Distro hostname -I).Trim().Split(' ')[0]
 
 if ($ListenAddress -eq "0.0.0.0") { throw "Use one Windows LAN IPv4" }
-Get-NetConnectionProfile | Format-Table Name, InterfaceAlias, NetworkCategory
 if (Get-NetFirewallRule -Name $RuleName -ErrorAction SilentlyContinue) { throw "RuleName already exists" }
-netsh interface portproxy show v4tov4
+$ListenInterface = Get-NetIPAddress -AddressFamily IPv4 -IPAddress $ListenAddress -ErrorAction Stop
+$ListenProfile = Get-NetConnectionProfile -InterfaceIndex $ListenInterface.InterfaceIndex -ErrorAction Stop
+if ($ListenProfile.NetworkCategory -ne "Private") { throw "The listen interface must use the Private profile" }
 
-netsh interface portproxy add v4tov4 listenport=8080 listenaddress=$ListenAddress connectport=8080 connectaddress=$WslAddress
+# 既存proxyを引き継いだり削除したりしないよう、同じlisten endpointが未使用であることを確認
+$PortProxyRows = netsh interface portproxy show v4tov4
+if ($LASTEXITCODE -ne 0) { throw "Failed to inspect existing portproxy entries" }
+$ExistingProxy = $PortProxyRows | Select-String -Pattern "^\s*$([regex]::Escape($ListenAddress))\s+$ListenPort\s+"
+if ($ExistingProxy) { throw "The listen address and port already have a portproxy entry" }
+
+netsh interface portproxy add v4tov4 listenport=$ListenPort listenaddress=$ListenAddress connectport=8080 connectaddress=$WslAddress
+if ($LASTEXITCODE -ne 0) { throw "Failed to create portproxy; Firewall rule was not created" }
 $FirewallParams = @{
     Name = $RuleName
     DisplayName = "WSL2 lab TCP 8080 (Private, one client)"
@@ -140,17 +149,24 @@ $FirewallParams = @{
     Action = "Allow"
     Protocol = "TCP"
     LocalAddress = $ListenAddress
-    LocalPort = 8080
+    LocalPort = $ListenPort
     RemoteAddress = $AllowedRemote
     Profile = "Private"
 }
-New-NetFirewallRule @FirewallParams -ErrorAction Stop
+try {
+    New-NetFirewallRule @FirewallParams -ErrorAction Stop
+} catch {
+    # このrunbookが作成したproxyだけをrollbackする
+    netsh interface portproxy delete v4tov4 listenport=$ListenPort listenaddress=$ListenAddress
+    if ($LASTEXITCODE -ne 0) { Write-Error "Firewall rule creation and portproxy rollback both failed" }
+    throw
+}
 
 # 作成結果を確認
 netsh interface portproxy show v4tov4
 Get-NetFirewallRule -Name $RuleName | Format-List Name, Enabled, Profile, Direction, Action
 Get-NetFirewallRule -Name $RuleName | Get-NetFirewallAddressFilter | Format-List LocalAddress, RemoteAddress
-Test-NetConnection -ComputerName $ListenAddress -Port 8080
+Test-NetConnection -ComputerName $ListenAddress -Port $ListenPort
 ```
 
 作成からcleanupまでは変数を保持した同じ管理者PowerShellで行います。許可したLAN clientからも`Test-NetConnection -ComputerName <Windows-LAN-IPv4> -Port 8080`を実行し`True`を確認します。許可していない別clientからは`False`であることを確認します。作成途中または確認が失敗した場合もruleを広げず、同じ変数で次のcleanupを実行してください。
@@ -158,12 +174,13 @@ Test-NetConnection -ComputerName $ListenAddress -Port 8080
 ```powershell
 # 先に受信許可を閉じ、次に同じlisten addressのportproxyを削除
 Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop
-netsh interface portproxy delete v4tov4 listenport=8080 listenaddress=$ListenAddress
+netsh interface portproxy delete v4tov4 listenport=$ListenPort listenaddress=$ListenAddress
+if ($LASTEXITCODE -ne 0) { throw "Failed to remove the portproxy entry" }
 
 # 残存していないことを確認
 if (Get-NetFirewallRule -Name $RuleName -ErrorAction SilentlyContinue) { throw "Firewall rule remains" }
 netsh interface portproxy show v4tov4
-Test-NetConnection -ComputerName $ListenAddress -Port 8080
+Test-NetConnection -ComputerName $ListenAddress -Port $ListenPort
 ```
 
 削除後の`TcpTestSucceeded`は`False`、`netsh`の一覧には同じaddress/portの行がないことが期待値です。最後にWSL側serverも`Ctrl+C`で終了します。

@@ -118,9 +118,13 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
             "python3 -m http.server --bind 0.0.0.0 8080",
             "#### NAT方式: portproxyとWindows Firewallを対で管理",
             '$RuleName = "WSL2-Lab-NAT-TCP-8080"',
+            "$PortProxyRows = netsh interface portproxy show v4tov4",
+            'if ($ExistingProxy) { throw "The listen address and port already have a portproxy entry" }',
             "netsh interface portproxy add v4tov4",
+            'if ($LASTEXITCODE -ne 0) { throw "Failed to create portproxy; Firewall rule was not created" }',
             "New-NetFirewallRule @FirewallParams",
-            "Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop",
+            "# 先に受信許可を閉じ、次に同じlisten addressのportproxyを削除\n"
+            "Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop\n"
             "netsh interface portproxy delete v4tov4",
             "#### mirrored mode: Hyper-V Firewall ruleを個別管理",
             '$HvRuleName = "WSL2-Lab-Mirrored-TCP-8080"',
@@ -136,14 +140,18 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
         "Windowsの特定LAN IPv4へのportproxy",
         "portproxyは作成しない",
         'if ($ListenAddress -eq "0.0.0.0") { throw "Use one Windows LAN IPv4" }',
-        "Get-NetConnectionProfile",
+        "Get-NetConnectionProfile -InterfaceIndex $ListenInterface.InterfaceIndex -ErrorAction Stop",
+        'if ($ListenProfile.NetworkCategory -ne "Private") { throw "The listen interface must use the Private profile" }',
         'Get-NetFirewallRule -Name $RuleName -ErrorAction SilentlyContinue) { throw "RuleName already exists"',
+        '$ExistingProxy = $PortProxyRows | Select-String -Pattern "^\\s*$([regex]::Escape($ListenAddress))\\s+$ListenPort\\s+"',
         "Name = $RuleName",
         "LocalAddress = $ListenAddress",
-        "LocalPort = 8080",
+        "LocalPort = $ListenPort",
         "RemoteAddress = $AllowedRemote",
         'Profile = "Private"',
         "Get-NetFirewallAddressFilter",
+        'if ($LASTEXITCODE -ne 0) { Write-Error "Firewall rule creation and portproxy rollback both failed" }',
+        'if ($LASTEXITCODE -ne 0) { throw "Failed to remove the portproxy entry" }',
         "Get-NetFirewallRule -Name $RuleName -ErrorAction SilentlyContinue",
         "削除後の`TcpTestSucceeded`は`False`",
         '$WslVmCreatorId = "{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}"',
@@ -269,6 +277,8 @@ def check_built(snapshot: Snapshot) -> None:
         "server.listen(3000, '127.0.0.1', () => {",
         "python3 -m http.server --bind 0.0.0.0 8080",
         "WSL2-Lab-NAT-TCP-8080",
+        "The listen address and port already have a portproxy entry",
+        "Failed to create portproxy; Firewall rule was not created",
         "RemoteAddress = $AllowedRemote",
         'Profile = "Private"',
         "Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop",
@@ -453,6 +463,20 @@ def self_test() -> None:
         ("missing remote address", "chapter4", "RemoteAddress = $AllowedRemote", "RemotePort = 443", "protected exposure"),
         ("broad Windows profile", "chapter4", 'Profile = "Private"', 'Profile = "Any"', "protected exposure"),
         (
+            "missing existing portproxy guard",
+            "chapter4",
+            'if ($ExistingProxy) { throw "The listen address and port already have a portproxy entry" }',
+            "# existing endpoint not checked",
+            "decision flow",
+        ),
+        (
+            "missing portproxy add failure guard",
+            "chapter4",
+            'if ($LASTEXITCODE -ne 0) { throw "Failed to create portproxy; Firewall rule was not created" }',
+            "# failed native command ignored",
+            "decision flow",
+        ),
+        (
             "missing Windows rule cleanup",
             "chapter4",
             "Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop",
@@ -462,7 +486,11 @@ def self_test() -> None:
         (
             "missing portproxy cleanup",
             "chapter4",
+            "# 先に受信許可を閉じ、次に同じlisten addressのportproxyを削除\n"
+            "Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop\n"
             "netsh interface portproxy delete v4tov4",
+            "# 受信許可だけを閉じ、portproxyは残す\n"
+            "Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop\n"
             "netsh interface portproxy show v4tov4",
             "decision flow",
         ),
