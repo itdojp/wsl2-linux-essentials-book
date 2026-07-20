@@ -106,15 +106,15 @@ LAN公開はlocal確認とは別の演習です。学習用データだけを使
 | NAT | Windowsの特定LAN IPv4へのportproxy | Windows Firewallを`Private` profile、特定client IPv4、特定portへ限定 | Firewall ruleとportproxyを両方削除 |
 | mirrored mode | LANからWSLへ直接接続。portproxyは作成しない | WSL用Hyper-V Firewall ruleを`Private` profile、特定client IPv4、特定portへ限定 | Hyper-V Firewall ruleを削除 |
 
-まずWSL側で、このLAN演習専用serverだけをwildcard bindします。`0.0.0.0`はWSLの全IPv4 interfaceで待ち受けるため、local用serverでは使用しません。
+Firewall設定前にwildcard serverを起動してはいけません。次の順序を守ります。
 
-```bash
-python3 -m http.server --bind 0.0.0.0 8080
+1. NATまたはmirrored modeの**どちらか一方**について、blocking baselineとscoped ruleを確認する
+2. 保護が有効になった後で、WSL側serverを`0.0.0.0`へbindする
+3. 許可clientと非許可clientから到達範囲を確認する
+4. WSL側serverを停止し、待受が消えたことを確認する
+5. 最後にFirewall ruleとportproxyをcleanupする
 
-# 別terminalで0.0.0.0:8080の待受とlocal応答を確認
-ss -ltnp '( sport = :8080 )'
-curl --fail http://127.0.0.1:8080/
-```
+`0.0.0.0`はWSLの全IPv4 interfaceで待ち受けるため、local用serverでは使用しません。baseline確認またはrule作成に失敗した場合はserverを起動せず、設定を広げないでください。
 
 #### NAT方式: portproxyとWindows Firewallを対で管理
 
@@ -172,32 +172,17 @@ try {
     throw
 }
 
-# 作成結果を確認
+# serverを起動する前に保護設定を確認
 netsh interface portproxy show v4tov4
 Get-NetFirewallRule -Name $RuleName | Format-List Name, Enabled, Profile, Direction, Action
 Get-NetFirewallRule -Name $RuleName | Get-NetFirewallAddressFilter | Format-List LocalAddress, RemoteAddress
-Test-NetConnection -ComputerName $ListenAddress -Port $ListenPort
 ```
 
-作成からcleanupまでは変数を保持した同じ管理者PowerShellで行います。許可したLAN clientからも`Test-NetConnection -ComputerName <Windows-LAN-IPv4> -Port 8080`を実行し`True`を確認します。許可していない別clientからは`False`であることを確認します。作成途中または確認が失敗した場合もruleを広げず、同じ変数で次のcleanupを実行してください。
-
-```powershell
-# 先に受信許可を閉じ、次に同じlisten addressのportproxyを削除
-Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop
-netsh interface portproxy delete v4tov4 listenport=$ListenPort listenaddress=$ListenAddress
-if ($LASTEXITCODE -ne 0) { throw "Failed to remove the portproxy entry" }
-
-# 残存していないことを確認
-if (Get-NetFirewallRule -Name $RuleName -ErrorAction SilentlyContinue) { throw "Firewall rule remains" }
-netsh interface portproxy show v4tov4
-Test-NetConnection -ComputerName $ListenAddress -Port $ListenPort
-```
-
-削除後の`TcpTestSucceeded`は`False`、`netsh`の一覧には同じaddress/portの行がないことが期待値です。最後にWSL側serverも`Ctrl+C`で終了します。
+作成からcleanupまでは変数を保持した同じ管理者PowerShellを使用します。作成途中または確認が失敗した場合はserverを起動せず、ruleを広げないでください。
 
 #### mirrored mode: Hyper-V Firewall ruleを個別管理
 
-mirrored modeでは上のportproxyとWindows Firewall ruleを作成しません。Windows 11 22H2以降のHyper-V Firewall設定とactive profileを確認し、WSLのVMCreatorIdに個別ruleを作成します。組織ポリシーでlocal ruleが許可されない場合やactive profileが`Private`でない場合は、`Any`へ広げず管理者へ確認します。
+mirrored modeではportproxyと上のWindows Firewall ruleを作成しません。Windows 11 22H2以降のHyper-V Firewall設定とactive profileを確認し、WSLのVMCreatorIdに個別ruleを作成します。組織ポリシーでlocal ruleが許可されない場合やblocking baselineを確認できない場合は、`Any`へ広げず管理者へ確認します。
 
 ```powershell
 $HvRuleName = "WSL2-Lab-Mirrored-TCP-8080"
@@ -228,17 +213,67 @@ $HvFirewallParams = @{
     Profiles = "Private"
 }
 New-NetFirewallHyperVRule @HvFirewallParams -ErrorAction Stop
+
+# serverを起動する前に保護設定を確認
 Get-NetFirewallHyperVRule -PolicyStore ActiveStore -Name $HvRuleName | Format-List Name, Enabled, Direction, Profiles, RemoteAddresses, LocalPorts
 ```
 
-許可したLAN clientから`Test-NetConnection -ComputerName <Windows-LAN-IPv4> -Port 8080`を実行します。検証後は管理者PowerShellで、**必ず一意なNameを指定して**削除します。引数なしの`Remove-NetFirewallHyperVRule`は全ruleを削除し得るため、本書では使用しません。
+作成からcleanupまでは変数を保持した同じ管理者PowerShellを使用します。Hyper-V ruleの作成または確認に失敗した場合はserverを起動しません。
+
+#### 保護設定の確認後にWSL側serverを起動
+
+上のどちらか一方の保護設定が成功した後だけ、WSL側でLAN演習専用serverを起動します。
+
+```bash
+python3 -m http.server --bind 0.0.0.0 8080
+
+# 別terminalで0.0.0.0:8080の待受とlocal応答を確認
+ss -ltnp '( sport = :8080 )'
+ip -4 addr show scope global
+curl --fail http://127.0.0.1:8080/
+```
+
+許可したLAN clientから、NAT方式では`Test-NetConnection -ComputerName <Windows-LAN-IPv4> -Port 8080`、mirrored modeでは`Test-NetConnection -ComputerName <WSL-LAN-IPv4> -Port 8080`を実行し`True`を確認します。mirrored modeの宛先は上の`ip -4 addr show scope global`で確認したWSLのLAN IPv4です。許可していない別clientからは同じ宛先への結果が`False`であることを確認します。期待値と異なる場合はruleを広げず、次の順序でcleanupします。
+
+#### cleanup: server停止を保護設定の削除より先に行う
+
+最初にPython serverを起動したWSL terminalで`Ctrl+C`を押します。別のWSL terminalで待受が消えたことを確認します。
+
+```bash
+if ss -H -ltn '( sport = :8080 )' | grep -q .; then
+    echo "Port 8080 listener remains; keep Firewall protection and stop the server first" >&2
+    exit 1
+fi
+```
+
+待受が残る場合はFirewall保護を削除しません。server停止を確認できた場合だけ、設定した方式のcleanupへ進みます。
+
+##### NAT方式のcleanup
+
+変数を保持した同じ管理者PowerShellで、受信許可とportproxyを個別に削除します。
+
+```powershell
+Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop
+netsh interface portproxy delete v4tov4 listenport=$ListenPort listenaddress=$ListenAddress
+if ($LASTEXITCODE -ne 0) { throw "Failed to remove the portproxy entry" }
+
+if (Get-NetFirewallRule -Name $RuleName -ErrorAction SilentlyContinue) { throw "Firewall rule remains" }
+netsh interface portproxy show v4tov4
+Test-NetConnection -ComputerName $ListenAddress -Port $ListenPort
+```
+
+削除後の`TcpTestSucceeded`は`False`、`netsh`の一覧には同じaddress/portの行がないことが期待値です。
+
+##### mirrored modeのcleanup
+
+**必ず一意なNameを指定して**削除します。引数なしの`Remove-NetFirewallHyperVRule`は全ruleを削除し得るため、本書では使用しません。
 
 ```powershell
 Remove-NetFirewallHyperVRule -Name $HvRuleName -ErrorAction Stop
 if (Get-NetFirewallHyperVRule -Name $HvRuleName -ErrorAction SilentlyContinue) { throw "Hyper-V Firewall rule remains" }
 ```
 
-rule削除後にWSL側serverも`Ctrl+C`で終了し、許可していたLAN clientから再度`Test-NetConnection`を実行します。server停止後の`TcpTestSucceeded`は`False`が期待値です。ruleがないこととprocessが停止したことの両方を確認してcleanup完了とします。
+許可していたLAN clientから再度`Test-NetConnection`を実行し、`TcpTestSucceeded`が`False`であることを確認します。process停止とrule削除の両方を確認してcleanup完了とします。
 
 #### Network Exposure Source Notes（確認日: 2026-07-20）
 

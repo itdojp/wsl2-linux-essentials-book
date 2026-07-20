@@ -127,7 +127,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
             "Test-NetConnection -ComputerName localhost -Port 8000",
             "### LAN公開runbook（必要な場合だけ）",
             "{: #wsl-lan-publication}",
-            "python3 -m http.server --bind 0.0.0.0 8080",
+            "Firewall設定前にwildcard serverを起動してはいけません",
             "#### NAT方式: portproxyとWindows Firewallを対で管理",
             '$RuleName = "WSL2-Lab-NAT-TCP-8080"',
             "NAT AllowedRemote must be exactly one dotted-decimal IPv4 address",
@@ -136,13 +136,17 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
             "netsh interface portproxy add v4tov4",
             'if ($LASTEXITCODE -ne 0) { throw "Failed to create portproxy; Firewall rule was not created" }',
             "New-NetFirewallRule @FirewallParams",
-            "# 先に受信許可を閉じ、次に同じlisten addressのportproxyを削除\n"
-            "Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop\n"
-            "netsh interface portproxy delete v4tov4",
             "#### mirrored mode: Hyper-V Firewall ruleを個別管理",
             '$HvRuleName = "WSL2-Lab-Mirrored-TCP-8080"',
             "Mirrored AllowedRemote must be exactly one dotted-decimal IPv4 address",
             "New-NetFirewallHyperVRule @HvFirewallParams",
+            "#### 保護設定の確認後にWSL側serverを起動",
+            "python3 -m http.server --bind 0.0.0.0 8080",
+            "#### cleanup: server停止を保護設定の削除より先に行う",
+            "Port 8080 listener remains; keep Firewall protection and stop the server first",
+            "##### NAT方式のcleanup",
+            "Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop",
+            "##### mirrored modeのcleanup",
             "Remove-NetFirewallHyperVRule -Name $HvRuleName -ErrorAction Stop",
             "#### Network Exposure Source Notes（確認日: 2026-07-20）",
         ],
@@ -151,6 +155,9 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
 
     for token in [
         "local確認ではportproxyやFirewall許可ruleを追加しません",
+        "Firewall設定前にwildcard serverを起動してはいけません",
+        "blocking baselineとscoped ruleを確認する",
+        "baseline確認またはrule作成に失敗した場合はserverを起動せず",
         "Windowsの特定LAN IPv4へのportproxy",
         "portproxyは作成しない",
         'if ($ListenAddress -eq "0.0.0.0") { throw "Use one Windows LAN IPv4" }',
@@ -173,8 +180,14 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
         "Get-NetFirewallAddressFilter",
         'if ($LASTEXITCODE -ne 0) { Write-Error "Firewall rule creation and portproxy rollback both failed" }',
         'if ($LASTEXITCODE -ne 0) { throw "Failed to remove the portproxy entry" }',
+        "Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop\n"
+        "netsh interface portproxy delete v4tov4",
         "Get-NetFirewallRule -Name $RuleName -ErrorAction SilentlyContinue",
         "削除後の`TcpTestSucceeded`は`False`",
+        "Port 8080 listener remains; keep Firewall protection and stop the server first",
+        "待受が残る場合はFirewall保護を削除しません",
+        "mirrored modeでは`Test-NetConnection -ComputerName <WSL-LAN-IPv4> -Port 8080`",
+        "ip -4 addr show scope global",
         '$WslVmCreatorId = "{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}"',
         "[System.Net.IPAddress]::TryParse($AllowedRemote, [ref]$HvAllowedRemoteAddress)",
         "$HvAllowedRemoteAddress.AddressFamily -ne [System.Net.Sockets.AddressFamily]::InterNetwork",
@@ -314,6 +327,8 @@ def check_built(snapshot: Snapshot) -> None:
         "python3 -m http.server --bind 127.0.0.1 8000",
         "server.listen(3000, '127.0.0.1', () => {",
         "python3 -m http.server --bind 0.0.0.0 8080",
+        "Firewall設定前にwildcard serverを起動してはいけません",
+        "ip -4 addr show scope global",
         "WSL2-Lab-NAT-TCP-8080",
         "The listen address and port already have a portproxy entry",
         "Failed to create portproxy; Firewall rule was not created",
@@ -324,6 +339,7 @@ def check_built(snapshot: Snapshot) -> None:
         'Profile = "Private"',
         "Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop",
         "netsh interface portproxy delete v4tov4",
+        "Port 8080 listener remains; keep Firewall protection and stop the server first",
         "WSL2-Lab-Mirrored-TCP-8080",
         "Mirrored AllowedRemote must be exactly one dotted-decimal IPv4 address",
         "Get-NetFirewallHyperVVMSetting -PolicyStore ActiveStore -VMCreatorId $WslVmCreatorId",
@@ -539,6 +555,21 @@ def self_test() -> None:
         ("missing remote address", "chapter4", "RemoteAddress = $AllowedRemote", "RemotePort = 443", "protected exposure"),
         ("broad Windows profile", "chapter4", 'Profile = "Private"', 'Profile = "Any"', "protected exposure"),
         (
+            "wildcard server before protection",
+            "chapter4",
+            "#### NAT方式: portproxyとWindows Firewallを対で管理",
+            "python3 -m http.server --bind 0.0.0.0 8080\n\n"
+            "#### NAT方式: portproxyとWindows Firewallを対で管理",
+            "decision flow",
+        ),
+        (
+            "missing stop-before-cleanup gate",
+            "chapter4",
+            "Port 8080 listener remains; keep Firewall protection and stop the server first",
+            "# protection removed while server may still run",
+            "decision flow",
+        ),
+        (
             "stale Node.js 20 EOL date",
             "chapter4",
             "Node.js 20 は 2026-04-30 に EOL",
@@ -604,13 +635,11 @@ def self_test() -> None:
         (
             "missing portproxy cleanup",
             "chapter4",
-            "# 先に受信許可を閉じ、次に同じlisten addressのportproxyを削除\n"
             "Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop\n"
             "netsh interface portproxy delete v4tov4",
-            "# 受信許可だけを閉じ、portproxyは残す\n"
             "Remove-NetFirewallRule -Name $RuleName -ErrorAction Stop\n"
             "netsh interface portproxy show v4tov4",
-            "decision flow",
+            "protected exposure",
         ),
         (
             "wildcard Windows listen",
