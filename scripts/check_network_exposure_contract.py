@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import json
 import re
 import shutil
 import socket
@@ -68,8 +69,29 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
     chapter4 = snapshot.files["chapter4"]
     combined = "\n".join(snapshot.files.values())
 
+    nginx_section = chapter3[chapter3.index("## 3.4 実践: Web サーバーの導入と管理") :]
+    check_order(
+        nginx_section,
+        [
+            "if [ -e /usr/sbin/policy-rc.d ]; then",
+            "trap cleanup_policy_rcd EXIT",
+            "'exit 101'",
+            "sudo apt install nginx -y",
+            "cleanup_policy_rcd\ntrap - EXIT",
+            "#### Nginx install Source Note（確認日: 2026-07-20）",
+            "https://manpages.debian.org/bookworm/init-system-helpers/invoke-rc.d.8.en.html",
+            "listen 127.0.0.1:80;",
+            "location = /nginx_status",
+            "sudo rm -f /etc/nginx/sites-enabled/default",
+            "sudo systemctl start nginx",
+            "curl --fail http://127.0.0.1/nginx_status",
+        ],
+        "chapter 3 Nginx install and enabled-site flow",
+    )
     for token in [
-        "sudo systemctl stop nginx",
+        "既存policyがある環境では上書きせず",
+        "終了status 101を返すとservice actionをpolicyにより拒否",
+        "systemctl is-active nginx",
         "listen 127.0.0.1:80;",
         "sudo rm -f /etc/nginx/sites-enabled/default",
         "sudo systemctl start nginx",
@@ -81,6 +103,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
     for pattern in [
         r"^\s*listen\s+80;\s*$",
         r"^\s*listen\s+\[::\]:80;\s*$",
+        r"sites-available/default",
     ]:
         reject(chapter3, pattern, "chapter 3 wildcard Nginx")
 
@@ -227,10 +250,19 @@ def check_built(snapshot: Snapshot) -> None:
     chapter4 = visible_text(chapter4_html)
     for token in [
         'href="../chapter4/#wsl-lan-publication"',
+        "policy-rc.d",
+        "Nginx install Source Note（確認日: 2026-07-20）",
+        "https://manpages.debian.org/bookworm/init-system-helpers/invoke-rc.d.8.en.html",
         "listen 127.0.0.1:80;",
         "sudo ss -ltnp '( sport = :80 )'",
+        "location = /nginx_status",
+        "curl --fail http://127.0.0.1/nginx_status",
     ]:
-        require(chapter3_html if token.startswith("href=") else chapter3, token, "built chapter 3")
+        require(
+            chapter3_html if token.startswith(("href=", "https://")) else chapter3,
+            token,
+            "built chapter 3",
+        )
     for token in [
         'id="wsl-lan-publication"',
         "python3 -m http.server --bind 127.0.0.1 8000",
@@ -252,6 +284,7 @@ def check_built(snapshot: Snapshot) -> None:
     for pattern in [
         r"^\s*listen\s+80;\s*$",
         r"^\s*listen\s+\[::\]:80;\s*$",
+        r"sites-available/default",
         r"^\s*python3\s+-m\s+http\.server(?![^\n]*--bind)[^\n]*$",
         r"server\.listen\(3000\s*,\s*\(\)\s*=>",
         r"^\s*nc\s+-l(?![^\n]*127\.0\.0\.1)[^\n]*$",
@@ -309,17 +342,42 @@ def runtime_test() -> None:
             if f"0.0.0.0:{port}" in result.stdout or f"[::]:{port}" in result.stdout:
                 raise ContractError("runtime server unexpectedly has a wildcard listener")
 
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
-            probe.connect(("192.0.2.1", 9))
-            non_loopback = probe.getsockname()[0]
-        if not non_loopback.startswith("127."):
+        non_loopback_addresses: set[str] = set()
+        if shutil.which("ip"):
+            try:
+                addresses = subprocess.run(
+                    ["ip", "-j", "-4", "addr", "show", "scope", "global"],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                )
+                if addresses.returncode == 0:
+                    for interface in json.loads(addresses.stdout or "[]"):
+                        for address in interface.get("addr_info", []):
+                            local = address.get("local", "")
+                            if address.get("family") == "inet" and local and not local.startswith("127."):
+                                non_loopback_addresses.add(local)
+            except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError):
+                pass
+        if not non_loopback_addresses:
+            try:
+                for result in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
+                    local = result[4][0]
+                    if local and not local.startswith("127."):
+                        non_loopback_addresses.add(local)
+            except OSError:
+                pass
+
+        for non_loopback in sorted(non_loopback_addresses):
             try:
                 with socket.create_connection((non_loopback, port), timeout=1):
                     pass
             except OSError:
-                pass
-            else:
-                raise ContractError("loopback runtime server is reachable through a non-loopback address")
+                continue
+            raise ContractError(
+                f"loopback runtime server is reachable through non-loopback address {non_loopback}"
+            )
     finally:
         process.terminate()
         try:
@@ -327,7 +385,12 @@ def runtime_test() -> None:
         except subprocess.TimeoutExpired:
             process.kill()
             process.wait(timeout=5)
-    print("WSL network runtime contract passed (loopback HTTP 200, listener scope, non-loopback rejection).")
+    scope_result = (
+        f"non-loopback rejection on {len(non_loopback_addresses)} address(es)"
+        if non_loopback_addresses
+        else "non-loopback probe skipped: no local address available"
+    )
+    print(f"WSL network runtime contract passed (loopback HTTP 200, listener scope, {scope_result}).")
 
 
 def expect_failure(label: str, action, expected: str) -> None:
@@ -352,7 +415,27 @@ def self_test() -> None:
         return Snapshot(files)
 
     cases = [
-        ("Nginx wildcard", "chapter3", "listen 127.0.0.1:80;", "listen 80;", "local Nginx"),
+        (
+            "missing install suppression",
+            "chapter3",
+            "trap cleanup_policy_rcd EXIT",
+            "# package may start here",
+            "install and enabled-site flow",
+        ),
+        (
+            "disabled status site",
+            "chapter3",
+            "location = /nginx_status",
+            "# status endpoint omitted",
+            "install and enabled-site flow",
+        ),
+        (
+            "Nginx wildcard",
+            "chapter3",
+            "listen 127.0.0.1:80;",
+            "listen 80;",
+            "install and enabled-site flow",
+        ),
         (
             "Python host omitted",
             "chapter4",
