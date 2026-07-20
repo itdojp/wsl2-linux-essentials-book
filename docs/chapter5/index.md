@@ -12,14 +12,13 @@ layout: book
 - cron/systemd は有効・無効の両ケースを章内で扱う
 
 ## この章の目標
-- シェルスクリプトの基本構造を理解する
-- 変数と条件分岐を使える
-- 基本的な自動化スクリプトを作成できる
+- **基礎編（必須）**: シェルスクリプトの基本構造、変数、条件分岐、loop、function、終了statusを理解する
+- **発展編（任意）**: monitoring、backup、cron、権限を伴う演習、deploy例の適用条件とriskを説明する
 
 ## できるようになること
-- 繰り返し作業を自動化できる
-- バックアップ用スクリプトを作成できる
-- 運用作業の効率化につながる
+- 学習用dataに対する小さな繰り返し作業をscript化できる
+- 発展編へ進む場合は、backupや定期実行の前提・失敗時・cleanupを確認できる
+- root権限やdeployを伴う例を、そのまま本番実行せずreviewすべき理由を説明できる
 
 ## はじめに：シェルスクリプトで作業を自動化する
 
@@ -32,13 +31,27 @@ layout: book
 - **環境構築**: 新しい PC でも 1 コマンドで環境を構築
 - **データ処理**: 大量のファイルを一括処理
 
-## 5.1 シェルスクリプトとは
+## 第5章の学習契約
 
-### 前提: プログラミング未経験者向けの位置づけ
+| 区分 | 範囲 | 扱い | 実行環境 | 到達条件 |
+|---|---|---|---|---|
+| 基礎編 | 5.1〜5.7 | 必須 | `$HOME`配下の使い捨てdata | 変数・分岐・loop・function・終了statusを組み合わせた小さなscriptを作成できる |
+| 発展編 | 5.8〜5.10 | 任意 | backup済みの隔離した学習環境 | monitoring・backup・cronの失敗条件を確認し、root/deploy例を実行前reviewできる |
+
+基礎編の到達条件を満たせば必須経路は完了です。発展編のscriptは教育用の構造例であり、固定password、user作成、service停止、repositoryの強制同期など環境を変更する操作を含みます。値と対象を置換し、差分・権限・rollbackをreviewできない段階では実行しません。
+
+## 基礎編（必須: 5.1〜5.7）
+{: #chapter5-foundation }
+
+ここから5.7までは必須です。例は`$HOME`配下の使い捨てfileとdirectoryで試し、各commandの終了statusと生成物を確認します。
+
+### 5.1 シェルスクリプトとは
+
+#### 前提: プログラミング未経験者向けの位置づけ
 
 シェルスクリプトは、コマンド群を順序立てて記述したファイルです。上から順に実行されます。
 
-### 最初のスクリプト（Hello World）
+#### 最初のスクリプト（Hello World）
 
 ```bash
 # 1. スクリプトファイルを作る（.shは慣例）
@@ -63,7 +76,7 @@ chmod +x hello.sh
 - 既定ではカレントディレクトリが `PATH` に含まれないことが多い
 - `./` は「カレントディレクトリ配下を指定する」ことを意味する
 
-### シェバン（Shebang）とは
+#### シェバン（Shebang）とは
 
 ```bash
 #!/bin/bash     # bashで実行（一番よく使う）
@@ -73,9 +86,9 @@ chmod +x hello.sh
 
 最初の `#!` は「このファイルを何で実行するか」を指定する記号です。
 
-## 5.2 変数と基本構文
+### 5.2 変数と基本構文
 
-### 変数の定義と使用
+#### 変数の定義と使用
 
 ```bash
 #!/bin/bash
@@ -103,7 +116,7 @@ CURRENT_DATE=$(date +%Y%m%d)
 USER_COUNT=$(who | wc -l)
 ```
 
-### 特殊変数
+#### 特殊変数
 
 ```bash
 #!/bin/bash
@@ -121,7 +134,7 @@ echo "Last command exit status: $?"
 # ./special_vars.sh arg1 arg2 arg3
 ```
 
-### 配列
+#### 配列
 
 ```bash
 #!/bin/bash
@@ -143,9 +156,9 @@ for server in "${SERVERS[@]}"; do
 done
 ```
 
-## 5.3 条件分岐
+### 5.3 条件分岐
 
-### if文
+#### if文
 
 ```bash
 #!/bin/bash
@@ -184,7 +197,7 @@ if [ -n "$NAME" ]; then
 fi
 ```
 
-### ファイル・ディレクトリ判定
+#### ファイル・ディレクトリ判定
 
 ```bash
 #!/bin/bash
@@ -223,7 +236,7 @@ if [ -s "$FILE" ]; then
 fi
 ```
 
-### 条件演算子一覧
+#### 条件演算子一覧
 
 | 演算子 | 意味 | 使用例 |
 |--------|------|--------|
@@ -238,7 +251,7 @@ fi
 | -z | 空文字列 | [ -z "$a" ] |
 | -n | 空でない | [ -n "$a" ] |
 
-### case文
+#### case文
 
 ```bash
 #!/bin/bash
@@ -271,9 +284,9 @@ case $CHOICE in
 esac
 ```
 
-## 5.4 ループ処理
+### 5.4 ループ処理
 
-### forループ
+#### forループ
 
 ```bash
 #!/bin/bash
@@ -307,7 +320,7 @@ for user in $(cut -d: -f1 /etc/passwd); do
 done
 ```
 
-### whileループ
+#### whileループ
 
 ```bash
 #!/bin/bash
@@ -338,7 +351,7 @@ done
 echo "Network is up!"
 ```
 
-### untilループ
+#### untilループ
 
 ```bash
 #!/bin/bash
@@ -358,9 +371,9 @@ done
 echo "Nginx is running!"
 ```
 
-## 5.5 関数
+### 5.5 関数
 
-### 関数定義と呼び出し
+#### 関数定義と呼び出し
 
 ```bash
 #!/bin/bash
@@ -398,7 +411,7 @@ else
 fi
 ```
 
-### 実用的な関数例
+#### 実用的な関数例
 
 ```bash
 #!/bin/bash
@@ -443,9 +456,9 @@ backup_file() {
 }
 ```
 
-## 5.6 入出力とリダイレクト
+### 5.6 入出力とリダイレクト
 
-### 標準入出力
+#### 標準入出力
 
 ```bash
 #!/bin/bash
@@ -472,7 +485,7 @@ PORT=${PORT:-8080}
 echo "Using port: $PORT"
 ```
 
-### リダイレクトとパイプ
+#### リダイレクトとパイプ
 
 ```bash
 #!/bin/bash
@@ -506,9 +519,9 @@ LINE_COUNT=$(wc -l < file.txt)
 cat access.log | grep ERROR | sort | uniq -c | sort -rn > error_summary.txt
 ```
 
-## 5.7 エラーハンドリング
+### 5.7 エラーハンドリング
 
-### 終了ステータス
+#### 終了ステータス
 
 ```bash
 #!/bin/bash
@@ -534,7 +547,7 @@ fi
 mkdir /tmp/test && echo "Directory created" || echo "Failed to create directory"
 ```
 
-### set オプション
+#### set オプション
 
 ```bash
 #!/bin/bash
@@ -555,7 +568,7 @@ set -x  # 実行コマンドを表示
 set -euo pipefail
 ```
 
-### trapによるクリーンアップ
+#### trapによるクリーンアップ
 
 ```bash
 #!/bin/bash
@@ -584,9 +597,14 @@ echo "Processing..." > "$TEMP_FILE"
 # 処理実行
 ```
 
-## 5.8 実践スクリプト例
+## 発展編（任意: 5.8〜5.10）
+{: #chapter5-advanced }
 
-### システム監視スクリプト
+ここからは任意です。monitoring・backup・cronは対象dataとcleanupを先に決め、user managementとdeployは隔離した検証環境でreviewしてから実行します。必須経路の修了条件には含めません。
+
+### 5.8 実践スクリプト例
+
+#### システム監視スクリプト
 
 ```bash
 #!/bin/bash
@@ -660,7 +678,7 @@ main() {
 main
 ```
 
-### バックアップスクリプト
+#### バックアップスクリプト
 
 ```bash
 #!/bin/bash
@@ -729,9 +747,9 @@ main() {
 main
 ```
 
-## 5.9 cron による定期実行
+### 5.9 cron による定期実行
 
-### crontab 基本
+#### crontab 基本
 
 ```bash
 # crontab編集
@@ -744,7 +762,7 @@ crontab -l
 crontab -r
 ```
 
-### cron記法
+#### cron記法
 
 ```text
 # 分 時 日 月 曜日 コマンド
@@ -763,7 +781,7 @@ crontab -r
 0 3 1 * * /bin/bash "$HOME/monthly_report.sh"
 ```
 
-### WSL2 でのcron設定
+#### WSL2 でのcron設定
 {: #wsl-cron-service-management}
 
 最初に PID 1 を確認し、表示が `systemd` かどうかで手順を分けます。systemd の有効化手順とサービス管理方針は[第3章「有効化手順」](../chapter3/#wsl-systemd-service-management)も参照してください。
@@ -773,7 +791,7 @@ crontab -r
 ps -p 1 -o comm=
 ```
 
-#### systemd有効時
+##### systemd有効時
 
 PID 1 が `systemd` の場合は、cronを有効化して現在の WSL instance でも起動します。`is-enabled` は次回以降の systemd 起動時に有効か、`is-active` は現在起動しているかを確認します。`status` または unit を指定した journal で、失敗理由を隠さず確認してください。
 
@@ -787,7 +805,7 @@ journalctl -u cron -b -n 50 --no-pager
 
 `is-enabled` の期待値は `enabled`、`is-active` の期待値は `active` です。journal を読む権限がない場合は所属グループと組織の運用ルールを確認し、許可されている場合だけ `sudo journalctl ...` として再実行します。
 
-#### systemd無効時
+##### systemd無効時
 
 PID 1 が `systemd` でない場合、次の手順は現在の WSL instance に対する明示的な手動起動です。終了コードと `status` の出力を確認し、失敗時は表示されたメッセージを調査します。
 
@@ -798,19 +816,19 @@ service cron status
 
 このコマンドを `.bashrc`、`.profile` などの対話shell初期化ファイルへ追加してはいけません。shellを開くたびに特権操作を暗黙実行せず、エラー出力も破棄しません。継続的なサービス管理が必要な場合は、[第3章の正式手順](../chapter3/#wsl-systemd-service-management)で systemd を有効化してください。
 
-#### WSL instanceのライフサイクル
+##### WSL instanceのライフサイクル
 
 systemd service だけを起動しても、WSL instance は常時稼働になりません。Microsoft Learn によれば、systemd service は WSL instance を存続させず、WSL のライフサイクルは従来と同じです。したがって、この手順を常駐サーバー運用や Windows 再起動後の永続稼働の保証として扱わないでください。
 
-#### Cron / WSL Source Notes（確認日: 2026-07-20）
+##### Cron / WSL Source Notes（確認日: 2026-07-20）
 
 - [Use systemd to manage Linux services with WSL](https://learn.microsoft.com/en-us/windows/wsl/systemd): 現行の `wsl --install` で導入する Ubuntu の既定、既存distributionでのsystemd有効化手順、systemd serviceとWSL instanceライフサイクルの境界を確認しました。
 - [systemctl manual](https://www.freedesktop.org/software/systemd/man/latest/systemctl.html): `enable --now`、`is-enabled`、`is-active`、`status` の意味を確認しました。
 - [journalctl manual](https://www.freedesktop.org/software/systemd/man/latest/journalctl.html): unit、現在boot、表示件数を絞るログ確認方法を確認しました。
 
-## 5.10 演習問題
+### 5.10 演習問題
 
-### 演習1: ログローテーションスクリプト
+#### 演習1: ログローテーションスクリプト
 
 ```bash
 #!/bin/bash
@@ -849,7 +867,7 @@ for log_file in "$LOG_DIR"/*.log; do
 done
 ```
 
-### 演習2: ユーザー管理スクリプト
+#### 演習2: ユーザー管理スクリプト
 
 ```bash
 #!/bin/bash
@@ -885,7 +903,7 @@ create_users() {
 create_users
 ```
 
-### 演習3: デプロイスクリプト
+#### 演習3: デプロイスクリプト
 
 ```bash
 #!/bin/bash
@@ -990,6 +1008,8 @@ main
 2. **エラーハンドリング**: `set -euo pipefail` と `trap` の活用
 3. **実践的活用**: 定型作業の自動化に適用する
 
-これらの基礎を基に、インフラ運用の自動化を段階的に進めます。
+5.1〜5.7の小さなscriptを学習用dataで作成し、終了statusと生成物を確認できれば基礎編の到達条件を満たします。5.8〜5.10は任意の発展編です。実行対象、権限、失敗時の復旧、cleanupをreviewできる場合だけ隔離環境で進めます。
+
+これらの基礎を基に、必要な場合だけインフラ運用の自動化へ段階的に進めます。
 
 **次章へ**: [第6章 WordPress構築](../chapter6/)

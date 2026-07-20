@@ -1,0 +1,258 @@
+{
+  "schemaVersion": 1,
+  "confirmedDate": "2026-07-21",
+  "measurement": {
+    "selector": "article.page-content",
+    "whitespaceExcluded": true,
+    "codeTextIncluded": true,
+    "readingCharactersPerMinute": {
+      "slow": 400,
+      "fast": 600
+    },
+    "rounding": "ceil per page/section; aggregate reading and learning-path hours after summing",
+    "handsOnBasis": "first task-inventory pass across 170 source code blocks; planning range, not a measured guarantee"
+  },
+  "totals": {
+    "visibleCharacters": 71365,
+    "codeBlocks": 170,
+    "readingMinutes": {
+      "min": 119,
+      "max": 179
+    }
+  },
+  "pages": [
+    {
+      "id": "top",
+      "sourcePath": "docs/index.md",
+      "builtPath": "index.html",
+      "visibleCharacters": 3063,
+      "codeBlocks": 0,
+      "readingMinutes": {
+        "min": 6,
+        "max": 8
+      }
+    },
+    {
+      "id": "chapter0",
+      "sourcePath": "docs/chapter0/index.md",
+      "builtPath": "chapter0/index.html",
+      "visibleCharacters": 2247,
+      "codeBlocks": 11,
+      "readingMinutes": {
+        "min": 4,
+        "max": 6
+      }
+    },
+    {
+      "id": "chapter1",
+      "sourcePath": "docs/chapter1/index.md",
+      "builtPath": "chapter1/index.html",
+      "visibleCharacters": 5625,
+      "codeBlocks": 24,
+      "readingMinutes": {
+        "min": 10,
+        "max": 15
+      }
+    },
+    {
+      "id": "chapter2",
+      "sourcePath": "docs/chapter2/index.md",
+      "builtPath": "chapter2/index.html",
+      "visibleCharacters": 7043,
+      "codeBlocks": 28,
+      "readingMinutes": {
+        "min": 12,
+        "max": 18
+      }
+    },
+    {
+      "id": "chapter3",
+      "sourcePath": "docs/chapter3/index.md",
+      "builtPath": "chapter3/index.html",
+      "visibleCharacters": 11252,
+      "codeBlocks": 35,
+      "readingMinutes": {
+        "min": 19,
+        "max": 29
+      }
+    },
+    {
+      "id": "chapter4",
+      "sourcePath": "docs/chapter4/index.md",
+      "builtPath": "chapter4/index.html",
+      "visibleCharacters": 24380,
+      "codeBlocks": 34,
+      "readingMinutes": {
+        "min": 41,
+        "max": 61
+      }
+    },
+    {
+      "id": "chapter5",
+      "sourcePath": "docs/chapter5/index.md",
+      "builtPath": "chapter5/index.html",
+      "visibleCharacters": 13294,
+      "codeBlocks": 28,
+      "readingMinutes": {
+        "min": 23,
+        "max": 34
+      }
+    },
+    {
+      "id": "chapter6",
+      "sourcePath": "docs/chapter6/index.md",
+      "builtPath": "chapter6/index.html",
+      "visibleCharacters": 4069,
+      "codeBlocks": 10,
+      "readingMinutes": {
+        "min": 7,
+        "max": 11
+      }
+    },
+    {
+      "id": "glossary",
+      "sourcePath": "docs/glossary.md",
+      "builtPath": "glossary/index.html",
+      "visibleCharacters": 392,
+      "codeBlocks": 0,
+      "readingMinutes": {
+        "min": 1,
+        "max": 1
+      }
+    }
+  ],
+  "chapter5Sections": [
+    {
+      "id": "foundation",
+      "startMarker": "基礎編（必須: 5.1〜5.7）",
+      "endMarker": "発展編（任意: 5.8〜5.10）",
+      "visibleCharacters": 5884,
+      "readingMinutes": {
+        "min": 10,
+        "max": 15
+      },
+      "required": true,
+      "handsOnMinutes": {
+        "min": 90,
+        "max": 150
+      }
+    },
+    {
+      "id": "advanced",
+      "startMarker": "発展編（任意: 5.8〜5.10）",
+      "endMarker": "まとめ",
+      "visibleCharacters": 6239,
+      "readingMinutes": {
+        "min": 11,
+        "max": 16
+      },
+      "required": false,
+      "handsOnMinutes": {
+        "min": 120,
+        "max": 240
+      }
+    }
+  ],
+  "learningPaths": [
+    {
+      "id": "core-with-review",
+      "required": [
+        "chapter0",
+        "chapter1",
+        "chapter2",
+        "chapter3",
+        "chapter4",
+        "chapter5-foundation"
+      ],
+      "optional": [
+        "chapter5-advanced",
+        "chapter6"
+      ],
+      "handsOnHours": {
+        "min": 7,
+        "max": 11
+      }
+    },
+    {
+      "id": "core-with-skip",
+      "required": [
+        "chapter0",
+        "chapter3",
+        "chapter4",
+        "chapter5-foundation"
+      ],
+      "optional": [
+        "chapter1",
+        "chapter2",
+        "chapter5-advanced",
+        "chapter6"
+      ],
+      "handsOnHours": {
+        "min": 5,
+        "max": 8
+      }
+    },
+    {
+      "id": "full",
+      "required": [
+        "chapter0",
+        "chapter1",
+        "chapter2",
+        "chapter3",
+        "chapter4",
+        "chapter5-foundation",
+        "chapter5-advanced",
+        "chapter6"
+      ],
+      "optional": [
+        "chapter4-lan-publication"
+      ],
+      "handsOnHours": {
+        "min": 10,
+        "max": 17
+      }
+    }
+  ],
+  "chapterHandsOnMinutes": [
+    {
+      "id": "chapter0",
+      "min": 30,
+      "max": 60
+    },
+    {
+      "id": "chapter1",
+      "min": 45,
+      "max": 75
+    },
+    {
+      "id": "chapter2",
+      "min": 60,
+      "max": 90
+    },
+    {
+      "id": "chapter3",
+      "min": 75,
+      "max": 120
+    },
+    {
+      "id": "chapter4",
+      "min": 90,
+      "max": 150
+    },
+    {
+      "id": "chapter5-foundation",
+      "min": 90,
+      "max": 150
+    },
+    {
+      "id": "chapter5-advanced",
+      "min": 120,
+      "max": 240
+    },
+    {
+      "id": "chapter6",
+      "min": 60,
+      "max": 120
+    }
+  ]
+}

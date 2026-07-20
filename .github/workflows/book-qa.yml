@@ -68,6 +68,11 @@ jobs:
           python3 scripts/check_network_exposure_contract.py
           python3 scripts/check_network_exposure_contract.py --runtime-test
 
+      - name: Learning path and time contract (source + self-test)
+        run: |
+          python3 scripts/check_learning_path_contract.py --self-test
+          python3 scripts/check_learning_path_contract.py
+
       - name: Security audit (book dependencies)
         run: npm run check:security
 
@@ -115,6 +120,9 @@ jobs:
 
       - name: WSL network exposure contract (built site)
         run: python3 scripts/check_network_exposure_contract.py --built-site _site
+
+      - name: Learning path and time contract (built site)
+        run: python3 scripts/check_learning_path_contract.py --built-site _site
 
       - name: Smoke check built site (top + navigation + assets)
         shell: bash
