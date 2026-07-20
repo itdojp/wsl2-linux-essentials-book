@@ -764,18 +764,49 @@ crontab -r
 ```
 
 ### WSL2 でのcron設定
+{: #wsl-cron-service-management}
+
+最初に PID 1 を確認し、表示が `systemd` かどうかで手順を分けます。systemd の有効化手順とサービス管理方針は[第3章「有効化手順」](../chapter3/#wsl-systemd-service-management)も参照してください。
 
 ```bash
-# cron起動（systemd有効時）
-sudo systemctl start cron
-sudo systemctl enable cron
-
-# cron起動（systemd無効時）
-sudo service cron start
-
-# 自動起動設定（.bashrcに追加）
-echo 'sudo service cron start 2>/dev/null' >> ~/.bashrc
+# PID 1 が systemd か確認
+ps -p 1 -o comm=
 ```
+
+#### systemd有効時
+
+PID 1 が `systemd` の場合は、cronを有効化して現在の WSL instance でも起動します。`is-enabled` は次回以降の systemd 起動時に有効か、`is-active` は現在起動しているかを確認します。`status` または unit を指定した journal で、失敗理由を隠さず確認してください。
+
+```bash
+sudo systemctl enable --now cron
+systemctl is-enabled cron
+systemctl is-active cron
+systemctl status cron --no-pager
+journalctl -u cron -b -n 50 --no-pager
+```
+
+`is-enabled` の期待値は `enabled`、`is-active` の期待値は `active` です。journal を読む権限がない場合は所属グループと組織の運用ルールを確認し、許可されている場合だけ `sudo journalctl ...` として再実行します。
+
+#### systemd無効時
+
+PID 1 が `systemd` でない場合、次の手順は現在の WSL instance に対する明示的な手動起動です。終了コードと `status` の出力を確認し、失敗時は表示されたメッセージを調査します。
+
+```bash
+sudo service cron start
+service cron status
+```
+
+このコマンドを `.bashrc`、`.profile` などの対話shell初期化ファイルへ追加してはいけません。shellを開くたびに特権操作を暗黙実行せず、エラー出力も破棄しません。継続的なサービス管理が必要な場合は、[第3章の正式手順](../chapter3/#wsl-systemd-service-management)で systemd を有効化してください。
+
+#### WSL instanceのライフサイクル
+
+systemd service だけを起動しても、WSL instance は常時稼働になりません。Microsoft Learn によれば、systemd service は WSL instance を存続させず、WSL のライフサイクルは従来と同じです。したがって、この手順を常駐サーバー運用や Windows 再起動後の永続稼働の保証として扱わないでください。
+
+#### Cron / WSL Source Notes（確認日: 2026-07-20）
+
+- [Use systemd to manage Linux services with WSL](https://learn.microsoft.com/en-us/windows/wsl/systemd): 現行の `wsl --install` で導入する Ubuntu の既定、既存distributionでのsystemd有効化手順、systemd serviceとWSL instanceライフサイクルの境界を確認しました。
+- [systemctl manual](https://www.freedesktop.org/software/systemd/man/latest/systemctl.html): `enable --now`、`is-enabled`、`is-active`、`status` の意味を確認しました。
+- [journalctl manual](https://www.freedesktop.org/software/systemd/man/latest/journalctl.html): unit、現在boot、表示件数を絞るログ確認方法を確認しました。
 
 ## 5.10 演習問題
 
