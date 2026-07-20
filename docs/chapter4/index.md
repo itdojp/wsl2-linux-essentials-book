@@ -206,7 +206,7 @@ if (-not [System.Net.IPAddress]::TryParse($AllowedRemote, [ref]$HvAllowedRemoteA
     $HvAllowedRemoteAddress.ToString() -cne $AllowedRemote) {
     throw "Mirrored AllowedRemote must be exactly one dotted-decimal IPv4 address"
 }
-Get-NetFirewallHyperVVMSetting -PolicyStore ActiveStore -Name $WslVmCreatorId
+Get-NetFirewallHyperVVMSetting -PolicyStore ActiveStore -VMCreatorId $WslVmCreatorId
 Get-NetFirewallHyperVProfile -PolicyStore ActiveStore
 if (Get-NetFirewallHyperVRule -Name $HvRuleName -ErrorAction SilentlyContinue) { throw "RuleName already exists" }
 $HvFirewallParams = @{
@@ -237,6 +237,7 @@ rule削除後にWSL側serverも`Ctrl+C`で終了し、許可していたLAN clie
 
 - [Accessing network applications with WSL](https://learn.microsoft.com/en-us/windows/wsl/networking): NATのlocalhost forwarding、portproxyの`listenaddress`、mirrored mode、Hyper-V Firewallの適用境界を確認しました。
 - [Configure Hyper-V firewall](https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/hyper-v-firewall): WSL VMCreatorId、ActiveStore、profile、個別ruleの確認方法を確認しました。
+- [Get-NetFirewallHyperVVMSetting](https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallhypervvmsetting): VM設定の`Name` parameterに`VMCreatorId` aliasがあり、VM creator IDを明示して取得できることを確認しました。
 - [New-NetFirewallRule](https://learn.microsoft.com/en-us/powershell/module/netsecurity/new-netfirewallrule) / [Remove-NetFirewallRule](https://learn.microsoft.com/en-us/powershell/module/netsecurity/remove-netfirewallrule): 一意なName、address/profile条件、個別rule削除を確認しました。
 - [New-NetFirewallHyperVRule](https://learn.microsoft.com/en-us/powershell/module/netsecurity/new-netfirewallhypervrule) / [Remove-NetFirewallHyperVRule](https://learn.microsoft.com/en-us/powershell/module/netsecurity/remove-netfirewallhypervrule): `RemoteAddresses`、`Profiles`、一意なNameによる作成・削除を確認しました。
 - [NGINX `listen` directive](https://nginx.org/en/docs/http/ngx_http_core_module.html#listen): addressを指定したsocketの待受範囲を確認しました。

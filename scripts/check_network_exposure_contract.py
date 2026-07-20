@@ -163,7 +163,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
         "[System.Net.IPAddress]::TryParse($AllowedRemote, [ref]$HvAllowedRemoteAddress)",
         "$HvAllowedRemoteAddress.AddressFamily -ne [System.Net.Sockets.AddressFamily]::InterNetwork",
         "$HvAllowedRemoteAddress.ToString() -cne $AllowedRemote",
-        "Get-NetFirewallHyperVVMSetting -PolicyStore ActiveStore",
+        "Get-NetFirewallHyperVVMSetting -PolicyStore ActiveStore -VMCreatorId $WslVmCreatorId",
         "Get-NetFirewallHyperVProfile -PolicyStore ActiveStore",
         'Get-NetFirewallHyperVRule -Name $HvRuleName -ErrorAction SilentlyContinue) { throw "RuleName already exists"',
         "Name = $HvRuleName",
@@ -181,6 +181,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
         "powershell/module/netsecurity/remove-netfirewallrule",
         "powershell/module/netsecurity/new-netfirewallhypervrule",
         "powershell/module/netsecurity/remove-netfirewallhypervrule",
+        "powershell/module/netsecurity/get-netfirewallhypervvmsetting",
         "https://nginx.org/en/docs/http/ngx_http_core_module.html#listen",
         "https://docs.python.org/3/library/http.server.html#cmdoption-http-server-bind",
         "https://nodejs.org/api/net.html#serverlisten",
@@ -207,6 +208,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
         r"(?:RemoteAddress|RemoteAddresses|Profile|Profiles)\s*=\s*[\"'](?:Any|Public)[\"']",
         r"^\s*Remove-NetFirewallRule\s*$",
         r"^\s*Remove-NetFirewallHyperVRule\s*$",
+        r"Get-NetFirewallHyperVVMSetting[^\n]*\s-Name\s+\$WslVmCreatorId",
     ]:
         reject(combined, pattern, "unsafe network guidance")
 
@@ -294,6 +296,7 @@ def check_built(snapshot: Snapshot) -> None:
         "netsh interface portproxy delete v4tov4",
         "WSL2-Lab-Mirrored-TCP-8080",
         "Mirrored AllowedRemote must be exactly one dotted-decimal IPv4 address",
+        "Get-NetFirewallHyperVVMSetting -PolicyStore ActiveStore -VMCreatorId $WslVmCreatorId",
         "RemoteAddresses = $AllowedRemote",
         'Profiles = "Private"',
         "Remove-NetFirewallHyperVRule -Name $HvRuleName -ErrorAction Stop",
@@ -313,6 +316,7 @@ def check_built(snapshot: Snapshot) -> None:
         r"(?:RemoteAddress|RemoteAddresses|Profile|Profiles)\s*=\s*[\"'](?:Any|Public)[\"']",
         r"^\s*Remove-NetFirewallRule\s*$",
         r"^\s*Remove-NetFirewallHyperVRule\s*$",
+        r"Get-NetFirewallHyperVVMSetting[^\n]*\s-Name\s+\$WslVmCreatorId",
     ]:
         reject(combined, pattern, "built unsafe network guidance")
     print("Built WSL network exposure contract passed (2 pages).")
@@ -478,6 +482,13 @@ def self_test() -> None:
             "NAT AllowedRemote must be exactly one dotted-decimal IPv4 address",
             "# NAT remote scope not validated",
             "decision flow",
+        ),
+        (
+            "wrong Hyper-V VM setting parameter",
+            "chapter4",
+            "Get-NetFirewallHyperVVMSetting -PolicyStore ActiveStore -VMCreatorId $WslVmCreatorId",
+            "Get-NetFirewallHyperVVMSetting -PolicyStore ActiveStore -Name $WslVmCreatorId",
+            "protected exposure",
         ),
         (
             "missing mirrored single-client validation",
