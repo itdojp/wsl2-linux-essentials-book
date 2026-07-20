@@ -14,8 +14,9 @@
     "check:metadata": "python3 scripts/check_metadata_consistency.py",
     "check:cron-service": "python3 scripts/check_cron_service_contract.py --self-test && python3 scripts/check_cron_service_contract.py",
     "check:network-exposure": "python3 scripts/check_network_exposure_contract.py --self-test && python3 scripts/check_network_exposure_contract.py && python3 scripts/check_network_exposure_contract.py --runtime-test",
+    "check:learning-path": "python3 scripts/check_learning_path_contract.py --self-test && python3 scripts/check_learning_path_contract.py",
     "check:security": "npm audit --omit=optional",
-    "test": "npm run check:metadata && npm run check:cron-service && npm run check:network-exposure && npm run check:security"
+    "test": "npm run check:metadata && npm run check:cron-service && npm run check:network-exposure && npm run check:learning-path && npm run check:security"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0"
