@@ -245,7 +245,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
         "読むだけ",
         "実測保証値ではありません",
         "article.page-content",
-        "75,219文字・170 code blocks",
+        "75,239文字・170 code blocks",
         "126〜189分（約2〜3時間）",
         "LAN公開runbookは別clientが必要なため任意",
         "download速度、machine性能、既存環境、入力速度、troubleshooting",

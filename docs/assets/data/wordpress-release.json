@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "confirmedDate": "2026-07-21",
+  "confirmedTimeZone": "Asia/Tokyo",
   "wordpress": {
     "version": "7.0.2",
     "checksumLocale": "en_US",

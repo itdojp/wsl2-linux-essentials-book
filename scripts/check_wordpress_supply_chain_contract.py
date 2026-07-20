@@ -22,6 +22,7 @@ WORKFLOW = ROOT / ".github/workflows/book-qa.yml"
 VERSION = "7.0.2"
 LOCALE = "en_US"
 CONFIRMED_DATE = "2026-07-21"
+CONFIRMED_TIME_ZONE = "Asia/Tokyo"
 ARCHIVE_URL = f"https://downloads.wordpress.org/release/wordpress-{VERSION}.tar.gz"
 CHECKSUM_URL = (
     "https://api.wordpress.org/core/checksums/1.0/"
@@ -101,6 +102,7 @@ def validate_snapshot(snapshot: dict) -> None:
     expected = {
         "schemaVersion": 1,
         "confirmedDate": CONFIRMED_DATE,
+        "confirmedTimeZone": CONFIRMED_TIME_ZONE,
     }
     for key, value in expected.items():
         if snapshot.get(key) != value:
@@ -133,7 +135,10 @@ def validate_snapshot(snapshot: dict) -> None:
     }:
         raise ContractError("snapshot requirements drifted")
 
-    validation = snapshot.get("maintenance", {}).get("requiredValidation")
+    maintenance = snapshot.get("maintenance")
+    if not isinstance(maintenance, dict):
+        raise ContractError("snapshot maintenance must be an object")
+    validation = maintenance.get("requiredValidation")
     if validation != [
         "archive-download-over-verified-tls",
         "official-core-checksums-positive-case",
@@ -157,6 +162,8 @@ def validate_chapter(chapter: str) -> None:
         "trap cleanup_wordpress_download EXIT",
         "trap 'exit 130' INT",
         "trap 'exit 143' TERM",
+        "sudo apt install -y php",
+        "php-zip curl jq",
         "--proto '=https' --tlsv1.2",
         "from pathlib import PurePosixPath",
         "or \"..\" in path.parts",
@@ -174,7 +181,7 @@ def validate_chapter(chapter: str) -> None:
         "WordPress Version Check API",
         "WordPress Core Checksums API",
         "WP-CLI: `wp core verify-checksums`",
-        f"**{CONFIRMED_DATE}確認**",
+        f"**{CONFIRMED_DATE} JST確認**",
         "assets/data/wordpress-release.json",
     ]
     for marker in required:
@@ -353,9 +360,18 @@ def run_self_test() -> None:
     else:
         raise ContractError("self-test accepted a snapshot locale mismatch")
 
-    if negative_cases != 7:
-        raise ContractError(f"self-test expected 7 negative cases, got {negative_cases}")
-    print("WordPress supply-chain self-test: PASS (1 positive, 7 negative cases)")
+    mutated_snapshot = json.loads(json.dumps(snapshot))
+    mutated_snapshot["maintenance"] = []
+    try:
+        validate_snapshot(mutated_snapshot)
+    except ContractError:
+        negative_cases += 1
+    else:
+        raise ContractError("self-test accepted a non-object maintenance contract")
+
+    if negative_cases != 8:
+        raise ContractError(f"self-test expected 8 negative cases, got {negative_cases}")
+    print("WordPress supply-chain self-test: PASS (1 positive, 8 negative cases)")
 
 
 def validate_source() -> None:
@@ -380,7 +396,7 @@ def validate_built_site(site: Path) -> None:
         f"WordPress coreは {VERSION}",
         f"checksum localeは {LOCALE}",
         "checksum成功後にだけドキュメントルートへ配置",
-        "Source Notes（2026-07-21確認）",
+        "Source Notes（2026-07-21 JST確認）",
         "PHP 8.3以上",
         "MySQL 8.0以上またはMariaDB 10.11以上",
     ]:

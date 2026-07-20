@@ -13,7 +13,7 @@
     "handsOnBasis": "first task-inventory pass across 170 source code blocks; planning range, not a measured guarantee"
   },
   "totals": {
-    "visibleCharacters": 75219,
+    "visibleCharacters": 75239,
     "codeBlocks": 170,
     "readingMinutes": {
       "min": 126,
@@ -102,7 +102,7 @@
       "id": "chapter6",
       "sourcePath": "docs/chapter6/index.md",
       "builtPath": "chapter6/index.html",
-      "visibleCharacters": 7922,
+      "visibleCharacters": 7942,
       "codeBlocks": 10,
       "readingMinutes": {
         "min": 14,

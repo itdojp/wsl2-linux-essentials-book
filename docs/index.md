@@ -58,7 +58,7 @@ version: "2.0.1"
 
 ## 所要時間の定義と算定方法
 
-- **読むだけ**: 公開top・第0〜6章・用語集の`article.page-content`からvisible textを抽出し、空白を除外した文字数を400〜600文字/分で換算します。code textは読む対象に含め、commandは実行しません。現行snapshotは75,219文字・170 code blocksで、126〜189分（約2〜3時間）です。
+- **読むだけ**: 公開top・第0〜6章・用語集の`article.page-content`からvisible textを抽出し、空白を除外した文字数を400〜600文字/分で換算します。code textは読む対象に含め、commandは実行しません。現行snapshotは75,239文字・170 code blocksで、126〜189分（約2〜3時間）です。
 - **必須hands-on**: commandを入力し、期待結果とcleanupを確認する時間です。章別rangeの合計を時間単位で切り上げ、基礎既習者は5〜8時間、復習込みは7〜11時間を計画します。
 - **全演習込み**: 第5章発展編と第6章のWordPress構築まで行う計画で10〜17時間です。LAN公開runbookは別clientが必要なため任意とし、このrangeへ含めません。
 - download速度、machine性能、既存環境、入力速度、troubleshootingでrangeを超える場合があります。研修では受講者の実測値を次回計画へ反映してください。

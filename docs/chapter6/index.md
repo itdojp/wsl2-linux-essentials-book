@@ -12,7 +12,7 @@ layout: book
 - 本章はパッケージ導入と `/var/www` 配下への配置を行うため `sudo` が必要
 - 学習用のローカル環境（WSL2 内）を前提とし、公開サーバー用途の手順ではない
 
-本章の取得・検証snapshotは**2026-07-21確認**です。WordPress coreは`7.0.2`、checksum localeは`en_US`へ固定します。新版へ追従するときは、URLの`latest`へ戻すのではなく、version、要件、checksum正常系・改変系を再検証して本章と[`wordpress-release.json`]({{ site.baseurl }}/assets/data/wordpress-release.json)を同じ改訂で更新します。
+本章の取得・検証snapshotは**2026-07-21 JST確認**です。WordPress coreは`7.0.2`、checksum localeは`en_US`へ固定します。新版へ追従するときは、URLの`latest`へ戻すのではなく、version、要件、checksum正常系・改変系を再検証して本章と[`wordpress-release.json`]({{ site.baseurl }}/assets/data/wordpress-release.json)を同じ改訂で更新します。
 
 ## この章の目標
 - LAMP 環境の構成要素を把握し、構築手順を実行できる
@@ -101,8 +101,8 @@ EXIT;
 ### ステップ3: PHPのインストール
 
 ```bash
-# PHP、必要モジュール、checksum manifest処理用のjq
-sudo apt install -y php libapache2-mod-php php-mysql php-curl php-gd php-mbstring php-xml php-zip jq
+# PHP、必要モジュール、取得用curl、checksum manifest処理用jq
+sudo apt install -y php libapache2-mod-php php-mysql php-curl php-gd php-mbstring php-xml php-zip curl jq
 
 # PHPとMySQL serverのversion確認
 php -v
@@ -112,7 +112,7 @@ sudo mysql --batch --skip-column-names -e 'SELECT VERSION();'
 sudo systemctl restart apache2
 ```
 
-WordPress 7.0.2のVersion Check APIが示す動作下限はPHP 7.4 / MySQL 5.5.5です。一方、WordPress.orgが2026-07-21に示す安全・性能面の**推奨baseline**はPHP 8.3以上、MySQL 8.0以上またはMariaDB 10.11以上、HTTPSです。本章のローカル演習でもPHP 8.3以上とMySQL 8.0以上を推奨します。Ubuntu 22.04の標準PHP 8.1系は動作下限を満たしても推奨baseline未満なので、Ubuntu 24.04へ上げるか、保守された配布経路を別途設計してください。要件を満たさない環境で確認を省略して進めません。
+WordPress 7.0.2のVersion Check APIが示す動作下限はPHP 7.4 / MySQL 5.5.5です。一方、WordPress.orgが2026-07-21 JSTに示す安全・性能面の**推奨baseline**はPHP 8.3以上、MySQL 8.0以上またはMariaDB 10.11以上、HTTPSです。本章のローカル演習でもPHP 8.3以上とMySQL 8.0以上を推奨します。Ubuntu 22.04の標準PHP 8.1系は動作下限を満たしても推奨baseline未満なので、Ubuntu 24.04へ上げるか、保守された配布経路を別途設計してください。要件を満たさない環境で確認を省略して進めません。
 
 ### ステップ4: WordPressのインストール
 
@@ -314,7 +314,7 @@ WordPress の基本的な構築手順を確認できました。追加学習の�
 
 これらは要件に応じて、公式ドキュメント等を参照しながら検討してください。
 
-### Source Notes（2026-07-21確認）
+### Source Notes（2026-07-21 JST確認）
 
 - [WordPress Version Check API](https://api.wordpress.org/core/version-check/1.7/): `en_US`の先頭stable offerが7.0.2であることと、APIが返す実行下限PHP 7.4 / MySQL 5.5.5を確認。本章では安全・性能面の推奨baselineと区別します。
 - [WordPress Release Archive](https://wordpress.org/download/releases/): 7.0.2の固定release archiveが公開されていることを確認。実行時の`latest`選択には使用しません。
