@@ -205,8 +205,21 @@ try {
 }
 netsh interface portproxy add v4tov4 listenport=$ListenPort listenaddress=$ListenAddress connectport=8080 connectaddress=$WslAddress
 if ($LASTEXITCODE -ne 0) {
-    Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction SilentlyContinue
-    throw "Failed to create portproxy; both Firewall rules were rolled back"
+    $AddExitCode = $LASTEXITCODE
+    $PartialRows = netsh interface portproxy show v4tov4
+    if ($LASTEXITCODE -ne 0) { throw "Portproxy add failed and cleanup state cannot be inspected; Firewall rules were retained" }
+    $PartialProxy = $PartialRows | Select-String -Pattern "^\s*$([regex]::Escape($ListenAddress))\s+$ListenPort\s+"
+    if ($PartialProxy) {
+        netsh interface portproxy delete v4tov4 listenport=$ListenPort listenaddress=$ListenAddress
+        if ($LASTEXITCODE -ne 0) { throw "Portproxy add and rollback failed; Firewall rules were retained" }
+    }
+    $RollbackRows = netsh interface portproxy show v4tov4
+    if ($LASTEXITCODE -ne 0 -or
+        ($RollbackRows | Select-String -Pattern "^\s*$([regex]::Escape($ListenAddress))\s+$ListenPort\s+")) {
+        throw "Portproxy rollback could not be verified; Firewall rules were retained"
+    }
+    Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop
+    throw "Portproxy add failed with exit code $AddExitCode; no proxy remains and both Firewall rules were rolled back"
 }
 
 # serverを起動する前に保護設定を確認
@@ -338,15 +351,18 @@ fi
 
 ##### NAT方式のcleanup
 
-変数を保持した同じ管理者PowerShellで、受信許可とportproxyを個別に削除します。
+変数を保持した同じ管理者PowerShellで、最初にportproxyを削除して同じendpointが消えたことを確認します。削除または確認に失敗した場合は、orphaned proxyを保護するallow/block ruleを残して停止します。proxy不在を確認できた場合だけ両ruleを削除します。
 
 ```powershell
-Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop
 netsh interface portproxy delete v4tov4 listenport=$ListenPort listenaddress=$ListenAddress
-if ($LASTEXITCODE -ne 0) { throw "Failed to remove the portproxy entry" }
+if ($LASTEXITCODE -ne 0) { throw "Failed to remove the portproxy entry; Firewall rules were retained" }
+$RemainingPortProxyRows = netsh interface portproxy show v4tov4
+if ($LASTEXITCODE -ne 0) { throw "Failed to verify portproxy removal; Firewall rules were retained" }
+$RemainingProxy = $RemainingPortProxyRows | Select-String -Pattern "^\s*$([regex]::Escape($ListenAddress))\s+$ListenPort\s+"
+if ($RemainingProxy) { throw "Portproxy entry remains; Firewall rules were retained" }
 
+Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop
 if (Get-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction SilentlyContinue) { throw "Firewall rule remains" }
-netsh interface portproxy show v4tov4
 Test-NetConnection -ComputerName $ListenAddress -Port $ListenPort
 ```
 

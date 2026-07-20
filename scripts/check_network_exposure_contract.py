@@ -175,7 +175,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
             "New-NetFirewallRule @BlockFirewallParams",
             "New-NetFirewallRule @FirewallParams",
             "netsh interface portproxy add v4tov4",
-            "Failed to create portproxy; both Firewall rules were rolled back",
+            "Portproxy rollback could not be verified; Firewall rules were retained",
             "#### mirrored mode: Hyper-V Firewall ruleを個別管理",
             '$HvRuleName = "WSL2-Lab-Mirrored-TCP-8080"',
             '$HvBlockRuleName = "WSL2-Lab-Mirrored-TCP-8080-Block-Others"',
@@ -187,7 +187,8 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
             "#### cleanup: server停止を保護設定の削除より先に行う",
             "Port 8080 listener remains; keep Firewall protection and stop the server first",
             "##### NAT方式のcleanup",
-            "Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop",
+            "$RemainingPortProxyRows = netsh interface portproxy show v4tov4",
+            "Portproxy entry remains; Firewall rules were retained",
             "##### mirrored modeのcleanup",
             "Remove-NetFirewallHyperVRule -Name $HvRuleName, $HvBlockRuleName -ErrorAction Stop",
             "#### Network Exposure Source Notes（確認日: 2026-07-20）",
@@ -215,7 +216,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
         "RemoteAddress = $BlockedRemote",
         'Profile = "Private"',
         "New-NetFirewallRule @BlockFirewallParams -ErrorAction Stop",
-        "Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction SilentlyContinue",
+        "Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop",
         "明示的なblockが競合するallowより優先",
     ]:
         require(nat_section, token, "chapter 4 NAT explicit deny contract")
@@ -279,10 +280,18 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
         "RemoteAddress = $BlockedRemote",
         'Profile = "Private"',
         "Get-NetFirewallAddressFilter",
-        'Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction SilentlyContinue',
-        'if ($LASTEXITCODE -ne 0) { throw "Failed to remove the portproxy entry" }',
-        "Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop\n"
-        "netsh interface portproxy delete v4tov4",
+        "Portproxy add failed and cleanup state cannot be inspected; Firewall rules were retained",
+        "Portproxy add and rollback failed; Firewall rules were retained",
+        "Portproxy rollback could not be verified; Firewall rules were retained",
+        "no proxy remains and both Firewall rules were rolled back",
+        'if ($LASTEXITCODE -ne 0) { throw "Failed to remove the portproxy entry; Firewall rules were retained" }',
+        "$RemainingPortProxyRows = netsh interface portproxy show v4tov4",
+        "$RemainingProxy = $RemainingPortProxyRows | Select-String",
+        'if ($RemainingProxy) { throw "Portproxy entry remains; Firewall rules were retained" }',
+        "netsh interface portproxy delete v4tov4 listenport=$ListenPort listenaddress=$ListenAddress\n"
+        'if ($LASTEXITCODE -ne 0) { throw "Failed to remove the portproxy entry; Firewall rules were retained" }',
+        'if ($RemainingProxy) { throw "Portproxy entry remains; Firewall rules were retained" }\n\n'
+        "Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop",
         "Get-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction SilentlyContinue",
         "削除後の`TcpTestSucceeded`は`False`",
         "Port 8080 listener remains; keep Firewall protection and stop the server first",
@@ -441,7 +450,7 @@ def check_built(snapshot: Snapshot) -> None:
         "WSL2-Lab-NAT-TCP-8080",
         "WSL2-Lab-NAT-TCP-8080-Block-Others",
         "The listen address and port already have a portproxy entry",
-        "Failed to create portproxy; both Firewall rules were rolled back",
+        "Portproxy rollback could not be verified; Firewall rules were retained",
         "NAT AllowedRemote must be exactly one dotted-decimal IPv4 address",
         "NAT AllowedRemote must be one RFC1918 LAN client",
         "Windows Private Firewall default inbound action must be Block",
@@ -450,6 +459,7 @@ def check_built(snapshot: Snapshot) -> None:
         'Profile = "Private"',
         "Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop",
         "netsh interface portproxy delete v4tov4",
+        "Portproxy entry remains; Firewall rules were retained",
         "Port 8080 listener remains; keep Firewall protection and stop the server first",
         "WSL2-Lab-Mirrored-TCP-8080",
         "WSL2-Lab-Mirrored-TCP-8080-Block-Others",
@@ -771,7 +781,7 @@ def self_test() -> None:
         (
             "missing portproxy add failure guard",
             "chapter4",
-            "Failed to create portproxy; both Firewall rules were rolled back",
+            "Portproxy rollback could not be verified; Firewall rules were retained",
             "# failed native command ignored",
             "decision flow",
         ),
@@ -806,17 +816,28 @@ def self_test() -> None:
         (
             "missing Windows rule cleanup",
             "chapter4",
+            'if ($RemainingProxy) { throw "Portproxy entry remains; Firewall rules were retained" }\n\n'
             "Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop",
+            'if ($RemainingProxy) { throw "Portproxy entry remains; Firewall rules were retained" }\n\n'
             "Disable-NetFirewallRule -Name $RuleName",
-            "decision flow",
+            "protected exposure",
         ),
         (
             "missing portproxy cleanup",
             "chapter4",
+            "netsh interface portproxy delete v4tov4 listenport=$ListenPort listenaddress=$ListenAddress\n"
+            'if ($LASTEXITCODE -ne 0) { throw "Failed to remove the portproxy entry; Firewall rules were retained" }',
+            "netsh interface portproxy show v4tov4\n"
+            '# deletion failure ignored',
+            "protected exposure",
+        ),
+        (
+            "firewall removed before proxy absence verification",
+            "chapter4",
+            'if ($RemainingProxy) { throw "Portproxy entry remains; Firewall rules were retained" }\n\n'
+            "Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop",
             "Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop\n"
-            "netsh interface portproxy delete v4tov4",
-            "Remove-NetFirewallRule -Name $RuleName, $BlockRuleName -ErrorAction Stop\n"
-            "netsh interface portproxy show v4tov4",
+            'if ($RemainingProxy) { throw "Portproxy entry remains; Firewall rules were retained" }',
             "protected exposure",
         ),
         (
