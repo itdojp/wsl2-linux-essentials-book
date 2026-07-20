@@ -486,26 +486,55 @@ sudo ln -s /etc/nginx/sites-available/mysite /etc/nginx/sites-enabled/
 # 5. package既定のwildcard待受を行うsymlinkをlocal演習では無効化
 sudo rm -f /etc/nginx/sites-enabled/default
 
+stop_nginx_fail_closed() {
+    if ! sudo systemctl stop nginx; then
+        echo "Failed to stop Nginx; disconnect from the network and stop it manually" >&2
+    fi
+}
+
 # 6. 設定テスト
-sudo nginx -t
+if ! sudo nginx -t; then
+    echo "Nginx configuration test failed" >&2
+    stop_nginx_fail_closed
+    exit 1
+fi
 
 # 7. 検証済み設定をactive processへ反映
 # 既に起動中ならreloadし、inactiveならstartする
 if systemctl is-active --quiet nginx; then
-    sudo systemctl reload nginx
+    if ! sudo systemctl reload nginx; then
+        echo "Failed to reload Nginx" >&2
+        stop_nginx_fail_closed
+        exit 1
+    fi
 else
-    sudo systemctl start nginx
+    if ! sudo systemctl start nginx; then
+        echo "Failed to start Nginx" >&2
+        stop_nginx_fail_closed
+        exit 1
+    fi
+fi
+if ! systemctl is-active --quiet nginx; then
+    echo "Nginx is not active after applying the configuration" >&2
+    stop_nginx_fail_closed
+    exit 1
 fi
 
 # 8. 待受addressを検査し、loopback以外が残っていれば停止
-ListenerOutput=$(sudo ss -H -ltn '( sport = :80 )')
+if ! ListenerOutput=$(sudo ss -H -ltn '( sport = :80 )'); then
+    echo "Failed to inspect the port 80 listener" >&2
+    stop_nginx_fail_closed
+    exit 1
+fi
 printf '%s\n' "$ListenerOutput"
 if ! awk '$4 == "127.0.0.1:80" { found=1 } END { exit(found ? 0 : 1) }' <<<"$ListenerOutput"; then
     echo "Expected Nginx to listen on 127.0.0.1:80" >&2
+    stop_nginx_fail_closed
     exit 1
 fi
 if awk '$4 != "127.0.0.1:80" { found=1 } END { exit(found ? 0 : 1) }' <<<"$ListenerOutput"; then
     echo "Unexpected non-loopback Nginx listener remains" >&2
+    stop_nginx_fail_closed
     exit 1
 fi
 curl --fail http://127.0.0.1/
@@ -515,7 +544,7 @@ curl --fail http://127.0.0.1/
 # 127.0.0.1 mysite.local
 ```
 
-上の検査は`127.0.0.1:80`が存在しない場合、またはwildcard、IPv6 loopback、特定LAN IPv4を含む`127.0.0.1:80`以外の待受が1件でも残る場合に失敗します。失敗時は公開範囲を確認し、設定を見直してください。この例はlocal学習用です。LANへ公開する場合は[第4章のLAN公開runbook](../chapter4/#wsl-lan-publication)を別途実施します。
+上の検査は設定test・reload/start・active状態・待受取得のいずれかが失敗した場合、`127.0.0.1:80`が存在しない場合、またはwildcard、IPv6 loopback、特定LAN IPv4を含む`127.0.0.1:80`以外の待受が1件でも残る場合にNginxの停止を試みて終了します。停止自体が失敗した場合はネットワークから切断し、processを手動で停止してから設定を見直してください。この例はlocal学習用です。LANへ公開する場合は[第4章のLAN公開runbook](../chapter4/#wsl-lan-publication)を別途実施します。
 
 ### パフォーマンス監視
 
