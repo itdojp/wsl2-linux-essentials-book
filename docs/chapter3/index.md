@@ -393,17 +393,17 @@ journalctl -b -1  # 前回のブート
 sudo apt update
 sudo apt install nginx -y
 
-# 2. 状態確認
+# 2. package既定設定のまま公開しないよう、設定作業中は停止
+sudo systemctl stop nginx
+
+# 3. 状態確認（設定作業中はinactiveが期待値）
 systemctl status nginx
 
-# 3. 設定ファイル構造
+# 4. 設定ファイル構造
 ls -la /etc/nginx/
 # nginx.conf         - メイン設定
 # sites-available/   - 利用可能サイト設定
 # sites-enabled/     - 有効化されたサイト
-
-# 4. デフォルトページ確認
-curl http://localhost
 ```
 
 ### 仮想ホスト設定
@@ -431,8 +431,8 @@ sudo nano /etc/nginx/sites-available/mysite
 
 ```nginx
 server {
-    listen 80;
-    listen [::]:80;
+    # この章のlocal演習ではWSL内のloopbackだけで待ち受ける
+    listen 127.0.0.1:80;
     
     server_name mysite.local;
     root /var/www/mysite;
@@ -451,16 +451,25 @@ server {
 # 4. サイト有効化
 sudo ln -s /etc/nginx/sites-available/mysite /etc/nginx/sites-enabled/
 
-# 5. 設定テスト
+# 5. package既定のwildcard待受を行うsymlinkをlocal演習では無効化
+sudo rm -f /etc/nginx/sites-enabled/default
+
+# 6. 設定テスト
 sudo nginx -t
 
-# 6. Nginx再起動
-sudo systemctl reload nginx
+# 7. 検証済み設定でNginxを起動
+sudo systemctl start nginx
 
-# 7. hosts編集（Windows 側）
+# 8. 実際の待受addressとlocal疎通を確認
+sudo ss -ltnp '( sport = :80 )'
+curl --fail http://127.0.0.1/
+
+# 9. hosts編集（Windows 側）
 # C:\Windows\System32\drivers\etc\hosts に追加
 # 127.0.0.1 mysite.local
 ```
+
+`ss`のLocal Addressが`127.0.0.1:80`であることを確認します。`0.0.0.0:80`や`[::]:80`なら全interface待受が残っているため、公開範囲を確認してから設定を見直してください。この例はlocal学習用です。LANへ公開する場合は[第4章のLAN公開runbook](../chapter4/#wsl-lan-publication)を別途実施します。
 
 ### パフォーマンス監視
 
