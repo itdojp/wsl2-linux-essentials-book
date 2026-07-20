@@ -50,6 +50,7 @@ systemd は、Linux のサービスを管理するマネージャーです。Win
 現在の `wsl --install` で導入される Ubuntu では systemd が既定です。既存環境や他のディストリビューションでは無効の場合があるため、設定変更の前に PID 1 を確認します。
 
 ### 有効化手順
+{: #wsl-systemd-service-management}
 
 ```bash
 # 1. 現在の init を確認（systemd なら以降の変更は不要）
@@ -90,7 +91,9 @@ sudo service nginx start
 sudo service mysql start
 ```
 
-これは現在のセッションでの手動起動です。`.bashrc` に `sudo service ... start` を追加すると、シェルを開くたびに権限昇格とサービス起動を試みるため、本書では自動起動の代替として使用しません。自動起動が必要なら systemd を有効にし、対象サービスの unit と公開範囲を確認します。
+これは現在の WSL instance での手動起動です。`.bashrc` に `sudo service ... start` を追加すると、シェルを開くたびに権限昇格とサービス起動を試みるため、本書では自動起動の代替として使用しません。自動起動が必要なら systemd を有効にし、対象サービスの unit と公開範囲を確認します。
+
+systemd service だけを起動しても、WSL instance は常時稼働になりません。Microsoft Learn が説明するように、systemd service は WSL instance のライフサイクルを延長しないため、WSL を常駐サーバーとして扱わないでください。cron の具体的な起動・状態確認は[第5章「WSL2 でのcron設定」](../chapter5/#wsl-cron-service-management)で扱います。
 
 ## 3.2 プロセスの概念と管理
 
