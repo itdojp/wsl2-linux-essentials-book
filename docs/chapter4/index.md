@@ -139,6 +139,10 @@ if (Get-NetFirewallRule -Name $RuleName -ErrorAction SilentlyContinue) { throw "
 $ListenInterface = Get-NetIPAddress -AddressFamily IPv4 -IPAddress $ListenAddress -ErrorAction Stop
 $ListenProfile = Get-NetConnectionProfile -InterfaceIndex $ListenInterface.InterfaceIndex -ErrorAction Stop
 if ($ListenProfile.NetworkCategory -ne "Private") { throw "The listen interface must use the Private profile" }
+$PrivateFirewallProfile = Get-NetFirewallProfile -PolicyStore ActiveStore -Name Private -ErrorAction Stop
+if ($PrivateFirewallProfile.Enabled.ToString() -cne "True") { throw "Windows Private Firewall must be enabled" }
+if ($PrivateFirewallProfile.DefaultInboundAction.ToString() -cne "Block") { throw "Windows Private Firewall default inbound action must be Block" }
+if ($PrivateFirewallProfile.AllowLocalFirewallRules.ToString() -cne "True") { throw "Windows Private Firewall must allow local rules" }
 
 # 既存proxyを引き継いだり削除したりしないよう、同じlisten endpointが未使用であることを確認
 $PortProxyRows = netsh interface portproxy show v4tov4
@@ -207,7 +211,10 @@ if (-not [System.Net.IPAddress]::TryParse($AllowedRemote, [ref]$HvAllowedRemoteA
     throw "Mirrored AllowedRemote must be exactly one dotted-decimal IPv4 address"
 }
 Get-NetFirewallHyperVVMSetting -PolicyStore ActiveStore -VMCreatorId $WslVmCreatorId
-Get-NetFirewallHyperVProfile -PolicyStore ActiveStore
+$HvPrivateProfile = Get-NetFirewallHyperVProfile -PolicyStore ActiveStore -Name $WslVmCreatorId -Profile Private -ErrorAction Stop
+if ($HvPrivateProfile.Enabled.ToString() -cne "True") { throw "Hyper-V Private Firewall must be enabled" }
+if ($HvPrivateProfile.DefaultInboundAction.ToString() -cne "Block") { throw "Hyper-V Private Firewall default inbound action must be Block" }
+if ($HvPrivateProfile.AllowLocalFirewallRules.ToString() -cne "True") { throw "Hyper-V Private Firewall must allow local rules" }
 if (Get-NetFirewallHyperVRule -Name $HvRuleName -ErrorAction SilentlyContinue) { throw "RuleName already exists" }
 $HvFirewallParams = @{
     Name = $HvRuleName
@@ -239,7 +246,9 @@ rule削除後にWSL側serverも`Ctrl+C`で終了し、許可していたLAN clie
 - [Configure Hyper-V firewall](https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/hyper-v-firewall): WSL VMCreatorId、ActiveStore、profile、個別ruleの確認方法を確認しました。
 - [Get-NetFirewallHyperVVMSetting](https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallhypervvmsetting): VM設定の`Name` parameterに`VMCreatorId` aliasがあり、VM creator IDを明示して取得できることを確認しました。
 - [New-NetFirewallRule](https://learn.microsoft.com/en-us/powershell/module/netsecurity/new-netfirewallrule) / [Remove-NetFirewallRule](https://learn.microsoft.com/en-us/powershell/module/netsecurity/remove-netfirewallrule): 一意なName、address/profile条件、個別rule削除を確認しました。
+- [Get-NetFirewallProfile](https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallprofile): Windows FirewallのActiveStoreにおける有効状態、既定inbound action、local rule mergeを確認しました。
 - [New-NetFirewallHyperVRule](https://learn.microsoft.com/en-us/powershell/module/netsecurity/new-netfirewallhypervrule) / [Remove-NetFirewallHyperVRule](https://learn.microsoft.com/en-us/powershell/module/netsecurity/remove-netfirewallhypervrule): `RemoteAddresses`、`Profiles`、一意なNameによる作成・削除を確認しました。
+- [Get-NetFirewallHyperVProfile](https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallhypervprofile): WSL VMCreatorIdのPrivate profileについて、ActiveStoreの有効状態、既定inbound action、local rule mergeを確認しました。
 - [NGINX `listen` directive](https://nginx.org/en/docs/http/ngx_http_core_module.html#listen): addressを指定したsocketの待受範囲を確認しました。
 - [Python `http.server --bind`](https://docs.python.org/3/library/http.server.html#cmdoption-http-server-bind): command lineで待受addressを明示する方法を確認しました。
 - [Node.js `net.Server.listen`](https://nodejs.org/api/net.html#serverlisten): host省略時はIPv6 `::`またはIPv4 `0.0.0.0`で待ち受けるため、local例ではhostを省略しません。
