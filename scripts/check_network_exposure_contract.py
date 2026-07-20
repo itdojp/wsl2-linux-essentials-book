@@ -206,6 +206,8 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
         "https://nginx.org/en/docs/http/ngx_http_core_module.html#listen",
         "https://docs.python.org/3/library/http.server.html#cmdoption-http-server-bind",
         "https://nodejs.org/api/net.html#serverlisten",
+        "Node.js 20 は 2026-04-30 に EOL",
+        "https://github.com/nodejs/release#release-schedule",
     ]:
         require(chapter4, token, "chapter 4 protected exposure")
 
@@ -230,6 +232,7 @@ def check_source(snapshot: Snapshot, root: Path = ROOT, check_workflow: bool = T
         r"^\s*Remove-NetFirewallRule\s*$",
         r"^\s*Remove-NetFirewallHyperVRule\s*$",
         r"Get-NetFirewallHyperVVMSetting[^\n]*\s-Name\s+\$WslVmCreatorId",
+        r"Node\.js 20 は 2026-03-24 に EOL",
     ]:
         reject(combined, pattern, "unsafe network guidance")
 
@@ -330,6 +333,7 @@ def check_built(snapshot: Snapshot) -> None:
         'Profiles = "Private"',
         "Remove-NetFirewallHyperVRule -Name $HvRuleName -ErrorAction Stop",
         "Network Exposure Source Notes（確認日: 2026-07-20）",
+        "Node.js 20 は 2026-04-30 に EOL",
     ]:
         require(chapter4_html if token.startswith("id=") else chapter4, token, "built chapter 4")
     combined = chapter3 + "\n" + chapter4
@@ -346,6 +350,7 @@ def check_built(snapshot: Snapshot) -> None:
         r"^\s*Remove-NetFirewallRule\s*$",
         r"^\s*Remove-NetFirewallHyperVRule\s*$",
         r"Get-NetFirewallHyperVVMSetting[^\n]*\s-Name\s+\$WslVmCreatorId",
+        r"Node\.js 20 は 2026-03-24 に EOL",
     ]:
         reject(combined, pattern, "built unsafe network guidance")
     print("Built WSL network exposure contract passed (2 pages).")
@@ -533,6 +538,13 @@ def self_test() -> None:
         ),
         ("missing remote address", "chapter4", "RemoteAddress = $AllowedRemote", "RemotePort = 443", "protected exposure"),
         ("broad Windows profile", "chapter4", 'Profile = "Private"', 'Profile = "Any"', "protected exposure"),
+        (
+            "stale Node.js 20 EOL date",
+            "chapter4",
+            "Node.js 20 は 2026-04-30 に EOL",
+            "Node.js 20 は 2026-03-24 に EOL",
+            "protected exposure",
+        ),
         (
             "missing Windows blocking baseline",
             "chapter4",

@@ -252,6 +252,7 @@ rule削除後にWSL側serverも`Ctrl+C`で終了し、許可していたLAN clie
 - [NGINX `listen` directive](https://nginx.org/en/docs/http/ngx_http_core_module.html#listen): addressを指定したsocketの待受範囲を確認しました。
 - [Python `http.server --bind`](https://docs.python.org/3/library/http.server.html#cmdoption-http-server-bind): command lineで待受addressを明示する方法を確認しました。
 - [Node.js `net.Server.listen`](https://nodejs.org/api/net.html#serverlisten): host省略時はIPv6 `::`またはIPv4 `0.0.0.0`で待ち受けるため、local例ではhostを省略しません。
+- [Node.js release schedule](https://github.com/nodejs/release#release-schedule): Node.js 20のEOLが2026-04-30であることを確認しました。
 
 ### ネットワーク設定ファイル
 
@@ -473,7 +474,7 @@ python3 -m http.server --bind 127.0.0.1 --cgi 8000
 
 ### Node.js HTTP サーバー（オプション）
 
-この例はサポート中の Node.js 24 LTS を前提とします。Node.js 20 は 2026-03-24 に EOL となりました。未導入または EOL 版の場合は、Node.js 公式のインストール案内から環境に合う方法を選び、署名・配布元を確認してください。
+この例はサポート中の Node.js 24 LTS を前提とします。Node.js 20 は 2026-04-30 に EOL となりました。未導入または EOL 版の場合は、Node.js 公式のインストール案内から環境に合う方法を選び、署名・配布元を確認してください。
 
 ```bash
 # サポート中の版であることを確認
