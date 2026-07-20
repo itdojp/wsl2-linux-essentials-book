@@ -400,11 +400,20 @@ if [ -e /usr/sbin/policy-rc.d ]; then
 fi
 
 cleanup_policy_rcd() {
-    sudo rm -f /usr/sbin/policy-rc.d
+    if ! sudo rm -f /usr/sbin/policy-rc.d; then
+        echo "Failed to remove temporary /usr/sbin/policy-rc.d" >&2
+        return 1
+    fi
 }
 trap cleanup_policy_rcd EXIT
-printf '%s\n' '#!/bin/sh' 'exit 101' | sudo tee /usr/sbin/policy-rc.d >/dev/null
-sudo chmod 0755 /usr/sbin/policy-rc.d
+if ! printf '%s\n' '#!/bin/sh' 'exit 101' | sudo tee /usr/sbin/policy-rc.d >/dev/null; then
+    echo "Failed to write temporary /usr/sbin/policy-rc.d; abort before apt install" >&2
+    exit 1
+fi
+if ! sudo chmod 0755 /usr/sbin/policy-rc.d; then
+    echo "Failed to make temporary /usr/sbin/policy-rc.d executable; abort before apt install" >&2
+    exit 1
+fi
 
 # 3. 自動起動を拒否した状態でinstall。失敗時のexitでtrapがcleanupする
 if ! sudo apt install nginx -y; then
@@ -412,8 +421,11 @@ if ! sudo apt install nginx -y; then
     exit 1
 fi
 
-# install成否にかかわらずtrapが削除する。成功時はここで明示的に解除
-cleanup_policy_rcd
+# install成否にかかわらずtrapが削除する。成功時はここで明示的に解除し、削除失敗時も停止
+if ! cleanup_policy_rcd; then
+    echo "Temporary policy cleanup failed; stop before configuring Nginx" >&2
+    exit 1
+fi
 trap - EXIT
 
 # 4. 状態確認（設定作業中はinactiveが期待値）
@@ -480,17 +492,25 @@ server {
 ```
 
 ```bash
-# 4. サイト有効化
-sudo ln -s /etc/nginx/sites-available/mysite /etc/nginx/sites-enabled/
-
-# 5. package既定のwildcard待受を行うsymlinkをlocal演習では無効化
-sudo rm -f /etc/nginx/sites-enabled/default
-
 stop_nginx_fail_closed() {
     if ! sudo systemctl stop nginx; then
         echo "Failed to stop Nginx; disconnect from the network and stop it manually" >&2
     fi
 }
+
+# 4. サイト有効化
+if ! sudo ln -sfn /etc/nginx/sites-available/mysite /etc/nginx/sites-enabled/mysite; then
+    echo "Failed to enable the mysite configuration" >&2
+    stop_nginx_fail_closed
+    exit 1
+fi
+
+# 5. package既定のwildcard待受を行うsymlinkをlocal演習では無効化
+if ! sudo rm -f /etc/nginx/sites-enabled/default; then
+    echo "Failed to disable the package-default Nginx site" >&2
+    stop_nginx_fail_closed
+    exit 1
+fi
 
 # 6. 設定テスト
 if ! sudo nginx -t; then
