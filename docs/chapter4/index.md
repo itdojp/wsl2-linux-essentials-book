@@ -129,6 +129,12 @@ $AllowedRemote = Read-Host "One allowed LAN client IPv4"
 $WslAddress = (wsl.exe -d $Distro hostname -I).Trim().Split(' ')[0]
 
 if ($ListenAddress -eq "0.0.0.0") { throw "Use one Windows LAN IPv4" }
+$NatAllowedRemoteAddress = $null
+if (-not [System.Net.IPAddress]::TryParse($AllowedRemote, [ref]$NatAllowedRemoteAddress) -or
+    $NatAllowedRemoteAddress.AddressFamily -ne [System.Net.Sockets.AddressFamily]::InterNetwork -or
+    $NatAllowedRemoteAddress.ToString() -cne $AllowedRemote) {
+    throw "NAT AllowedRemote must be exactly one dotted-decimal IPv4 address"
+}
 if (Get-NetFirewallRule -Name $RuleName -ErrorAction SilentlyContinue) { throw "RuleName already exists" }
 $ListenInterface = Get-NetIPAddress -AddressFamily IPv4 -IPAddress $ListenAddress -ErrorAction Stop
 $ListenProfile = Get-NetConnectionProfile -InterfaceIndex $ListenInterface.InterfaceIndex -ErrorAction Stop
@@ -194,6 +200,12 @@ $HvRuleName = "WSL2-Lab-Mirrored-TCP-8080"
 $WslVmCreatorId = "{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}"
 $AllowedRemote = Read-Host "One allowed LAN client IPv4"
 
+$HvAllowedRemoteAddress = $null
+if (-not [System.Net.IPAddress]::TryParse($AllowedRemote, [ref]$HvAllowedRemoteAddress) -or
+    $HvAllowedRemoteAddress.AddressFamily -ne [System.Net.Sockets.AddressFamily]::InterNetwork -or
+    $HvAllowedRemoteAddress.ToString() -cne $AllowedRemote) {
+    throw "Mirrored AllowedRemote must be exactly one dotted-decimal IPv4 address"
+}
 Get-NetFirewallHyperVVMSetting -PolicyStore ActiveStore -Name $WslVmCreatorId
 Get-NetFirewallHyperVProfile -PolicyStore ActiveStore
 if (Get-NetFirewallHyperVRule -Name $HvRuleName -ErrorAction SilentlyContinue) { throw "RuleName already exists" }
