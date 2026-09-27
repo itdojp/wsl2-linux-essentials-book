@@ -108,8 +108,9 @@ class SearchScriptParser(HTMLParser):
     def handle_endtag(self, tag) -> None:
         if tag in self.inert:
             # Only the bounded unsupported-container stack is tracked.
-            index = len(self.inert) - 1 - self.inert[::-1].index(tag)
-            del self.inert[index:]
+            if self.inert[-1] != tag:
+                raise ValueError("out-of-order unsupported-container closing tag")
+            self.inert.pop()
 
     def handle_startendtag(self, tag, attrs) -> None:
         if tag in self.INERT - {"svg", "math"}:
@@ -172,6 +173,7 @@ def self_test(data: bytes) -> None:
                   '</select>' + SCRIPT_REFERENCE))
     for attribute in ('type="hidden"', 'type="checkbox"', 'disabled', 'readonly'):
         cases.append((check_layout, layout.replace('<input ', f'<input {attribute} ')))
+    cases.append((check_layout, '<template><svg></template>' + layout))
     for check, value in cases:
         try:
             check(value)
