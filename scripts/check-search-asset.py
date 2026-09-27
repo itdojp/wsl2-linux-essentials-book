@@ -7,6 +7,7 @@ An intentional update needs an audited source, behavioral review, and a new
 checksum. This byte gate complements that review; it is not a DOM simulator.
 """
 import argparse
+import base64
 import hashlib
 import sys
 from html.parser import HTMLParser
@@ -44,13 +45,15 @@ class SearchScriptParser(HTMLParser):
     def handle_starttag(self, tag, attrs) -> None:
         active = not self.inert
         sources = [value or "" for key, value in attrs if key == "src"]
-        search_script = tag == "script" and any("search.js" in unquote(value) for value in sources)
+        search_script = tag == "script" and any("search.js" in unquote(value).translate(str.maketrans("", "", "\t\r\n")) for value in sources)
         integration = any((key == "id" and value in self.ids) or
                           (key == "class" and "page-content" in (value or "").split())
                           for key, value in attrs)
         names = [key for key, _ in attrs]
         if (integration or search_script) and len(names) != len(set(names)):
             raise ValueError("search integration attributes must be unique")
+        if integration and tag in self.INERT:
+            raise ValueError("critical integration markers cannot identify unsupported containers")
         if tag in self.INERT:
             self.inert.append(tag)
         if not active:
@@ -66,6 +69,19 @@ class SearchScriptParser(HTMLParser):
             expected = "{{ '/assets/js/search.js' | relative_url }}"
             if sources != [expected] or "defer" not in names:
                 raise ValueError("search script requires canonical src, defer, and unique attributes")
+            # Finite deferred-classic load contract. Execution-affecting options
+            # need an explicit audit, not a claim of general browser emulation.
+            allowed = {"src", "defer", "type", "integrity", "crossorigin", "id", "class", "title"}
+            if any(name not in allowed and not name.startswith(("data-", "aria-")) for name in names):
+                raise ValueError("unsupported search script attribute; re-audit load behavior")
+            if "type" in values and values["type"] not in ("text/javascript", "application/javascript"):
+                raise ValueError("search asset must be a classic JavaScript script")
+            if "integrity" in values:
+                expected_sri = "sha256-" + base64.b64encode(bytes.fromhex(EXPECTED_SHA256)).decode("ascii")
+                if values["integrity"] != expected_sri:
+                    raise ValueError("search integrity must match the audited bytes")
+            if "crossorigin" in values and values["crossorigin"] not in (None, "", "anonymous"):
+                raise ValueError("unsupported search crossorigin mode")
             self.references += 1
             return
         if tag in self.INERT:
@@ -98,6 +114,8 @@ def check_layout(text: str) -> None:
     parser = SearchScriptParser()
     parser.feed(text)
     parser.close()
+    if parser.inert:
+        raise ValueError("unterminated inert/script container in source layout")
     if parser.references != 1:
         raise ValueError("book layout must load the reviewed search asset exactly once")
     if any(count != 1 for count in parser.ids.values()) or parser.content != 1:
@@ -136,6 +154,12 @@ def self_test(data: bytes) -> None:
     cases.append((check_layout, '<svg><g id="search-results"></g></svg>' + layout))
     cases.append((check_layout, layout.replace('id="search-input"', 'id="unused" id="search-input"')))
     cases.append((check_layout, layout.replace('class="page-content"', 'class="unused" class="page-content"')))
+    cases.append((check_layout, layout.replace('</script>', '')))
+    cases.append((check_layout, layout + '<script defer src="/assets/js/search.j&#10;s"></script>'))
+    for attribute in ('async', 'nomodule', 'type="application/json"', 'integrity="sha256-invalid"'):
+        cases.append((check_layout, layout.replace(SCRIPT_REFERENCE,
+                      SCRIPT_REFERENCE.replace('<script ', f'<script {attribute} '))))
+    cases.append((check_layout, layout + '<script id="search-input"></script>'))
     for check, value in cases:
         try:
             check(value)
@@ -150,7 +174,9 @@ def self_test(data: bytes) -> None:
         check_layout(layout.replace(SCRIPT_REFERENCE, equivalent)
                      .replace('id="search-input"', "id='search-input'")
                      .replace('class="page-content"', 'class="reader page-content"'))
-    print(f"Search asset self-test passed ({len(cases)} negative mutations; 2 equivalent-layout positives).")
+    sri = "sha256-" + base64.b64encode(bytes.fromhex(EXPECTED_SHA256)).decode("ascii")
+    check_layout(layout.replace(SCRIPT_REFERENCE, SCRIPT_REFERENCE.replace('<script ', f'<script integrity="{sri}" ')))
+    print(f"Search asset self-test passed ({len(cases)} negative mutations; 3 equivalent-layout positives).")
 
 
 def main() -> None:
