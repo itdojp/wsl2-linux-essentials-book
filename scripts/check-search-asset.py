@@ -43,20 +43,28 @@ class SearchScriptParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs) -> None:
         active = not self.inert
+        sources = [value or "" for key, value in attrs if key == "src"]
+        search_script = tag == "script" and any("search.js" in unquote(value) for value in sources)
+        integration = any((key == "id" and value in self.ids) or
+                          (key == "class" and "page-content" in (value or "").split())
+                          for key, value in attrs)
+        names = [key for key, _ in attrs]
+        if (integration or search_script) and len(names) != len(set(names)):
+            raise ValueError("search integration attributes must be unique")
         if tag in self.INERT:
             self.inert.append(tag)
         if not active:
+            if integration or search_script:
+                raise ValueError("search integration inside unsupported containers is forbidden")
             return
         values = dict(attrs)
         if tag == "script":
             # Reject alternative literal/Liquid spellings, rather than guessing
             # their runtime equivalence; they must not hide a second load.
-            sources = [value or "" for key, value in attrs if key == "src"]
-            if not any("search.js" in unquote(value) for value in sources):
+            if not search_script:
                 return
             expected = "{{ '/assets/js/search.js' | relative_url }}"
-            names = [key for key, _ in attrs]
-            if sources != [expected] or len(names) != len(set(names)) or "defer" not in names:
+            if sources != [expected] or "defer" not in names:
                 raise ValueError("search script requires canonical src, defer, and unique attributes")
             self.references += 1
             return
@@ -124,6 +132,10 @@ def self_test(data: bytes) -> None:
                   '<img id="search-results">')))
     cases.append((check_layout, layout.replace('<main class="page-content"></main>',
                   '<input class="page-content">')))
+    cases.append((check_layout, layout + '<template>' + SCRIPT_REFERENCE + '</template>'))
+    cases.append((check_layout, '<svg><g id="search-results"></g></svg>' + layout))
+    cases.append((check_layout, layout.replace('id="search-input"', 'id="unused" id="search-input"')))
+    cases.append((check_layout, layout.replace('class="page-content"', 'class="unused" class="page-content"')))
     for check, value in cases:
         try:
             check(value)
