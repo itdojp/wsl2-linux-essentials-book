@@ -30,7 +30,7 @@ class SearchScriptParser(HTMLParser):
     # A bounded source-layout guard, not a Liquid/JavaScript/browser evaluator.
     # Integration inside raw-text, inert, or non-HTML containers is unsupported.
     INERT = {"template", "noscript", "textarea", "title", "style", "script",
-             "xmp", "iframe", "noembed", "noframes", "plaintext", "svg", "math"}
+             "xmp", "iframe", "noembed", "noframes", "plaintext", "svg", "math", "select"}
 
     VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input",
             "link", "meta", "param", "source", "track", "wbr"}
@@ -90,6 +90,13 @@ class SearchScriptParser(HTMLParser):
         if ident in self.ids:
             if ident == "search-input" and tag != "input":
                 raise ValueError("search-input must be a live input element")
+            if ident == "search-input":
+                # This finite source contract supports only editable text/search
+                # inputs; actual visibility and usability are browser-tested.
+                if (values.get("type") or "text").lower() not in ("text", "search"):
+                    raise ValueError("search-input must have text or search type")
+                if "disabled" in values or "readonly" in values:
+                    raise ValueError("search-input must be editable")
             if ident == "search-results" and tag in self.VOID:
                 raise ValueError("search-results needs a non-void container")
             self.ids[ident] += 1
@@ -160,6 +167,11 @@ def self_test(data: bytes) -> None:
         cases.append((check_layout, layout.replace(SCRIPT_REFERENCE,
                       SCRIPT_REFERENCE.replace('<script ', f'<script {attribute} '))))
     cases.append((check_layout, layout + '<script id="search-input"></script>'))
+    cases.append((check_layout, '<select><div id="search-results"></div>'
+                  '<main class="page-content"></main><input id="search-input">'
+                  '</select>' + SCRIPT_REFERENCE))
+    for attribute in ('type="hidden"', 'type="checkbox"', 'disabled', 'readonly'):
+        cases.append((check_layout, layout.replace('<input ', f'<input {attribute} ')))
     for check, value in cases:
         try:
             check(value)
@@ -176,7 +188,9 @@ def self_test(data: bytes) -> None:
                      .replace('class="page-content"', 'class="reader page-content"'))
     sri = "sha256-" + base64.b64encode(bytes.fromhex(EXPECTED_SHA256)).decode("ascii")
     check_layout(layout.replace(SCRIPT_REFERENCE, SCRIPT_REFERENCE.replace('<script ', f'<script integrity="{sri}" ')))
-    print(f"Search asset self-test passed ({len(cases)} negative mutations; 3 equivalent-layout positives).")
+    for input_type in ("text", "search"):
+        check_layout(layout.replace('<input ', f'<input type="{input_type}" '))
+    print(f"Search asset self-test passed ({len(cases)} negative mutations; 5 equivalent-layout positives).")
 
 
 def main() -> None:
