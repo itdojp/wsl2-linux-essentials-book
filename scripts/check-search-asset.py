@@ -35,8 +35,9 @@ class SearchScriptParser(HTMLParser):
     VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input",
             "link", "meta", "param", "source", "track", "wbr"}
 
-    def __init__(self) -> None:
+    def __init__(self, script_src: str) -> None:
         super().__init__()
+        self.script_src = script_src
         self.references = 0
         self.inert = []
         self.ids = {"search-input": 0, "search-results": 0}
@@ -66,7 +67,7 @@ class SearchScriptParser(HTMLParser):
             # their runtime equivalence; they must not hide a second load.
             if not search_script:
                 return
-            expected = "{{ '/assets/js/search.js' | relative_url }}"
+            expected = self.script_src
             if sources != [expected] or "defer" not in names:
                 raise ValueError("search script requires canonical src, defer, and unique attributes")
             # Finite deferred-classic load contract. Execution-affecting options
@@ -118,8 +119,8 @@ class SearchScriptParser(HTMLParser):
         super().handle_startendtag(tag, attrs)
 
 
-def check_layout(text: str) -> None:
-    parser = SearchScriptParser()
+def check_layout(text: str, *, script_src: str = "{{ '/assets/js/search.js' | relative_url }}") -> None:
+    parser = SearchScriptParser(script_src)
     parser.feed(text)
     parser.close()
     if parser.inert:
@@ -128,6 +129,16 @@ def check_layout(text: str) -> None:
         raise ValueError("book layout must load the reviewed search asset exactly once")
     if any(count != 1 for count in parser.ids.values()) or parser.content != 1:
         raise ValueError("book layout needs one live search-input, search-results, and page-content")
+
+
+# Source parsing cannot evaluate Liquid. Check its actual build output too.
+BUILT_SCRIPT_SRC = "/wsl2-linux-essentials-book/assets/js/search.js"
+
+
+def check_built_site(site: Path) -> None:
+    check_asset((site / "assets/js/search.js").read_bytes())
+    check_layout((site / "index.html").read_text(encoding="utf-8"),
+                 script_src=BUILT_SCRIPT_SRC)
 
 
 def self_test(data: bytes) -> None:
@@ -192,18 +203,33 @@ def self_test(data: bytes) -> None:
     check_layout(layout.replace(SCRIPT_REFERENCE, SCRIPT_REFERENCE.replace('<script ', f'<script integrity="{sri}" ')))
     for input_type in ("text", "search"):
         check_layout(layout.replace('<input ', f'<input type="{input_type}" '))
-    print(f"Search asset self-test passed ({len(cases)} negative mutations; 5 equivalent-layout positives).")
+    rendered = layout.replace("{{ '/assets/js/search.js' | relative_url }}", BUILT_SCRIPT_SRC)
+    check_layout(rendered, script_src=BUILT_SCRIPT_SRC)
+    # Liquid may remove either the load or a required element. A post-build
+    # check must reject each absent marker, not guess Liquid semantics.
+    for marker in ('<input id="search-input">', '<div id="search-results"></div>',
+                   '<main class="page-content"></main>',
+                   SCRIPT_REFERENCE.replace("{{ '/assets/js/search.js' | relative_url }}", BUILT_SCRIPT_SRC)):
+        try:
+            check_layout(rendered.replace(marker, ""), script_src=BUILT_SCRIPT_SRC)
+        except ValueError:
+            continue
+        raise AssertionError("missing built integration marker was accepted")
+    print(f"Search asset self-test passed ({len(cases)} source negatives / 5 positives; 4 built negatives / 1 positive).")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--built-site", type=Path, help="Check actual Jekyll root HTML and asset bytes after rendering")
     args = parser.parse_args()
     data, layout = SOURCE.read_bytes(), LAYOUT.read_text(encoding="utf-8")
     check_asset(data)
     check_layout(layout)
     if args.self_test:
         self_test(data)
+    if args.built_site:
+        check_built_site(args.built_site)
     print("Reviewed search asset and layout integration passed.")
 
 

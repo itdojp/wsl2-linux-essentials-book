@@ -123,6 +123,9 @@ jobs:
           source: ./${{ steps.scan.outputs.dir }}
           destination: ./_site
 
+      - name: Reviewed search integration after Liquid rendering
+        run: python3 scripts/check-search-asset.py --built-site _site
+
       - name: WSL cron service contract (built site)
         run: python3 scripts/check_cron_service_contract.py --built-site _site
 
