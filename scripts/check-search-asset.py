@@ -31,6 +31,9 @@ class SearchScriptParser(HTMLParser):
     INERT = {"template", "noscript", "textarea", "title", "style", "script",
              "xmp", "iframe", "noembed", "noframes", "plaintext", "svg", "math"}
 
+    VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input",
+            "link", "meta", "param", "source", "track", "wbr"}
+
     def __init__(self) -> None:
         super().__init__()
         self.references = 0
@@ -63,8 +66,12 @@ class SearchScriptParser(HTMLParser):
         if ident in self.ids:
             if ident == "search-input" and tag != "input":
                 raise ValueError("search-input must be a live input element")
+            if ident == "search-results" and tag in self.VOID:
+                raise ValueError("search-results needs a non-void container")
             self.ids[ident] += 1
         if "page-content" in (values.get("class") or "").split():
+            if tag in self.VOID:
+                raise ValueError("page-content needs a non-void container")
             self.content += 1
 
     def handle_endtag(self, tag) -> None:
@@ -74,8 +81,8 @@ class SearchScriptParser(HTMLParser):
             del self.inert[index:]
 
     def handle_startendtag(self, tag, attrs) -> None:
-        if tag == "script":
-            raise ValueError("self-closing script tags are unsupported")
+        if tag in self.INERT - {"svg", "math"}:
+            raise ValueError("self-closing inert HTML containers are unsupported")
         super().handle_startendtag(tag, attrs)
 
 
@@ -111,6 +118,12 @@ def self_test(data: bytes) -> None:
         cases.append((check_layout, layout.replace(marker, '<!-- ' + marker + ' -->')))
     cases.append((check_layout, layout + '<input id="search-input">'))
     cases.append((check_layout, layout.replace('<input id="search-input">', '<div id="search-input"></div>')))
+    for container in ("template", "noscript"):
+        cases.append((check_layout, f"<{container}/>" + layout))
+    cases.append((check_layout, layout.replace('<div id="search-results"></div>',
+                  '<img id="search-results">')))
+    cases.append((check_layout, layout.replace('<main class="page-content"></main>',
+                  '<input class="page-content">')))
     for check, value in cases:
         try:
             check(value)
