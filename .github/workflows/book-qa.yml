@@ -111,6 +111,9 @@ jobs:
           name: layout-risk-report
           path: ${{ runner.temp }}/layout-risk-report.json
           if-no-files-found: ignore
+      - name: Reviewed DOM-safe search asset contract
+        run: python3 scripts/check-search-asset.py --self-test
+
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
