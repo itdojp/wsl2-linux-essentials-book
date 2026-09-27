@@ -111,6 +111,9 @@ jobs:
           name: layout-risk-report
           path: ${{ runner.temp }}/layout-risk-report.json
           if-no-files-found: ignore
+      - name: Reviewed DOM-safe search asset contract
+        run: python3 scripts/check-search-asset.py --self-test
+
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
@@ -119,6 +122,9 @@ jobs:
         with:
           source: ./${{ steps.scan.outputs.dir }}
           destination: ./_site
+
+      - name: Reviewed search integration after Liquid rendering
+        run: python3 scripts/check-search-asset.py --built-site _site
 
       - name: WSL cron service contract (built site)
         run: python3 scripts/check_cron_service_contract.py --built-site _site
